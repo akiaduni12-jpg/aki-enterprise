@@ -1,69 +1,1226 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { PRODUCTS, INITIAL_HERO_BANNERS } from "@/lib/mock-data";
+import { HeroBanner } from "@/types/ecommerce";
+import { getStoredBanners } from "@/lib/banner-store";
+import { formatGHS } from "@/lib/utils";
+import { useCart } from "@/context/cart-context";
+import { AuthenticQR } from "@/components/ui/authentic-qr";
+import {
+  ArrowRight,
+  ShoppingBag,
+  Heart,
+  Star,
+  QrCode,
+  Truck,
+  ShieldCheck,
+  Headphones,
+  RotateCcw,
+  Sparkles,
+  CreditCard,
+  CheckCircle2,
+  Zap,
+  Cpu,
+  BatteryCharging,
+  Smartphone,
+  ChevronRight,
+  ChevronLeft,
+  Award,
+  ThumbsUp,
+  Shield,
+  Laptop,
+} from "lucide-react";
+
+export default function HomePage() {
+  const { addToCart } = useCart();
+  const [activeSlide, setActiveSlide] = useState(0);
+  const [banners, setBanners] = useState<HeroBanner[]>(INITIAL_HERO_BANNERS);
+  const [phoneFilter, setPhoneFilter] = useState<"all" | "brand_new" | "uk_used">("all");
+  const [likedItems, setLikedItems] = useState<Record<string, boolean>>({});
+  const [addedToast, setAddedToast] = useState<string | null>(null);
+
+  // Sync Banners from Admin Banner Store
+  useEffect(() => {
+    const loadBanners = () => {
+      const active = getStoredBanners().filter((b) => b.is_active);
+      if (active.length > 0) {
+        setBanners(active);
+      }
+    };
+
+    loadBanners();
+    window.addEventListener("banners_updated", loadBanners);
+    return () => window.removeEventListener("banners_updated", loadBanners);
+  }, []);
+
+  // Auto-rotate Hero Banners
+  useEffect(() => {
+    if (banners.length <= 1) return;
+    const interval = setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % banners.length);
+    }, 6500);
+    return () => clearInterval(interval);
+  }, [banners.length]);
+
+  const toggleLike = (id: string) => {
+    setLikedItems((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const handleQuickAdd = (product: any, variant?: any) => {
+    const targetVariant = variant || product.variants[0];
+    addToCart(product, targetVariant);
+    setAddedToast(product.title);
+    setTimeout(() => setAddedToast(null), 2500);
+  };
+
+  // Categories list matching mockup exactly
+  const DISPLAY_CATEGORIES = [
+    {
+      name: "Mobile Phones",
+      slug: "smartphones",
+      count: "12+ models",
+      image: "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=300&q=80",
+    },
+    {
+      name: "Power Banks",
+      slug: "power-banks-chargers",
+      count: "Anker & PD",
+      image: "https://images.unsplash.com/photo-1609592807963-394ff0073289?auto=format&fit=crop&w=300&q=80",
+    },
+    {
+      name: "Audio & Earbuds",
+      slug: "audio-earbuds",
+      count: "ANC & Hi-Fi",
+      image: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=300&q=80",
+    },
+    {
+      name: "Chargers & Cables",
+      slug: "power-banks-chargers",
+      count: "GaN Fast Charge",
+      image: "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=300&q=80",
+    },
+    {
+      name: "Smart Watches",
+      slug: "smartwatches",
+      count: "Apple & WearOS",
+      image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=300&q=80",
+    },
+    {
+      name: "Phone Accessories",
+      slug: "power-banks-chargers",
+      count: "Cases & Glass",
+      image: "https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?auto=format&fit=crop&w=300&q=80",
+    },
+    {
+      name: "Computers & Laptops",
+      slug: "computer-accessories",
+      count: "RAM & SSDs",
+      image: "https://images.unsplash.com/photo-1588702547919-26089e690ecc?auto=format&fit=crop&w=300&q=80",
+    },
+    {
+      name: "Other Gadgets",
+      slug: "audio-earbuds",
+      count: "Speakers & Hubs",
+      image: "https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&w=300&q=80",
+    },
+  ];
+
+  // Specific products matching the mockup's featured row
+  const MOCKUP_PRODUCTS = [
+    {
+      id: "prod-iphone-16",
+      title: "iPhone 16 (128GB)",
+      slug: "apple-iphone-15-pro-max",
+      badge: "-15%",
+      badgeColor: "bg-orange-500",
+      rating: "4.8",
+      reviews: "2.5k",
+      price: 16499,
+      originalPrice: 19499,
+      image: "https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&w=500&q=80",
+      productRef: PRODUCTS[0],
+    },
+    {
+      id: "prod-galaxy-a55",
+      title: "Samsung Galaxy A55",
+      slug: "samsung-galaxy-s24-ultra",
+      badge: "New",
+      badgeColor: "bg-emerald-600",
+      rating: "4.7",
+      reviews: "1.8k",
+      price: 7499,
+      image: "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?auto=format&fit=crop&w=500&q=80",
+      productRef: PRODUCTS[2],
+    },
+    {
+      id: "prod-anker-20k",
+      title: "Anker Power Bank 20000mAh",
+      slug: "anker-20000mah-power-bank",
+      badge: "-20%",
+      badgeColor: "bg-orange-500",
+      rating: "4.7",
+      reviews: "982",
+      price: 599,
+      originalPrice: 749,
+      image: "https://images.unsplash.com/photo-1609592807963-394ff0073289?auto=format&fit=crop&w=500&q=80",
+      productRef: PRODUCTS[3],
+    },
+    {
+      id: "prod-airpods-pro",
+      title: "AirPods Pro (2nd Gen)",
+      slug: "oraimo-freepods-4-anc",
+      badge: "Best Seller",
+      badgeColor: "bg-indigo-600",
+      rating: "4.8",
+      reviews: "3.2k",
+      price: 3999,
+      originalPrice: 4699,
+      image: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=500&q=80",
+      productRef: PRODUCTS[4],
+    },
+    {
+      id: "prod-galaxy-watch6",
+      title: "Samsung Galaxy Watch6",
+      slug: "samsung-galaxy-s24-ultra",
+      badge: "-12%",
+      badgeColor: "bg-orange-500",
+      rating: "4.7",
+      reviews: "878",
+      price: 2999,
+      originalPrice: 3399,
+      image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=500&q=80",
+      productRef: PRODUCTS[2],
+    },
+  ];
+
+  // Dynamic Current Banner from Admin Banner Store
+  const currentBanner = banners[activeSlide % banners.length] || INITIAL_HERO_BANNERS[0];
+
+  // Filtered Smartphones List
+  const SMARTPHONES_LIST = PRODUCTS.filter((p) => p.category_slug === "smartphones").filter((p) => {
+    if (phoneFilter === "all") return true;
+    return p.variants.some((v) => v.condition === phoneFilter);
+  });
+
+  // Audio & Wearables
+  const AUDIO_WEARABLES = PRODUCTS.filter(
+    (p) => p.category_slug === "audio-earbuds" || p.category_slug === "smartwatches"
+  );
+
+  // Computer & Upgrades
+  const COMPUTER_UPGRADES = PRODUCTS.filter((p) => p.category_slug === "computer-accessories");
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="space-y-14 pb-20 bg-[#F8FAFC]">
+      {/* Toast Notification */}
+      {addedToast && (
+        <div className="fixed bottom-6 right-6 z-50 bg-[#171717] text-white px-5 py-3 rounded-2xl shadow-2xl border border-white/10 flex items-center gap-3 animate-in fade-in slide-in-from-bottom-4 duration-200">
+          <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+            <CheckCircle2 className="w-4 h-4" />
+          </div>
+          <div className="text-xs">
+            <span className="font-bold text-white block">Added to your cart!</span>
+            <span className="text-gray-400 line-clamp-1">{addedToast}</span>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
+      )}
+
+      {/* ============================================================== */}
+      {/* 1. HERO SECTION: DUAL PANEL (Desktop Mockup Exact Architecture)  */}
+      {/* ============================================================== */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-5">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+          {/* LEFT MAIN HERO BANNER (approx 68% width - 8 Cols) */}
+          <div className="lg:col-span-8 relative rounded-3xl bg-[#171717] text-white p-7 sm:p-10 overflow-hidden flex flex-col justify-between shadow-xl min-h-[460px] group">
+            {/* Background Orange Wave & Energy Light Vortex */}
+            <div
+              className="absolute top-0 right-0 w-[550px] h-[550px] rounded-full blur-3xl opacity-25 pointer-events-none transition-all duration-700"
+              style={{ backgroundColor: currentBanner.accent_color || "#F26A00" }}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            <div className="absolute -bottom-20 -left-20 w-[400px] h-[400px] bg-[#F26A00]/15 rounded-full blur-3xl pointer-events-none" />
+
+            {/* Glowing Abstract Arc SVG Overlay */}
+            <svg
+              className="absolute inset-0 w-full h-full object-cover pointer-events-none opacity-40"
+              viewBox="0 0 800 480"
+              fill="none"
+            >
+              <circle cx="580" cy="240" r="180" stroke="#FF8A24" strokeWidth="1" strokeOpacity="0.4" strokeDasharray="4 8" />
+              <circle cx="580" cy="240" r="280" stroke="#F26A00" strokeWidth="1.5" strokeOpacity="0.25" />
+              <path
+                d="M 300 0 C 480 180, 520 320, 800 440"
+                stroke="#FF8A24"
+                strokeWidth="2.5"
+                strokeOpacity="0.6"
+              />
+              <path
+                d="M 240 0 C 440 220, 500 360, 780 480"
+                stroke="#F26A00"
+                strokeWidth="1.5"
+                strokeOpacity="0.4"
+                strokeDasharray="6 6"
+              />
+            </svg>
+
+            {/* Content Top */}
+            <div className="relative z-10 max-w-md space-y-4">
+              {/* Premium Electronics Pill Badge */}
+              <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white/10 border border-white/20 text-[#FF8A24] text-xs font-bold tracking-wide">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>{currentBanner.badge}</span>
+              </div>
+
+              {/* Main Headline */}
+              <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-[1.1] text-white transition-all duration-500">
+                {currentBanner.title}
+              </h1>
+
+              {/* Subtitle */}
+              <p className="text-xs sm:text-sm text-gray-300 leading-relaxed max-w-sm">
+                {currentBanner.subtitle}
+              </p>
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center gap-3 pt-2">
+                <Link
+                  href={currentBanner.cta_link}
+                  className="px-6 py-3 rounded-full bg-gradient-to-r from-[#F26A00] to-[#FF8A24] hover:from-[#d95e00] hover:to-[#F26A00] text-white font-bold text-xs shadow-lg shadow-orange-600/30 flex items-center gap-2 transition active:scale-95"
+                >
+                  <span>{currentBanner.cta_text}</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+                {currentBanner.secondary_cta_text && (
+                  <Link
+                    href={currentBanner.secondary_cta_link || "/products"}
+                    className="px-6 py-3 rounded-full bg-white/10 hover:bg-white/15 text-white border border-white/20 font-bold text-xs transition"
+                  >
+                    {currentBanner.secondary_cta_text}
+                  </Link>
+                )}
+              </div>
+            </div>
+
+            {/* Product Photography Cluster with Admin-Uploaded Image */}
+            <div className="hidden sm:block absolute right-4 bottom-4 md:right-8 md:bottom-8 w-[380px] h-[300px] pointer-events-none">
+              <div className="relative w-full h-full">
+                {/* Main Prominent Banner Product Image */}
+                <div className="absolute right-0 bottom-0 w-64 h-72 rounded-2xl overflow-hidden shadow-2xl border-2 border-white/10">
+                  <Image
+                    src={currentBanner.image_url}
+                    alt={currentBanner.title}
+                    fill
+                    className="object-cover"
+                    priority
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                </div>
+
+                {/* Sub Accents */}
+                <div className="absolute right-48 bottom-4 w-28 h-32 rounded-xl overflow-hidden shadow-xl border border-white/10">
+                  <Image
+                    src="https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=400&q=80"
+                    alt="Wireless Earbuds"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Slider Controls (Dots & Arrows) */}
+            <div className="relative z-10 flex items-center justify-between pt-6">
+              {/* Pagination Dots */}
+              <div className="flex items-center gap-2">
+                {banners.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setActiveSlide(idx)}
+                    className={`h-2 rounded-full transition-all duration-300 ${
+                      activeSlide === idx
+                        ? "w-8 bg-[#F26A00]"
+                        : "w-2 bg-white/30 hover:bg-white/50"
+                    }`}
+                    aria-label={`Go to slide ${idx + 1}`}
+                  />
+                ))}
+              </div>
+
+              {/* Prev / Next Arrows */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() =>
+                    setActiveSlide((prev) => (prev === 0 ? banners.length - 1 : prev - 1))
+                  }
+                  className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition border border-white/10"
+                  aria-label="Previous slide"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setActiveSlide((prev) => (prev + 1) % banners.length)}
+                  className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition border border-white/10"
+                  aria-label="Next slide"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* RIGHT "SCAN & SHOP" PROMO CARD (approx 32% width - 4 Cols) */}
+          <div className="lg:col-span-4 relative rounded-3xl bg-white border border-gray-100 shadow-xl overflow-hidden p-6 sm:p-7 flex flex-col justify-between">
+            {/* Flowing Organic Orange Wave Background */}
+            <div className="absolute -top-12 -right-12 w-72 h-72 bg-gradient-to-bl from-[#F26A00]/20 via-[#FF8A24]/10 to-transparent rounded-full pointer-events-none" />
+            <div className="absolute -bottom-16 -right-8 w-60 h-60 bg-gradient-to-tl from-[#F26A00]/25 to-transparent rounded-full pointer-events-none" />
+
+            <div className="relative z-10 space-y-3">
+              {/* Headline */}
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-none">
+                SCAN &amp; <br />
+                <span className="text-[#F26A00]">SHOP</span>
+              </h2>
+
+              <p className="text-xs text-gray-600 leading-relaxed max-w-[240px]">
+                Scan the QR Code to Explore Our Store, Discover Amazing Deals and Order Instantly.
+              </p>
+
+              {/* Authentic Scannable QR Code Frame */}
+              <div className="flex items-center gap-4 pt-2">
+                <AuthenticQR
+                  value={
+                    typeof window !== "undefined"
+                      ? `${window.location.origin}/qr/shop-entrance`
+                      : "https://techhubghana.com/qr/shop-entrance"
+                  }
+                  size={112}
+                  centerBadgeText="TH"
+                  showDownloadButton={false}
+                />
+
+                <div className="space-y-2">
+                  <Link
+                    href="/qr/shop-entrance"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-gradient-to-r from-[#F26A00] to-[#FF8A24] text-white font-bold text-xs shadow-md shadow-orange-600/30 hover:from-[#d95e00] transition active:scale-95"
+                  >
+                    <span>Scan Now</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </Link>
+                  <p className="text-[10px] text-gray-400 font-medium leading-tight">
+                    Instant MoMo checkout in Accra store
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Cheerful Customer with Phone Photography Frame */}
+            <div className="relative mt-4 aspect-16/10 rounded-2xl overflow-hidden shadow-sm">
+              <Image
+                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80"
+                alt="Happy shopper with smartphone"
+                fill
+                className="object-cover object-top"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+              <div className="absolute bottom-2 left-3 text-[11px] text-white font-bold">
+                Aki Enterprise TechHub • In-Store Ready
+              </div>
+            </div>
+          </div>
         </div>
-      </main>
+      </section>
+
+      {/* ============================================================== */}
+      {/* 2. "SHOP BY CATEGORY" ROW (Exact Layout with Circular Thumbnails) */}
+      {/* ============================================================== */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-4 rounded-full bg-[#F26A00]" />
+            <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
+              Shop by Category
+            </h2>
+          </div>
+          <Link
+            href="/products"
+            className="text-xs font-bold text-[#F26A00] hover:text-[#d95e00] flex items-center gap-1 transition"
+          >
+            <span>View All Categories</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
+        {/* Categories Horizontal Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 sm:gap-4">
+          {DISPLAY_CATEGORIES.map((cat, idx) => (
+            <Link
+              key={idx}
+              href={`/products?category=${cat.slug}`}
+              className="group p-3 bg-white rounded-2xl border border-gray-100 hover:border-orange-200 hover:shadow-lg transition-all duration-300 flex flex-col items-center text-center"
+            >
+              <div className="relative w-16 h-16 rounded-2xl bg-gray-50 overflow-hidden mb-2 group-hover:scale-105 transition-transform duration-300">
+                <Image
+                  src={cat.image}
+                  alt={cat.name}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <h3 className="font-bold text-[11px] sm:text-xs text-gray-800 group-hover:text-[#F26A00] transition line-clamp-2">
+                {cat.name}
+              </h3>
+              <span className="text-[10px] text-gray-400 font-medium mt-0.5">
+                {cat.count}
+              </span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* ============================================================== */}
+      {/* 3. "FEATURED PRODUCTS" & "BIG DEALS" BANNER ROW (Exact Layout)   */}
+      {/* ============================================================== */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-4 rounded-full bg-[#F26A00]" />
+            <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
+              Featured Products
+            </h2>
+          </div>
+          <Link
+            href="/products?featured=true"
+            className="text-xs font-bold text-[#F26A00] hover:text-[#d95e00] flex items-center gap-1 transition"
+          >
+            <span>View All Products</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+          {/* Left: 5 Product Cards Grid (9 Cols on wide screens) */}
+          <div className="lg:col-span-9 grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4">
+            {MOCKUP_PRODUCTS.map((prod) => {
+              const isLiked = likedItems[prod.id] || false;
+              return (
+                <div
+                  key={prod.id}
+                  className="group relative bg-white rounded-2xl border border-gray-100 p-3 shadow-2xs hover:shadow-xl hover:border-orange-200 transition-all duration-300 flex flex-col justify-between"
+                >
+                  {/* Top Badges & Heart Wishlist */}
+                  <div className="flex items-center justify-between mb-1">
+                    <span
+                      className={`px-2 py-0.5 rounded text-[10px] font-bold text-white ${prod.badgeColor}`}
+                    >
+                      {prod.badge}
+                    </span>
+
+                    <button
+                      onClick={() => toggleLike(prod.id)}
+                      className="p-1 text-gray-400 hover:text-red-500 transition"
+                      aria-label="Wishlist"
+                    >
+                      <Heart
+                        className={`w-4 h-4 ${
+                          isLiked ? "fill-red-500 text-red-500" : ""
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  {/* Product Image */}
+                  <Link
+                    href={`/product/${prod.slug}`}
+                    className="relative w-full aspect-square rounded-xl bg-gray-50 overflow-hidden mb-2"
+                  >
+                    <Image
+                      src={prod.image}
+                      alt={prod.title}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </Link>
+
+                  {/* Info */}
+                  <div className="space-y-1">
+                    <Link href={`/product/${prod.slug}`}>
+                      <h3 className="font-bold text-xs text-gray-900 group-hover:text-[#F26A00] transition line-clamp-1">
+                        {prod.title}
+                      </h3>
+                    </Link>
+
+                    {/* Star Rating */}
+                    <div className="flex items-center gap-1 text-[10px] text-amber-500 font-semibold">
+                      <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                      <span>{prod.rating}</span>
+                      <span className="text-gray-400">({prod.reviews} reviews)</span>
+                    </div>
+
+                    {/* Pricing */}
+                    <div className="flex items-baseline gap-1.5 pt-1">
+                      <span className="font-extrabold text-sm text-[#F26A00]">
+                        {formatGHS(prod.price)}
+                      </span>
+                      {prod.originalPrice && (
+                        <span className="text-[10px] text-gray-400 line-through">
+                          {formatGHS(prod.originalPrice)}
+                        </span>
+                      )}
+                    </div>
+
+                    <span className="inline-block text-[10px] text-emerald-600 font-bold">
+                      ◆ In Stock
+                    </span>
+                  </div>
+
+                  {/* Add to Cart Orange Button */}
+                  <button
+                    onClick={() =>
+                      handleQuickAdd(prod.productRef, prod.productRef.variants[0])
+                    }
+                    className="mt-3 w-full py-2 px-3 rounded-xl bg-[#F26A00] hover:bg-[#d95e00] text-white font-bold text-xs shadow-xs transition active:scale-95 flex items-center justify-center gap-1.5"
+                  >
+                    <ShoppingBag className="w-3.5 h-3.5" />
+                    <span>Add to Cart</span>
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Right: "Big Deals. Bigger Savings. Up to 50% OFF" Card (3 Cols) */}
+          <div className="lg:col-span-3 rounded-2xl bg-[#171717] text-white p-6 relative overflow-hidden flex flex-col justify-between shadow-xl min-h-[350px]">
+            {/* Glowing Orange Energy Ring Behind Headphones */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-56 h-56 bg-[#F26A00]/25 rounded-full blur-2xl pointer-events-none" />
+
+            <div className="relative z-10 space-y-1">
+              <h3 className="text-xl sm:text-2xl font-black text-white leading-tight">
+                Big Deals. <br />
+                Bigger Savings.
+              </h3>
+              <p className="text-xs text-gray-300 font-semibold">
+                Up to <span className="text-2xl font-black text-[#FF8A24]">50% OFF</span>
+              </p>
+            </div>
+
+            {/* Over-Ear Wireless Headphones Photo */}
+            <div className="relative w-full aspect-square my-2">
+              <Image
+                src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=500&q=80"
+                alt="Big Deals Headphones"
+                fill
+                className="object-contain drop-shadow-2xl"
+              />
+            </div>
+
+            <Link
+              href="/products?featured=true"
+              className="relative z-10 w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#F26A00] to-[#FF8A24] hover:from-[#d95e00] text-white font-bold text-xs text-center shadow-lg shadow-orange-600/30 transition flex items-center justify-center gap-2"
+            >
+              <span>Shop the Deals</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================================== */}
+      {/* 5. NEW: SMARTPHONES SHOWCASE (Brand New vs. Certified UK-Used) */}
+      {/* ============================================================== */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-4 rounded-full bg-[#F26A00]" />
+              <h2 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight">
+                Smartphones: Brand New &amp; UK-Used
+              </h2>
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              Certified authentic Apple iPhones, Samsung Galaxy &amp; Google Pixels with tested battery health &amp; store warranty.
+            </p>
+          </div>
+
+          {/* Condition Filter Tabs */}
+          <div className="flex items-center gap-1.5 p-1 bg-gray-100 rounded-xl self-start sm:self-auto border border-gray-200 text-xs font-bold">
+            <button
+              onClick={() => setPhoneFilter("all")}
+              className={`px-3.5 py-1.5 rounded-lg transition ${
+                phoneFilter === "all"
+                  ? "bg-[#171717] text-white shadow-xs"
+                  : "text-gray-600 hover:text-gray-900"
+              }`}
+            >
+              All Phones
+            </button>
+            <button
+              onClick={() => setPhoneFilter("brand_new")}
+              className={`px-3.5 py-1.5 rounded-lg transition ${
+                phoneFilter === "brand_new"
+                  ? "bg-[#171717] text-white shadow-xs"
+                  : "text-gray-600 hover:text-gray-900"
+              }`}
+            >
+              Brand New
+            </button>
+            <button
+              onClick={() => setPhoneFilter("uk_used")}
+              className={`px-3.5 py-1.5 rounded-lg transition ${
+                phoneFilter === "uk_used"
+                  ? "bg-[#F26A00] text-white shadow-xs"
+                  : "text-gray-600 hover:text-gray-900"
+              }`}
+            >
+              UK-Used Grade A
+            </button>
+          </div>
+        </div>
+
+        {/* 4-Column Phones Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {SMARTPHONES_LIST.slice(0, 4).map((prod) => {
+            const primaryVariant = prod.variants[0];
+            const isLiked = likedItems[prod.id] || false;
+            const isUkUsed = primaryVariant.condition === "uk_used";
+
+            return (
+              <div
+                key={prod.id}
+                className="group bg-white rounded-3xl border border-gray-100 hover:border-orange-200 p-4 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
+              >
+                <div>
+                  {/* Top Badges */}
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-1.5">
+                      <span
+                        className={`px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider text-white ${
+                          isUkUsed ? "bg-amber-600" : "bg-emerald-600"
+                        }`}
+                      >
+                        {isUkUsed ? "UK Used Grade A" : "Brand New"}
+                      </span>
+                      {primaryVariant.battery_health && (
+                        <span className="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[10px] font-bold flex items-center gap-1">
+                          <BatteryCharging className="w-3 h-3" />
+                          <span>{primaryVariant.battery_health}</span>
+                        </span>
+                      )}
+                    </div>
+
+                    <button
+                      onClick={() => toggleLike(prod.id)}
+                      className="p-1 text-gray-400 hover:text-red-500 transition"
+                      aria-label="Wishlist"
+                    >
+                      <Heart
+                        className={`w-4 h-4 ${
+                          isLiked ? "fill-red-500 text-red-500" : ""
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  {/* Image */}
+                  <Link
+                    href={`/product/${prod.slug}`}
+                    className="relative w-full aspect-4/3 rounded-2xl bg-gray-50 overflow-hidden mb-3 block"
+                  >
+                    <Image
+                      src={prod.images[0]}
+                      alt={prod.title}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </Link>
+
+                  {/* Brand & Title */}
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#F26A00]">
+                      {prod.brand_name}
+                    </span>
+                    <Link href={`/product/${prod.slug}`}>
+                      <h3 className="font-bold text-sm text-slate-900 group-hover:text-[#F26A00] transition line-clamp-1">
+                        {prod.title}
+                      </h3>
+                    </Link>
+
+                    {/* Key Specs tags */}
+                    <div className="flex flex-wrap gap-1 pt-1.5">
+                      {primaryVariant.storage && (
+                        <span className="px-2 py-0.5 rounded bg-gray-100 text-gray-700 font-semibold text-[10px]">
+                          {primaryVariant.storage}
+                        </span>
+                      )}
+                      {primaryVariant.ram && (
+                        <span className="px-2 py-0.5 rounded bg-gray-100 text-gray-700 font-semibold text-[10px]">
+                          {primaryVariant.ram} RAM
+                        </span>
+                      )}
+                      <span className="px-2 py-0.5 rounded bg-orange-50 text-orange-700 font-semibold text-[10px]">
+                        {primaryVariant.warranty_months}M Warranty
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Price and Cart Footer */}
+                <div className="pt-4 mt-4 border-t border-gray-100 flex items-center justify-between gap-2">
+                  <div>
+                    <span className="text-[10px] text-gray-400 block font-medium">Starting at</span>
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="font-black text-base text-[#F26A00]">
+                        {formatGHS(primaryVariant.price)}
+                      </span>
+                      {primaryVariant.original_price && (
+                        <span className="text-[10px] text-gray-400 line-through">
+                          {formatGHS(primaryVariant.original_price)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => handleQuickAdd(prod, primaryVariant)}
+                    className="p-2.5 rounded-xl bg-[#F26A00] hover:bg-[#d95e00] text-white shadow-xs transition active:scale-95 shrink-0"
+                    title="Add to Cart"
+                  >
+                    <ShoppingBag className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* ============================================================== */}
+      {/* 6. NEW: DUAL VALUE PROMO BANNERS (Charging & PC Upgrades)      */}
+      {/* ============================================================== */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {/* Banner 1: Fast PD Charging Ecosystem */}
+          <div className="relative rounded-3xl bg-gradient-to-br from-[#1c1c1c] to-[#2b1f18] p-7 sm:p-8 text-white overflow-hidden shadow-xl border border-orange-500/15 flex flex-col justify-between min-h-[260px]">
+            <div className="absolute -top-10 -right-10 w-64 h-64 bg-[#F26A00]/20 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="relative z-10 max-w-sm space-y-3">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-500/20 text-[#FF8A24] text-[11px] font-bold">
+                <Zap className="w-3.5 h-3.5" />
+                <span>Original Charging Power</span>
+              </div>
+              <h3 className="text-2xl font-black text-white leading-tight">
+                Anker GaN III &amp; 20,000mAh Power Banks
+              </h3>
+              <p className="text-xs text-gray-300 leading-relaxed">
+                65W triple-port high-speed charging adapters, braided silicone cables &amp; durable backup power for home or travel in Ghana.
+              </p>
+            </div>
+
+            <div className="relative z-10 pt-4">
+              <Link
+                href="/products?category=power-banks-chargers"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-[#F26A00] to-[#FF8A24] hover:from-[#d95e00] text-white font-bold text-xs shadow-md transition"
+              >
+                <span>Shop Fast Chargers</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Banner 2: Computer & Laptop Upgrades */}
+          <div className="relative rounded-3xl bg-gradient-to-br from-[#0f172a] to-[#1e293b] p-7 sm:p-8 text-white overflow-hidden shadow-xl border border-blue-500/15 flex flex-col justify-between min-h-[260px]">
+            <div className="absolute -bottom-10 -right-10 w-64 h-64 bg-blue-500/15 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="relative z-10 max-w-sm space-y-3">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-[11px] font-bold">
+                <Cpu className="w-3.5 h-3.5" />
+                <span>PC &amp; Laptop Performance</span>
+              </div>
+              <h3 className="text-2xl font-black text-white leading-tight">
+                High-Speed RAM &amp; Gen4 NVMe SSDs
+              </h3>
+              <p className="text-xs text-gray-300 leading-relaxed">
+                Crucial 16GB DDR4 memory &amp; Kingston 3500MB/s SSDs. Free installation and OS cloning assistance at our Accra shop.
+              </p>
+            </div>
+
+            <div className="relative z-10 pt-4">
+              <Link
+                href="/products?category=computer-accessories"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition"
+              >
+                <span>Explore PC Parts</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================================== */}
+      {/* 7. NEW: AUDIO GEAR & SMART WATCHES ROW                         */}
+      {/* ============================================================== */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-4 rounded-full bg-[#F26A00]" />
+            <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
+              Audio Gear &amp; Smart Wearables
+            </h2>
+          </div>
+          <Link
+            href="/products?category=audio-earbuds"
+            className="text-xs font-bold text-[#F26A00] hover:text-[#d95e00] flex items-center gap-1 transition"
+          >
+            <span>View All Audio</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+          {AUDIO_WEARABLES.slice(0, 6).map((prod) => {
+            const primaryVariant = prod.variants[0];
+            const isLiked = likedItems[prod.id] || false;
+
+            return (
+              <div
+                key={prod.id}
+                className="group bg-white rounded-2xl border border-gray-100 hover:border-orange-200 p-3 shadow-2xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-[10px] font-bold text-gray-400">
+                      {prod.category_name.split(" ")[0]}
+                    </span>
+                    <button
+                      onClick={() => toggleLike(prod.id)}
+                      className="p-1 text-gray-400 hover:text-red-500 transition"
+                      aria-label="Wishlist"
+                    >
+                      <Heart
+                        className={`w-3.5 h-3.5 ${
+                          isLiked ? "fill-red-500 text-red-500" : ""
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  <Link
+                    href={`/product/${prod.slug}`}
+                    className="relative w-full aspect-square rounded-xl bg-gray-50 overflow-hidden mb-2 block"
+                  >
+                    <Image
+                      src={prod.images[0]}
+                      alt={prod.title}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </Link>
+
+                  <Link href={`/product/${prod.slug}`}>
+                    <h3 className="font-bold text-xs text-gray-900 group-hover:text-[#F26A00] transition line-clamp-2 leading-tight">
+                      {prod.title}
+                    </h3>
+                  </Link>
+                </div>
+
+                <div className="pt-3 mt-2 border-t border-gray-100 flex items-center justify-between">
+                  <span className="font-black text-xs text-[#F26A00]">
+                    {formatGHS(primaryVariant.price)}
+                  </span>
+                  <button
+                    onClick={() => handleQuickAdd(prod, primaryVariant)}
+                    className="p-1.5 rounded-lg bg-orange-50 hover:bg-[#F26A00] text-[#F26A00] hover:text-white transition"
+                    title="Add to cart"
+                  >
+                    <ShoppingBag className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* ============================================================== */}
+      {/* 8. NEW: COMPUTER COMPONENTS & PERIPHERALS                     */}
+      {/* ============================================================== */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-4 rounded-full bg-[#F26A00]" />
+            <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
+              Computer Upgrades &amp; Accessories
+            </h2>
+          </div>
+          <Link
+            href="/products?category=computer-accessories"
+            className="text-xs font-bold text-[#F26A00] hover:text-[#d95e00] flex items-center gap-1 transition"
+          >
+            <span>View All Components</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+          {COMPUTER_UPGRADES.map((prod) => {
+            const primaryVariant = prod.variants[0];
+
+            return (
+              <div
+                key={prod.id}
+                className="group bg-white rounded-2xl border border-gray-100 hover:border-blue-200 p-4 shadow-xs hover:shadow-xl transition-all duration-300 flex items-center gap-4"
+              >
+                <Link
+                  href={`/product/${prod.slug}`}
+                  className="relative w-24 h-24 rounded-xl bg-gray-50 overflow-hidden shrink-0 block"
+                >
+                  <Image
+                    src={prod.images[0]}
+                    alt={prod.title}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                </Link>
+
+                <div className="flex-1 space-y-1">
+                  <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">
+                    {prod.brand_name}
+                  </span>
+                  <Link href={`/product/${prod.slug}`}>
+                    <h3 className="font-bold text-xs text-slate-900 group-hover:text-[#F26A00] transition line-clamp-2">
+                      {prod.title}
+                    </h3>
+                  </Link>
+
+                  <div className="flex items-center justify-between pt-1">
+                    <span className="font-black text-sm text-[#F26A00]">
+                      {formatGHS(primaryVariant.price)}
+                    </span>
+                    <button
+                      onClick={() => handleQuickAdd(prod, primaryVariant)}
+                      className="px-3 py-1.5 rounded-lg bg-[#171717] hover:bg-[#F26A00] text-white font-bold text-[11px] transition"
+                    >
+                      Add
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* ============================================================== */}
+      {/* 9. NEW: IN-STORE QR SHOPPING EXPERIENCE GUIDE (Aki Enterprise) */}
+      {/* ============================================================== */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="bg-white rounded-3xl border border-gray-100 p-6 sm:p-10 shadow-xs">
+          <div className="text-center max-w-xl mx-auto space-y-2 mb-8">
+            <span className="px-3 py-1 rounded-full bg-orange-100 text-[#F26A00] text-xs font-bold">
+              Seamless Retail Experience
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+              How QR Scan &amp; Shop Works in Our Store
+            </h2>
+            <p className="text-xs sm:text-sm text-gray-500">
+              Visiting Aki Enterprise TechHub in Accra? Skip queues, view exact battery health stats, and pay via MoMo right from your phone.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="p-5 rounded-2xl bg-gray-50 border border-gray-100 text-center space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-[#F26A00]/15 text-[#F26A00] mx-auto flex items-center justify-center font-black text-lg">
+                1
+              </div>
+              <h3 className="font-bold text-sm text-slate-900">Scan Product QR</h3>
+              <p className="text-xs text-gray-500">
+                Point your phone camera at any QR code on shelf tags or display stands inside our shop.
+              </p>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-gray-50 border border-gray-100 text-center space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-[#F26A00]/15 text-[#F26A00] mx-auto flex items-center justify-center font-black text-lg">
+                2
+              </div>
+              <h3 className="font-bold text-sm text-slate-900">Inspect Verified Specs</h3>
+              <p className="text-xs text-gray-500">
+                Instantly see battery health %, tested specs, storage options, and real-time counter stock.
+              </p>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-gray-50 border border-gray-100 text-center space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-[#F26A00]/15 text-[#F26A00] mx-auto flex items-center justify-center font-black text-lg">
+                3
+              </div>
+              <h3 className="font-bold text-sm text-slate-900">Pay via MoMo / Card</h3>
+              <p className="text-xs text-gray-500">
+                Checkout in seconds using MTN Mobile Money, Telecel Cash, or Visa/Mastercard without handling cash.
+              </p>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-gray-50 border border-gray-100 text-center space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 mx-auto flex items-center justify-center font-black text-lg">
+                4
+              </div>
+              <h3 className="font-bold text-sm text-slate-900">Instant Counter Pickup</h3>
+              <p className="text-xs text-gray-500">
+                Flash your digital order receipt at the counter to collect your sealed device with warranty slip.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================================== */}
+      {/* 10. NEW: SOCIAL PROOF / GHANA CUSTOMER TESTIMONIALS            */}
+      {/* ============================================================== */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-4 rounded-full bg-[#F26A00]" />
+            <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
+              What Our Customers Say
+            </h2>
+          </div>
+          <div className="flex items-center gap-1 text-xs text-amber-500 font-bold">
+            <Star className="w-4 h-4 fill-amber-400" />
+            <span>4.9 / 5 Rating (Over 3,400+ Verified Orders)</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-xs space-y-3">
+            <div className="flex items-center gap-1 text-amber-400">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} className="w-4 h-4 fill-amber-400" />
+              ))}
+            </div>
+            <p className="text-xs text-gray-600 leading-relaxed italic">
+              &quot;Bought the UK-Used iPhone 13 in Midnight. The phone is in mint condition with 94% battery health. Tested with my MTN 5G SIM before leaving the shop. Aki Enterprise is 100% legit.&quot;
+            </p>
+            <div className="pt-2 border-t border-gray-100 flex items-center justify-between text-xs">
+              <span className="font-bold text-slate-900">Kofi Ansah</span>
+              <span className="text-[11px] text-emerald-600 font-semibold">Verified Buyer • Accra</span>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-xs space-y-3">
+            <div className="flex items-center gap-1 text-amber-400">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} className="w-4 h-4 fill-amber-400" />
+              ))}
+            </div>
+            <p className="text-xs text-gray-600 leading-relaxed italic">
+              &quot;The Anker 65W GaN adapter powers my HP Spectre laptop and iPhone at the same time. Fast delivery to East Legon within 2 hours of placing my MoMo order.&quot;
+            </p>
+            <div className="pt-2 border-t border-gray-100 flex items-center justify-between text-xs">
+              <span className="font-bold text-slate-900">Ama Darkwah</span>
+              <span className="text-[11px] text-emerald-600 font-semibold">Verified Buyer • East Legon</span>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-xs space-y-3">
+            <div className="flex items-center gap-1 text-amber-400">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} className="w-4 h-4 fill-amber-400" />
+              ))}
+            </div>
+            <p className="text-xs text-gray-600 leading-relaxed italic">
+              &quot;Ordered the Kingston NV2 1TB NVMe SSD for my gaming laptop. They even guided me on WhatsApp on how to clone my Windows OS safely. Highly recommended store!&quot;
+            </p>
+            <div className="pt-2 border-t border-gray-100 flex items-center justify-between text-xs">
+              <span className="font-bold text-slate-900">Kwame Sarpong</span>
+              <span className="text-[11px] text-emerald-600 font-semibold">Verified Buyer • Kumasi</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================================== */}
+      {/* 11. NEW: BRAND PARTNERS MARQUEE STRIP                          */}
+      {/* ============================================================== */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-xs">
+          <span className="text-[11px] font-black uppercase tracking-wider text-gray-400 block text-center mb-4">
+            Authorized Brands &amp; Direct Wholesalers
+          </span>
+          <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12 opacity-75 grayscale hover:grayscale-0 transition-all duration-300">
+            {["Apple", "Samsung", "Google Pixel", "Anker", "Oraimo", "Crucial", "Kingston", "JBL", "Baseus"].map((b, i) => (
+              <Link
+                key={i}
+                href={`/products?search=${encodeURIComponent(b)}`}
+                className="text-sm font-black text-gray-700 hover:text-[#F26A00] tracking-tight transition"
+              >
+                {b}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================================== */}
+      {/* 12. TRUST & VALUE BADGES BAR (Exact Bottom Bar of Desktop Mockup) */}
+      {/* ============================================================== */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-4">
+        <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-xs grid grid-cols-2 md:grid-cols-5 gap-4 divide-y md:divide-y-0 md:divide-x divide-gray-100">
+          {/* Fast Delivery */}
+          <div className="flex items-center gap-3 pt-2 md:pt-0">
+            <div className="p-2.5 rounded-xl bg-orange-50 text-[#F26A00] shrink-0">
+              <Truck className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="font-bold text-xs text-slate-900">Fast Delivery</h4>
+              <p className="text-[11px] text-gray-500">Across Ghana</p>
+            </div>
+          </div>
+
+          {/* Secure Payments */}
+          <div className="flex items-center gap-3 pt-2 md:pt-0 md:pl-4">
+            <div className="p-2.5 rounded-xl bg-orange-50 text-[#F26A00] shrink-0">
+              <CreditCard className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="font-bold text-xs text-slate-900">Secure Payments</h4>
+              <p className="text-[11px] text-gray-500">[MTN, Telecel &amp; Cards]</p>
+            </div>
+          </div>
+
+          {/* Genuine Products */}
+          <div className="flex items-center gap-3 pt-2 md:pt-0 md:pl-4">
+            <div className="p-2.5 rounded-xl bg-orange-50 text-[#F26A00] shrink-0">
+              <ShieldCheck className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="font-bold text-xs text-slate-900">Genuine Products</h4>
+              <p className="text-[11px] text-gray-500">100% Authentic</p>
+            </div>
+          </div>
+
+          {/* 24/7 Support */}
+          <div className="flex items-center gap-3 pt-2 md:pt-0 md:pl-4">
+            <div className="p-2.5 rounded-xl bg-orange-50 text-[#F26A00] shrink-0">
+              <Headphones className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="font-bold text-xs text-slate-900">24/7 Support</h4>
+              <p className="text-[11px] text-gray-500">We&apos;re here to help</p>
+            </div>
+          </div>
+
+          {/* Easy Returns */}
+          <div className="flex items-center gap-3 pt-2 md:pt-0 md:pl-4 col-span-2 md:col-span-1">
+            <div className="p-2.5 rounded-xl bg-orange-50 text-[#F26A00] shrink-0">
+              <RotateCcw className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="font-bold text-xs text-slate-900">Easy Returns</h4>
+              <p className="text-[11px] text-gray-500">Hassle Free</p>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
