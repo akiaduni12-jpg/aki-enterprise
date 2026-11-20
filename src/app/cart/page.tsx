@@ -105,11 +105,7 @@ export default function CartPage() {
                     <div className="flex items-center border border-gray-200 rounded-lg bg-gray-50 p-0.5 text-xs">
                       <button
                         onClick={() =>
-                          updateQuantity(
-                            item.product.id,
-                            item.selected_variant.id,
-                            item.quantity - 1
-                          )
+                          updateQuantity(item.variant_id, item.quantity - 1)
                         }
                         className="p-1 hover:text-[#F26A00] text-gray-600 transition"
                       >
@@ -120,11 +116,7 @@ export default function CartPage() {
                       </span>
                       <button
                         onClick={() =>
-                          updateQuantity(
-                            item.product.id,
-                            item.selected_variant.id,
-                            item.quantity + 1
-                          )
+                          updateQuantity(item.variant_id, item.quantity + 1)
                         }
                         className="p-1 hover:text-[#F26A00] text-gray-600 transition"
                       >
@@ -134,7 +126,7 @@ export default function CartPage() {
 
                     <button
                       onClick={() =>
-                        removeFromCart(item.product.id, item.selected_variant.id)
+                        removeFromCart(item.variant_id)
                       }
                       className="text-gray-400 hover:text-red-500 transition p-1"
                       title="Remove item"
