@@ -137,7 +137,9 @@ export function StoreTestimonials() {
                 <div className="flex items-center gap-1.5">
                   <span className="text-xs font-bold text-slate-900">{test.customer_name}</span>
                   {test.verified_buyer && (
-                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" title="Verified Customer" />
+                    <span title="Verified Customer">
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                    </span>
                   )}
                 </div>
                 <div className="flex items-center gap-1 text-[10px] text-gray-400 mt-0.5">

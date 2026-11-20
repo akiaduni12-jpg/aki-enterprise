@@ -10,6 +10,7 @@ import { formatGHS } from "@/lib/utils";
 import { useCart } from "@/context/cart-context";
 import { AuthenticQR } from "@/components/ui/authentic-qr";
 import { StoreTestimonials } from "@/components/store-testimonials";
+import { toggleWishlist, getWishlistIds } from "@/lib/customer-store";
 import {
   ArrowRight,
   ShoppingBag,
@@ -66,8 +67,20 @@ export default function HomePage() {
     return () => clearInterval(interval);
   }, [banners.length]);
 
-  const toggleLike = (id: string) => {
-    setLikedItems((prev) => ({ ...prev, [id]: !prev[id] }));
+  // Initialize liked items from customer store
+  useEffect(() => {
+    const ids = getWishlistIds();
+    const map: Record<string, boolean> = {};
+    ids.forEach((id) => {
+      map[id] = true;
+    });
+    setLikedItems(map);
+  }, []);
+
+  const toggleLike = (id: string, productId?: string) => {
+    const targetId = productId || id;
+    toggleWishlist(targetId);
+    setLikedItems((prev) => ({ ...prev, [id]: !prev[id], [targetId]: !prev[targetId] }));
   };
 
   const handleQuickAdd = (product: any, variant?: any) => {
@@ -332,11 +345,10 @@ export default function HomePage() {
                   <button
                     key={idx}
                     onClick={() => setActiveSlide(idx)}
-                    className={`h-2 rounded-full transition-all duration-300 ${
-                      activeSlide === idx
+                    className={`h-2 rounded-full transition-all duration-300 ${activeSlide === idx
                         ? "w-10 bg-gradient-to-r from-[#F26A00] to-[#FF8A24] shadow-md shadow-orange-500/50"
                         : "w-2.5 bg-white/35 hover:bg-white/60"
-                    }`}
+                      }`}
                     aria-label={`Go to slide ${idx + 1}`}
                   />
                 ))}
@@ -531,9 +543,8 @@ export default function HomePage() {
                       aria-label="Wishlist"
                     >
                       <Heart
-                        className={`w-4 h-4 ${
-                          isLiked ? "fill-red-500 text-red-500" : ""
-                        }`}
+                        className={`w-4 h-4 ${isLiked ? "fill-red-500 text-red-500" : ""
+                          }`}
                       />
                     </button>
                   </div>
@@ -655,31 +666,28 @@ export default function HomePage() {
           <div className="flex items-center gap-1.5 p-1 bg-gray-100 rounded-xl self-start sm:self-auto border border-gray-200 text-xs font-bold">
             <button
               onClick={() => setPhoneFilter("all")}
-              className={`px-3.5 py-1.5 rounded-lg transition ${
-                phoneFilter === "all"
+              className={`px-3.5 py-1.5 rounded-lg transition ${phoneFilter === "all"
                   ? "bg-[#171717] text-white shadow-xs"
                   : "text-gray-600 hover:text-gray-900"
-              }`}
+                }`}
             >
               All Phones
             </button>
             <button
               onClick={() => setPhoneFilter("brand_new")}
-              className={`px-3.5 py-1.5 rounded-lg transition ${
-                phoneFilter === "brand_new"
+              className={`px-3.5 py-1.5 rounded-lg transition ${phoneFilter === "brand_new"
                   ? "bg-[#171717] text-white shadow-xs"
                   : "text-gray-600 hover:text-gray-900"
-              }`}
+                }`}
             >
               Brand New
             </button>
             <button
               onClick={() => setPhoneFilter("uk_used")}
-              className={`px-3.5 py-1.5 rounded-lg transition ${
-                phoneFilter === "uk_used"
+              className={`px-3.5 py-1.5 rounded-lg transition ${phoneFilter === "uk_used"
                   ? "bg-[#F26A00] text-white shadow-xs"
                   : "text-gray-600 hover:text-gray-900"
-              }`}
+                }`}
             >
               UK-Used Grade A
             </button>
@@ -703,9 +711,8 @@ export default function HomePage() {
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-1.5">
                       <span
-                        className={`px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider text-white ${
-                          isUkUsed ? "bg-amber-600" : "bg-emerald-600"
-                        }`}
+                        className={`px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider text-white ${isUkUsed ? "bg-amber-600" : "bg-emerald-600"
+                          }`}
                       >
                         {isUkUsed ? "UK Used Grade A" : "Brand New"}
                       </span>
@@ -723,9 +730,8 @@ export default function HomePage() {
                       aria-label="Wishlist"
                     >
                       <Heart
-                        className={`w-4 h-4 ${
-                          isLiked ? "fill-red-500 text-red-500" : ""
-                        }`}
+                        className={`w-4 h-4 ${isLiked ? "fill-red-500 text-red-500" : ""
+                          }`}
                       />
                     </button>
                   </div>
@@ -907,9 +913,8 @@ export default function HomePage() {
                       aria-label="Wishlist"
                     >
                       <Heart
-                        className={`w-3.5 h-3.5 ${
-                          isLiked ? "fill-red-500 text-red-500" : ""
-                        }`}
+                        className={`w-3.5 h-3.5 ${isLiked ? "fill-red-500 text-red-500" : ""
+                          }`}
                       />
                     </button>
                   </div>

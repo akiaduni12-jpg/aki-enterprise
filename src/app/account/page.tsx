@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
@@ -36,7 +36,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 
-export default function CustomerAccountPage() {
+function CustomerAccountContent() {
   const searchParams = useSearchParams();
   const initialTab = (searchParams.get("tab") as any) || "orders";
 
@@ -568,5 +568,22 @@ export default function CustomerAccountPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function CustomerAccountPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-[400px] flex items-center justify-center text-gray-500 text-xs">
+          <div className="flex items-center gap-2">
+            <span className="w-3.5 h-3.5 rounded-full border-2 border-orange-500 border-t-transparent animate-spin" />
+            <span>Loading Account Hub...</span>
+          </div>
+        </div>
+      }
+    >
+      <CustomerAccountContent />
+    </Suspense>
   );
 }

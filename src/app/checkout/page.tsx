@@ -218,11 +218,10 @@ export default function CheckoutPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <label
                 onClick={() => setFulfillmentType("delivery")}
-                className={`p-4 rounded-xl border cursor-pointer transition flex items-start gap-3 ${
-                  fulfillmentType === "delivery"
+                className={`p-4 rounded-xl border cursor-pointer transition flex items-start gap-3 ${fulfillmentType === "delivery"
                     ? "border-orange-600 bg-orange-50/30 ring-1 ring-orange-500"
                     : "border-gray-200 hover:border-gray-300"
-                }`}
+                  }`}
               >
                 <Truck className="w-5 h-5 text-orange-600 shrink-0 mt-0.5" />
                 <div>
@@ -236,11 +235,10 @@ export default function CheckoutPage() {
 
               <label
                 onClick={() => setFulfillmentType("shop_pickup")}
-                className={`p-4 rounded-xl border cursor-pointer transition flex items-start gap-3 ${
-                  fulfillmentType === "shop_pickup"
+                className={`p-4 rounded-xl border cursor-pointer transition flex items-start gap-3 ${fulfillmentType === "shop_pickup"
                     ? "border-orange-600 bg-orange-50/30 ring-1 ring-orange-500"
                     : "border-gray-200 hover:border-gray-300"
-                }`}
+                  }`}
               >
                 <Store className="w-5 h-5 text-orange-600 shrink-0 mt-0.5" />
                 <div>
@@ -364,11 +362,10 @@ export default function CheckoutPage() {
             <div className="space-y-2">
               <label
                 onClick={() => setPaymentMethod("paystack_momo")}
-                className={`w-full p-3.5 rounded-xl border cursor-pointer flex items-center justify-between transition ${
-                  paymentMethod === "paystack_momo"
+                className={`w-full p-3.5 rounded-xl border cursor-pointer flex items-center justify-between transition ${paymentMethod === "paystack_momo"
                     ? "border-orange-600 bg-orange-50/40 ring-1 ring-orange-500"
                     : "border-gray-200"
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-3">
                   <div className="w-4 h-4 rounded-full border border-orange-600 flex items-center justify-center">
@@ -393,11 +390,10 @@ export default function CheckoutPage() {
 
               <label
                 onClick={() => setPaymentMethod("paystack_card")}
-                className={`w-full p-3.5 rounded-xl border cursor-pointer flex items-center justify-between transition ${
-                  paymentMethod === "paystack_card"
+                className={`w-full p-3.5 rounded-xl border cursor-pointer flex items-center justify-between transition ${paymentMethod === "paystack_card"
                     ? "border-orange-600 bg-orange-50/40 ring-1 ring-orange-500"
                     : "border-gray-200"
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-3">
                   <div className="w-4 h-4 rounded-full border border-orange-600 flex items-center justify-center">
@@ -420,11 +416,10 @@ export default function CheckoutPage() {
               {fulfillmentType === "shop_pickup" && (
                 <label
                   onClick={() => setPaymentMethod("cash_on_pickup")}
-                  className={`w-full p-3.5 rounded-xl border cursor-pointer flex items-center justify-between transition ${
-                    paymentMethod === "cash_on_pickup"
+                  className={`w-full p-3.5 rounded-xl border cursor-pointer flex items-center justify-between transition ${paymentMethod === "cash_on_pickup"
                       ? "border-orange-600 bg-orange-50/40 ring-1 ring-orange-500"
                       : "border-gray-200"
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-4 h-4 rounded-full border border-orange-600 flex items-center justify-center">

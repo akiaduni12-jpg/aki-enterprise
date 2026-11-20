@@ -213,7 +213,9 @@ export default function AdminReviewsPage() {
                       <div className="flex items-center gap-1.5">
                         <span className="font-bold text-white">{rev.customer_name}</span>
                         {rev.verified_purchase && (
-                          <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" title="Verified Purchase" />
+                          <span title="Verified Purchase">
+                            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                          </span>
                         )}
                       </div>
                       <span className="text-[10px] text-gray-500">
@@ -335,7 +337,9 @@ export default function AdminReviewsPage() {
                       <div className="flex items-center gap-1.5">
                         <span className="font-bold text-white">{t.customer_name}</span>
                         {t.verified_buyer && (
-                          <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" title="Verified Customer" />
+                          <span title="Verified Customer">
+                            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                          </span>
                         )}
                       </div>
                       <div className="flex items-center gap-1 text-[10px] text-gray-400">
