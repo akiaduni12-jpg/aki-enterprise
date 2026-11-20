@@ -274,7 +274,6 @@ async function ProductsList({ searchParams }: ProductsPageProps) {
       </div>
     </div>
   );
-  );
 }
 
 export default function ProductsPage({ searchParams }: ProductsPageProps) {
