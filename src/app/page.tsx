@@ -398,15 +398,15 @@ export default function HomePage() {
           </Link>
         </div>
 
-        {/* Categories Horizontal Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 sm:gap-4">
+        {/* Categories Horizontal Grid (Screen 1 Match: 2 rows of 4 on mobile) */}
+        <div className="grid grid-cols-4 sm:grid-cols-4 lg:grid-cols-8 gap-2 sm:gap-4">
           {DISPLAY_CATEGORIES.map((cat, idx) => (
             <Link
               key={idx}
               href={`/products?category=${cat.slug}`}
-              className="group p-3 bg-white rounded-2xl border border-gray-100 hover:border-orange-200 hover:shadow-lg transition-all duration-300 flex flex-col items-center text-center"
+              className="group p-2 sm:p-3 bg-white rounded-2xl border border-gray-100 hover:border-orange-200 hover:shadow-lg transition-all duration-300 flex flex-col items-center text-center"
             >
-              <div className="relative w-16 h-16 rounded-2xl bg-gray-50 overflow-hidden mb-2 group-hover:scale-105 transition-transform duration-300">
+              <div className="relative w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gray-50 overflow-hidden mb-1.5 sm:mb-2 group-hover:scale-105 transition-transform duration-300">
                 <Image
                   src={cat.image}
                   alt={cat.name}
@@ -414,10 +414,10 @@ export default function HomePage() {
                   className="object-cover"
                 />
               </div>
-              <h3 className="font-bold text-[11px] sm:text-xs text-gray-800 group-hover:text-[#F26A00] transition line-clamp-2">
-                {cat.name}
+              <h3 className="font-bold text-[10px] sm:text-xs text-gray-800 group-hover:text-[#F26A00] transition line-clamp-1 leading-tight">
+                {cat.name.split(" ")[0]}
               </h3>
-              <span className="text-[10px] text-gray-400 font-medium mt-0.5">
+              <span className="hidden sm:block text-[10px] text-gray-400 font-medium mt-0.5">
                 {cat.count}
               </span>
             </Link>

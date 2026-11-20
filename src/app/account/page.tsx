@@ -34,6 +34,12 @@ import {
   Lock,
   Sparkles,
   ExternalLink,
+  ChevronRight,
+  ChevronLeft,
+  CreditCard,
+  Headphones,
+  Settings,
+  LogOut,
 } from "lucide-react";
 
 function CustomerAccountContent() {
@@ -124,8 +130,168 @@ function CustomerAccountContent() {
         </div>
       )}
 
-      {/* Header Banner */}
-      <div className="bg-[#171717] text-white rounded-3xl p-6 sm:p-8 relative overflow-hidden shadow-xl">
+      {/* Mobile Top Profile Card (Exact Screen 7 Mockup Architecture) */}
+      <div className="md:hidden relative rounded-3xl bg-gradient-to-br from-[#FF8A24] via-[#F26A00] to-[#EA580C] text-white p-6 overflow-hidden shadow-xl text-center space-y-3">
+        {/* Top Back Icon */}
+        <div className="flex items-center justify-between text-white/90 mb-1">
+          <Link href="/" className="p-1 hover:text-white transition">
+            <ChevronLeft className="w-5 h-5" />
+          </Link>
+          <span className="text-xs font-bold uppercase tracking-wider text-white/80">Account</span>
+          <div className="w-5" />
+        </div>
+
+        <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-2xl pointer-events-none" />
+
+        <div className="relative z-10 space-y-2">
+          {/* Avatar with Ring */}
+          <div className="w-20 h-20 rounded-full border-4 border-white/30 p-1 mx-auto shadow-xl bg-white/10">
+            <div className="w-full h-full rounded-full bg-slate-900 text-white flex items-center justify-center font-black text-2xl overflow-hidden">
+              {profile.full_name ? profile.full_name[0].toUpperCase() : "K"}
+            </div>
+          </div>
+
+          <div>
+            <h2 className="text-xl font-black text-white tracking-tight">
+              {profile.full_name || "Kwame Mensah"}
+            </h2>
+            <p className="text-xs text-orange-100 font-medium">
+              {profile.email || "kwame@gmail.com"}
+            </p>
+          </div>
+
+          {/* Gold Customer Badge */}
+          <div className="pt-1">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black uppercase tracking-wider shadow-md">
+              <Sparkles className="w-3 h-3 text-amber-900" />
+              <span>Gold Customer</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Menu List with Chevrons (Screen 7 Exact Match) */}
+      <div className="md:hidden bg-white rounded-3xl border border-gray-100 shadow-2xs divide-y divide-gray-100 overflow-hidden">
+        {/* 1. My Orders */}
+        <Link
+          href="/orders"
+          className="p-4 flex items-center justify-between hover:bg-gray-50 transition"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-orange-50 text-[#F26A00] flex items-center justify-center">
+              <Package className="w-4 h-4" />
+            </div>
+            <span className="font-bold text-xs text-gray-900">My Orders</span>
+          </div>
+          <ChevronRight className="w-4 h-4 text-gray-400" />
+        </Link>
+
+        {/* 2. My Addresses */}
+        <button
+          type="button"
+          onClick={() => setActiveTab("profile")}
+          className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition text-left"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-orange-50 text-[#F26A00] flex items-center justify-center">
+              <MapPin className="w-4 h-4" />
+            </div>
+            <span className="font-bold text-xs text-gray-900">My Addresses</span>
+          </div>
+          <ChevronRight className="w-4 h-4 text-gray-400" />
+        </button>
+
+        {/* 3. Wishlist */}
+        <button
+          type="button"
+          onClick={() => setActiveTab("favorites")}
+          className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition text-left"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-orange-50 text-[#F26A00] flex items-center justify-center">
+              <Heart className="w-4 h-4" />
+            </div>
+            <span className="font-bold text-xs text-gray-900">Wishlist</span>
+          </div>
+          <div className="flex items-center gap-2">
+            {favorites.length > 0 && (
+              <span className="px-2 py-0.5 rounded-full bg-orange-100 text-[#F26A00] text-[10px] font-bold">
+                {favorites.length}
+              </span>
+            )}
+            <ChevronRight className="w-4 h-4 text-gray-400" />
+          </div>
+        </button>
+
+        {/* 4. Payment Methods */}
+        <div className="p-4 flex items-center justify-between hover:bg-gray-50 transition">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-orange-50 text-[#F26A00] flex items-center justify-center">
+              <CreditCard className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="font-bold text-xs text-gray-900 block">Payment Methods</span>
+              <span className="text-[10px] text-gray-400">MTN MoMo &amp; Cards Enabled</span>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-gray-400" />
+        </div>
+
+        {/* 5. Customer Support */}
+        <a
+          href="https://wa.me/233241234567?text=Hello%20Aki%20Enterprise%20TechHub%2C%20I%20need%20help%20with%20an%20order"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="p-4 flex items-center justify-between hover:bg-gray-50 transition"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-orange-50 text-[#F26A00] flex items-center justify-center">
+              <Headphones className="w-4 h-4" />
+            </div>
+            <span className="font-bold text-xs text-gray-900">Customer Support</span>
+          </div>
+          <ChevronRight className="w-4 h-4 text-gray-400" />
+        </a>
+
+        {/* 6. Settings */}
+        <button
+          type="button"
+          onClick={() => setActiveTab("profile")}
+          className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition text-left"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-orange-50 text-[#F26A00] flex items-center justify-center">
+              <Settings className="w-4 h-4" />
+            </div>
+            <span className="font-bold text-xs text-gray-900">Settings</span>
+          </div>
+          <ChevronRight className="w-4 h-4 text-gray-400" />
+        </button>
+
+        {/* 7. Log Out */}
+        <button
+          type="button"
+          onClick={() => {
+            if (confirm("Reset current guest session?")) {
+              localStorage.removeItem("techhub_customer_profile");
+              setProfile({ full_name: "", phone: "", email: "", delivery_address: "", city: "Accra", notes: "" });
+              showToast("Guest profile reset.");
+            }
+          }}
+          className="w-full p-4 flex items-center justify-between hover:bg-red-50 text-red-600 transition text-left"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-red-50 text-red-600 flex items-center justify-center">
+              <LogOut className="w-4 h-4" />
+            </div>
+            <span className="font-bold text-xs text-red-600">Log Out</span>
+          </div>
+          <ChevronRight className="w-4 h-4 text-red-400" />
+        </button>
+      </div>
+
+      {/* Desktop Header Banner */}
+      <div className="hidden md:block bg-[#171717] text-white rounded-3xl p-6 sm:p-8 relative overflow-hidden shadow-xl">
         <div className="absolute top-0 right-0 w-80 h-80 bg-[#F26A00]/20 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">

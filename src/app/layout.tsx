@@ -18,6 +18,17 @@ export const metadata: Metadata = {
   title: "AKI ENTERPRISE | Phones, Electronics & Accessories (Ghana)",
   description:
     "Aki Enterprise - Official electronics store in Ghana. Authentic brand new & Grade-A UK-used iPhones, Samsung smartphones, fast chargers, power banks, and computer accessories with warranty. Delivery across Accra & Ghana.",
+  manifest: "/manifest.json",
+  themeColor: "#F26A00",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "TechHub",
+  },
+  icons: {
+    icon: "/icons/icon.svg",
+    apple: "/icons/icon-192.png",
+  },
 };
 
 export default function RootLayout({

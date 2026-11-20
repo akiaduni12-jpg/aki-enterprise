@@ -2,7 +2,7 @@ import React, { Suspense } from "react";
 import { PRODUCTS, CATEGORIES, BRANDS } from "@/lib/mock-data";
 import { ProductCard } from "@/components/product-card";
 import Link from "next/link";
-import { Filter } from "lucide-react";
+import { Filter, ChevronLeft, Search } from "lucide-react";
 
 interface ProductsPageProps {
   searchParams: Promise<{
@@ -49,11 +49,70 @@ async function ProductsList({ searchParams }: ProductsPageProps) {
   }
 
   const currentCategory = CATEGORIES.find((c) => c.slug === category);
+  const activeBrandName = BRANDS.find((b) => b.slug.toLowerCase() === (brand || "").toLowerCase())?.name || brand;
+
+  // Curated brands list for mobile pills (Screen 3 Match)
+  const MOBILE_BRAND_PILLS = [
+    { label: "All", slug: "" },
+    { label: "iPhone", slug: "apple" },
+    { label: "Samsung", slug: "samsung" },
+    { label: "Tecno", slug: "tecno" },
+    { label: "Infinix", slug: "infinix" },
+    { label: "Oraimo", slug: "oraimo" },
+    { label: "Anker", slug: "anker" },
+  ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-      {/* Breadcrumb & Title */}
-      <div className="mb-6">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-8 pb-24 md:pb-12">
+      {/* Mobile Top App Bar (Screen 3 Match: "< Smartphones" + Search Icon) */}
+      <div className="flex md:hidden items-center justify-between mb-3 pt-1">
+        <Link
+          href="/categories"
+          className="flex items-center gap-1.5 text-slate-900 hover:text-orange-600 transition"
+        >
+          <ChevronLeft className="w-5 h-5 text-gray-800" />
+          <h1 className="text-base font-black text-slate-900 tracking-tight">
+            {currentCategory ? currentCategory.name : activeBrandName || "Smartphones"}
+          </h1>
+        </Link>
+
+        <Link
+          href="/products"
+          className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:text-black transition"
+          aria-label="Search products"
+        >
+          <Search className="w-4 h-4" />
+        </Link>
+      </div>
+
+      {/* Horizontal Brand Filter Pills (Screen 3 Match: "All | iPhone | Samsung | Tecno") */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-4 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
+        {MOBILE_BRAND_PILLS.map((pill) => {
+          const isSelected = (!brand && pill.slug === "") || (brand?.toLowerCase() === pill.slug.toLowerCase());
+          const targetUrl = pill.slug
+            ? `/products?brand=${pill.slug}${category ? `&category=${category}` : ""}`
+            : category
+            ? `/products?category=${category}`
+            : "/products";
+
+          return (
+            <Link
+              key={pill.label}
+              href={targetUrl}
+              className={`px-4 py-1.5 rounded-full text-xs font-bold transition whitespace-nowrap ${
+                isSelected
+                  ? "bg-[#F26A00] text-white shadow-md shadow-orange-500/30"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              {pill.label}
+            </Link>
+          );
+        })}
+      </div>
+
+      {/* Desktop Breadcrumb & Title */}
+      <div className="hidden md:block mb-6">
         <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
           <Link href="/" className="hover:text-orange-600">Home</Link>
           <span>/</span>
@@ -72,15 +131,15 @@ async function ProductsList({ searchParams }: ProductsPageProps) {
               {currentCategory ? currentCategory.name : "All Electronics & Gadgets"}
             </h1>
             <p className="text-xs sm:text-sm text-gray-500 mt-1">
-              Showing {filtered.length} products available for pickup & delivery in Ghana
+              Showing {filtered.length} products available for pickup &amp; delivery in Ghana
             </p>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* Filters Sidebar */}
-        <aside className="space-y-6">
+        {/* Filters Sidebar (Hidden on mobile to preserve 2-column mobile experience) */}
+        <aside className="hidden lg:block space-y-6">
           <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-2xs space-y-5">
             <div className="flex items-center gap-2 text-sm font-bold text-slate-900 border-b border-gray-100 pb-3">
               <Filter className="w-4 h-4 text-orange-600" />
@@ -189,7 +248,7 @@ async function ProductsList({ searchParams }: ProductsPageProps) {
           </div>
         </aside>
 
-        {/* Product Grid */}
+        {/* Product Grid (Screen 3: 2 columns on mobile, 3 on desktop) */}
         <main className="lg:col-span-3">
           {filtered.length === 0 ? (
             <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center">
@@ -205,7 +264,7 @@ async function ProductsList({ searchParams }: ProductsPageProps) {
               </Link>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+            <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-5">
               {filtered.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
@@ -214,6 +273,7 @@ async function ProductsList({ searchParams }: ProductsPageProps) {
         </main>
       </div>
     </div>
+  );
   );
 }
 

@@ -7,6 +7,7 @@ import { Product, ProductVariant } from "@/types/ecommerce";
 import { formatGHS, getConditionBadge } from "@/lib/utils";
 import { useCart } from "@/context/cart-context";
 import { ProductReviews } from "@/components/product-reviews";
+import { toggleWishlist, isItemInWishlist } from "@/lib/customer-store";
 import {
   ShieldCheck,
   Truck,
@@ -17,6 +18,9 @@ import {
   Minus,
   MessageCircle,
   Share2,
+  ArrowLeft,
+  Heart,
+  ShoppingBag,
 } from "lucide-react";
 
 export function ProductDetailClient({ product }: { product: Product }) {
@@ -30,15 +34,70 @@ export function ProductDetailClient({ product }: { product: Product }) {
   const { addToCart } = useCart();
 
   const conditionBadge = getConditionBadge(selectedVariant.condition);
+  const [isLiked, setIsLiked] = useState(false);
+
+  React.useEffect(() => {
+    setIsLiked(isItemInWishlist(product.id));
+    const handleUpdate = () => setIsLiked(isItemInWishlist(product.id));
+    window.addEventListener("wishlist_updated", handleUpdate);
+    return () => window.removeEventListener("wishlist_updated", handleUpdate);
+  }, [product.id]);
 
   const handleAddToCart = () => {
     addToCart(product, selectedVariant, quantity);
   };
 
+  const handleBuyNow = () => {
+    addToCart(product, selectedVariant, quantity);
+    window.location.href = "/checkout";
+  };
+
   const shareText = `Check out the ${product.title} (${selectedVariant.storage || ""} ${selectedVariant.color}) at Aki Enterprise TechHub for ${formatGHS(selectedVariant.price)}!`;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-8 pb-24 md:pb-12">
+      {/* Mobile Top App Bar (Screen 4 Layout Exact Match) */}
+      <div className="md:hidden flex items-center justify-between pb-3 mb-3 border-b border-gray-100">
+        <Link
+          href="/products"
+          className="p-1.5 rounded-full hover:bg-gray-100 text-slate-800 transition"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </Link>
+
+        <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+          {product.brand_name}
+        </span>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => toggleWishlist(product.id)}
+            className="p-1.5 rounded-full hover:bg-gray-100 text-gray-600 transition"
+            aria-label="Wishlist"
+          >
+            <Heart className={`w-5 h-5 ${isLiked ? "fill-red-500 text-red-500" : ""}`} />
+          </button>
+          <button
+            onClick={() => {
+              if (navigator.share) {
+                navigator.share({
+                  title: product.title,
+                  text: shareText,
+                  url: window.location.href,
+                });
+              } else {
+                navigator.clipboard.writeText(window.location.href);
+                alert("Product link copied to clipboard!");
+              }
+            }}
+            className="p-1.5 rounded-full hover:bg-gray-100 text-gray-600 transition"
+            aria-label="Share product"
+          >
+            <Share2 className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-xs text-gray-500 mb-6">
         <Link href="/" className="hover:text-orange-600">Home</Link>
@@ -286,6 +345,26 @@ export function ProductDetailClient({ product }: { product: Product }) {
       {/* Customer Product Reviews Section */}
       <div className="mt-12">
         <ProductReviews product={product} />
+      </div>
+
+      {/* Mobile Fixed Bottom Sticky Action Bar (Exact Screen 4 Layout) */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-gray-100 p-3 px-4 shadow-[0_-4px_25px_rgba(0,0,0,0.08)] flex items-center gap-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+        <button
+          onClick={handleAddToCart}
+          disabled={selectedVariant.stock_quantity === 0}
+          className="flex-1 py-3 px-4 rounded-full bg-[#F26A00] hover:bg-[#d95e00] text-white font-black text-xs shadow-md shadow-orange-600/30 flex items-center justify-center gap-1.5 transition active:scale-95 disabled:opacity-50"
+        >
+          <ShoppingBag className="w-4 h-4" />
+          <span>Add to Cart</span>
+        </button>
+
+        <button
+          onClick={handleBuyNow}
+          disabled={selectedVariant.stock_quantity === 0}
+          className="flex-1 py-3 px-4 rounded-full bg-[#171717] hover:bg-black text-white font-black text-xs shadow-md transition active:scale-95 disabled:opacity-50"
+        >
+          Buy Now
+        </button>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { formatGHS } from "@/lib/utils";
 import { PRODUCTS, INITIAL_QR_CAMPAIGNS } from "@/lib/mock-data";
 import {
@@ -11,6 +12,10 @@ import {
   Plus,
   Package,
   Layers,
+  ChevronRight,
+  TrendingUp,
+  BarChart3,
+  Clock,
 } from "lucide-react";
 
 export default function AdminDashboardPage() {
@@ -55,8 +60,126 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="space-y-8">
+      {/* Mobile Screen 10 Match: Total Sales Banner, Orders Overview & Top Products */}
+      <div className="md:hidden space-y-5">
+        {/* Total Sales Orange Banner Card */}
+        <div className="relative rounded-3xl bg-gradient-to-r from-[#FF8A24] via-[#F26A00] to-[#EA580C] text-white p-6 overflow-hidden shadow-xl">
+          <div className="absolute top-0 right-0 w-36 h-36 bg-white/10 rounded-full blur-xl pointer-events-none" />
+
+          <div className="relative z-10 flex items-center justify-between">
+            <div className="space-y-1">
+              <span className="text-xs text-orange-100 font-semibold uppercase tracking-wider">
+                Total Sales
+              </span>
+              <h2 className="text-3xl font-black text-white tracking-tight">GH₵ 48,750</h2>
+              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-white text-[11px] font-extrabold mt-1">
+                <span>↑ 12.5%</span>
+              </div>
+            </div>
+
+            {/* Visual Bar Chart Graphic */}
+            <div className="flex items-end gap-1.5 h-14 pr-2">
+              <div className="w-2.5 h-6 bg-white/40 rounded-t-sm" />
+              <div className="w-2.5 h-8 bg-white/60 rounded-t-sm" />
+              <div className="w-2.5 h-11 bg-white/80 rounded-t-sm" />
+              <div className="w-2.5 h-14 bg-white rounded-t-sm shadow-sm" />
+            </div>
+          </div>
+        </div>
+
+        {/* Orders Overview: 2 Cards Side-by-Side */}
+        <div className="space-y-2">
+          <h3 className="text-xs font-extrabold text-gray-400 uppercase tracking-wider">
+            Orders Overview
+          </h3>
+          <div className="grid grid-cols-2 gap-3">
+            <Link
+              href="/admin/orders"
+              className="p-4 rounded-2xl bg-slate-950 border border-slate-800 flex items-center gap-3 hover:border-slate-700 transition"
+            >
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0">
+                <ShoppingBag className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-xl font-black text-white">124</p>
+                <p className="text-[11px] text-gray-400 font-medium">Total Orders</p>
+              </div>
+            </Link>
+
+            <Link
+              href="/admin/orders"
+              className="p-4 rounded-2xl bg-slate-950 border border-slate-800 flex items-center gap-3 hover:border-slate-700 transition"
+            >
+              <div className="w-10 h-10 rounded-xl bg-orange-500/10 text-orange-400 flex items-center justify-center shrink-0">
+                <Clock className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-xl font-black text-white">32</p>
+                <p className="text-[11px] text-gray-400 font-medium">Pending</p>
+              </div>
+            </Link>
+          </div>
+        </div>
+
+        {/* Top Products Section */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs font-extrabold text-gray-400 uppercase tracking-wider">
+              Top Products
+            </h3>
+            <Link href="/admin/products" className="text-xs text-orange-400 font-bold hover:underline">
+              View All
+            </Link>
+          </div>
+
+          <div className="space-y-2.5">
+            <Link
+              href="/admin/products"
+              className="p-3 rounded-2xl bg-slate-950 border border-slate-800 hover:border-orange-500/40 flex items-center justify-between transition"
+            >
+              <div className="flex items-center gap-3">
+                <div className="relative w-12 h-12 rounded-xl bg-slate-900 overflow-hidden shrink-0">
+                  <Image
+                    src="https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&w=200&q=80"
+                    alt="iPhone 15 128GB"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div>
+                  <h4 className="font-bold text-xs text-white">iPhone 15 128GB</h4>
+                  <p className="text-[11px] text-gray-400">245 sold</p>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-gray-500" />
+            </Link>
+
+            <Link
+              href="/admin/products"
+              className="p-3 rounded-2xl bg-slate-950 border border-slate-800 hover:border-orange-500/40 flex items-center justify-between transition"
+            >
+              <div className="flex items-center gap-3">
+                <div className="relative w-12 h-12 rounded-xl bg-slate-900 overflow-hidden shrink-0">
+                  <Image
+                    src="https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?auto=format&fit=crop&w=200&q=80"
+                    alt="Samsung Galaxy A55"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div>
+                  <h4 className="font-bold text-xs text-white">Samsung Galaxy A55</h4>
+                  <p className="text-[11px] text-gray-400">180 sold</p>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-gray-500" />
+            </Link>
+          </div>
+        </div>
+      </div>
+
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="hidden md:flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black text-white">Operations Dashboard</h1>
           <p className="text-xs text-gray-400 mt-1">

@@ -192,21 +192,34 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* Mobile Search Bar */}
-        <form onSubmit={handleSearchSubmit} className="mt-3 md:hidden relative">
+        {/* Mobile Search Bar (Screen 1 Match: Magnifying glass, "Search for products...", Clear X button) */}
+        <form onSubmit={handleSearchSubmit} className="mt-2.5 md:hidden relative">
+          <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Search phones, chargers, audio..."
+            placeholder="Search for products..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-4 pr-12 py-2 text-xs bg-gray-50 border border-gray-200 rounded-lg focus:outline-hidden focus:border-[#F26A00]"
+            className="w-full pl-9 pr-9 py-2.5 text-xs bg-gray-100/80 border border-transparent rounded-xl focus:outline-hidden focus:bg-white focus:border-[#F26A00] transition placeholder-gray-400"
           />
-          <button
-            type="submit"
-            className="absolute right-1 top-1/2 -translate-y-1/2 px-2.5 py-1 bg-[#F26A00] text-white rounded text-xs font-semibold"
-          >
-            Go
-          </button>
+          {searchQuery ? (
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 rounded-full"
+              aria-label="Clear search"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          ) : (
+            <button
+              type="submit"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-orange-600"
+              aria-label="Submit search"
+            >
+              <Search className="w-3.5 h-3.5" />
+            </button>
+          )}
         </form>
       </div>
 

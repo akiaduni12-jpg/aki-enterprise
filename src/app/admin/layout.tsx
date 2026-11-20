@@ -15,6 +15,10 @@ import {
   LogOut,
   ShieldCheck,
   User,
+  Menu,
+  X,
+  Bell,
+  MoreHorizontal,
 } from "lucide-react";
 
 export default function AdminLayout({
@@ -26,6 +30,7 @@ export default function AdminLayout({
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [adminUser, setAdminUser] = useState<any>(null);
+  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
 
   useEffect(() => {
     // If already on the login page, no need to check or redirect
@@ -86,8 +91,93 @@ export default function AdminLayout({
 
   return (
     <div className="min-h-screen bg-slate-900 text-gray-100 flex flex-col md:flex-row">
-      {/* Dedicated Admin Sidebar */}
-      <aside className="w-full md:w-64 bg-slate-950 border-r border-slate-800 p-4 flex flex-col justify-between shrink-0">
+      {/* Mobile Top Header (Screen 10 Match: Hamburger + "Admin Panel" + Bell Icon) */}
+      <header className="md:hidden sticky top-0 z-40 bg-slate-950 border-b border-slate-800 px-4 py-3 flex items-center justify-between">
+        <button
+          onClick={() => setIsMobileDrawerOpen(!isMobileDrawerOpen)}
+          className="p-1.5 rounded-lg text-gray-300 hover:text-white hover:bg-slate-800 transition"
+          aria-label="Toggle admin drawer"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+
+        <h1 className="text-sm font-extrabold text-white tracking-tight">Admin Panel</h1>
+
+        <div className="relative p-1.5 rounded-lg text-gray-300 hover:text-white hover:bg-slate-800 transition">
+          <Bell className="w-5 h-5" />
+          <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#F26A00] animate-pulse" />
+        </div>
+      </header>
+
+      {/* Mobile Slide-Over Drawer for Additional Admin Pages */}
+      {isMobileDrawerOpen && (
+        <div className="md:hidden fixed inset-0 z-50 flex">
+          <div
+            className="fixed inset-0 bg-black/70 backdrop-blur-xs transition-opacity"
+            onClick={() => setIsMobileDrawerOpen(false)}
+          />
+          <div className="relative w-72 max-w-[80vw] bg-slate-950 border-r border-slate-800 p-5 flex flex-col justify-between z-10">
+            <div className="space-y-6">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div>
+                  <span className="text-base font-black text-white">
+                    AKI <span className="text-orange-500">ENTERPRISE</span>
+                  </span>
+                  <p className="text-[10px] text-gray-400">Admin Control Center</p>
+                </div>
+                <button
+                  onClick={() => setIsMobileDrawerOpen(false)}
+                  className="p-1 text-gray-400 hover:text-white rounded-lg"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <nav className="space-y-1.5 text-xs font-semibold">
+                {navItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = pathname === item.href;
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setIsMobileDrawerOpen(false)}
+                      className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition ${
+                        isActive
+                          ? "bg-orange-600 text-white font-bold"
+                          : "text-gray-300 hover:text-white hover:bg-slate-900"
+                      }`}
+                    >
+                      <Icon className={`w-4 h-4 ${isActive ? "text-white" : "text-orange-500"}`} />
+                      <span>{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </nav>
+            </div>
+
+            <div className="pt-4 border-t border-slate-800 space-y-3">
+              <Link
+                href="/"
+                className="flex items-center justify-between px-3 py-2 rounded-xl bg-slate-900 text-gray-300 text-xs font-medium"
+              >
+                <span>Live Storefront</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-red-500/10 text-red-400 text-xs font-bold hover:bg-red-500/20 transition"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Sign Out</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Dedicated Desktop Admin Sidebar */}
+      <aside className="hidden md:flex w-64 bg-slate-950 border-r border-slate-800 p-4 flex-col justify-between shrink-0">
         <div className="space-y-6">
           {/* Logo & Portal Badge */}
           <div>
@@ -163,7 +253,50 @@ export default function AdminLayout({
       </aside>
 
       {/* Main Content Pane */}
-      <main className="flex-1 p-4 sm:p-8 overflow-y-auto bg-slate-900">{children}</main>
+      <main className="flex-1 p-4 sm:p-8 overflow-y-auto bg-slate-900 pb-24 md:pb-8">
+        {children}
+      </main>
+
+      {/* Admin Mobile Bottom Navigation Bar (Screen 10 Match: Dashboard | Orders | Products | More) */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 flex items-center justify-around py-2 px-1">
+        <Link
+          href="/admin/dashboard"
+          className={`flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition ${
+            pathname === "/admin/dashboard" ? "text-[#F26A00]" : "text-gray-400 hover:text-gray-200"
+          }`}
+        >
+          <LayoutDashboard className="w-5 h-5" />
+          <span className="text-[10px] font-bold">Dashboard</span>
+        </Link>
+
+        <Link
+          href="/admin/orders"
+          className={`flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition ${
+            pathname === "/admin/orders" ? "text-[#F26A00]" : "text-gray-400 hover:text-gray-200"
+          }`}
+        >
+          <ShoppingBag className="w-5 h-5" />
+          <span className="text-[10px] font-bold">Orders</span>
+        </Link>
+
+        <Link
+          href="/admin/products"
+          className={`flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition ${
+            pathname === "/admin/products" ? "text-[#F26A00]" : "text-gray-400 hover:text-gray-200"
+          }`}
+        >
+          <Package className="w-5 h-5" />
+          <span className="text-[10px] font-bold">Products</span>
+        </Link>
+
+        <button
+          onClick={() => setIsMobileDrawerOpen(true)}
+          className="flex flex-col items-center gap-1 py-1 px-3 rounded-xl text-gray-400 hover:text-gray-200 transition"
+        >
+          <MoreHorizontal className="w-5 h-5" />
+          <span className="text-[10px] font-bold">More</span>
+        </button>
+      </nav>
     </div>
   );
 }

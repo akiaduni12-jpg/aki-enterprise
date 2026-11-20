@@ -1,0 +1,48 @@
+{
+  "name": "TechHub - Aki Enterprise",
+  "short_name": "TechHub",
+  "description": "Shop Smart. Live Better. Certified smartphones, power banks, accessories and everyday electronics in Ghana.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#171717",
+  "theme_color": "#F26A00",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["shopping", "electronics", "business"],
+  "shortcuts": [
+    {
+      "name": "Catalog",
+      "url": "/products",
+      "description": "Browse smartphones and electronics"
+    },
+    {
+      "name": "Scan & Shop",
+      "url": "/qr/shop-entrance",
+      "description": "In-store QR scanner"
+    },
+    {
+      "name": "My Orders",
+      "url": "/account?tab=orders",
+      "description": "Track your deliveries"
+    }
+  ]
+}
