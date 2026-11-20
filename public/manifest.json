@@ -36,12 +36,12 @@
     },
     {
       "name": "Scan & Shop",
-      "url": "/qr/shop-entrance",
+      "url": "/qr",
       "description": "In-store QR scanner"
     },
     {
       "name": "My Orders",
-      "url": "/account?tab=orders",
+      "url": "/orders",
       "description": "Track your deliveries"
     }
   ]

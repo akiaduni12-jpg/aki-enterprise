@@ -327,7 +327,7 @@ export default function HomePage() {
                 )}
 
                 <Link
-                  href="/qr/shop-entrance"
+                  href="/qr"
                   className="hidden sm:inline-flex items-center gap-2 px-5 py-3.5 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md text-orange-400 border border-orange-500/30 text-xs font-bold transition"
                   title="Open Store QR Scanner"
                 >
@@ -468,8 +468,8 @@ export default function HomePage() {
                 <AuthenticQR
                   value={
                     typeof window !== "undefined"
-                      ? `${window.location.origin}/qr/shop-entrance`
-                      : "https://techhubghana.com/qr/shop-entrance"
+                      ? `${window.location.origin}/qr`
+                      : "https://techhubghana.com/qr"
                   }
                   size={120}
                   centerBadgeText="TH"
@@ -487,7 +487,7 @@ export default function HomePage() {
                   Point your phone camera to launch direct catalog
                 </p>
                 <Link
-                  href="/qr/shop-entrance"
+                  href="/qr"
                   className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#171717] hover:bg-black text-white font-bold text-xs shadow-md transition"
                 >
                   <span>Open Scanner</span>
