@@ -229,109 +229,102 @@ export default function HomePage() {
       )}
 
       {/* ============================================================== */}
-      {/* 1. HERO SECTION: DUAL PANEL (Desktop Mockup Exact Architecture)  */}
+      {/* 1. HERO SECTION: FULL-WIDTH 16:9 WIDESCREEN SHOWCASE SLIDER     */}
       {/* ============================================================== */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-5">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
-          {/* LEFT MAIN HERO BANNER (approx 68% width - 8 Cols) */}
-          <div className="lg:col-span-8 relative rounded-3xl bg-[#171717] text-white p-7 sm:p-10 overflow-hidden flex flex-col justify-between shadow-xl min-h-[460px] group">
-            {/* Background Orange Wave & Energy Light Vortex */}
-            <div
-              className="absolute top-0 right-0 w-[550px] h-[550px] rounded-full blur-3xl opacity-25 pointer-events-none transition-all duration-700"
-              style={{ backgroundColor: currentBanner.accent_color || "#F26A00" }}
+        <div className="relative w-full aspect-[16/9] sm:aspect-[21/9] lg:aspect-[16/9] min-h-[460px] max-h-[640px] rounded-3xl overflow-hidden shadow-2xl bg-[#171717] group">
+          {/* Edge-to-Edge 16:9 Active Banner Photography */}
+          <Image
+            src={currentBanner.image_url}
+            alt={currentBanner.title}
+            fill
+            className="object-cover transition-transform duration-1000 group-hover:scale-105"
+            priority
+          />
+
+          {/* Cinematic Scrim Gradient (Dark to Light for High Legibility) */}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/92 via-black/60 to-black/25" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
+
+          {/* Dynamic Ambient Color Bloom matching Banner Accent */}
+          <div
+            className="absolute -top-24 -left-24 w-[500px] h-[500px] rounded-full blur-3xl opacity-35 pointer-events-none transition-all duration-700"
+            style={{ backgroundColor: currentBanner.accent_color || "#F26A00" }}
+          />
+
+          {/* Glowing Abstract Arc SVG Overlay */}
+          <svg
+            className="absolute inset-0 w-full h-full object-cover pointer-events-none opacity-25"
+            viewBox="0 0 1200 675"
+            fill="none"
+          >
+            <circle cx="950" cy="337" r="280" stroke="#FF8A24" strokeWidth="1" strokeOpacity="0.4" strokeDasharray="4 8" />
+            <circle cx="950" cy="337" r="420" stroke="#F26A00" strokeWidth="1.5" strokeOpacity="0.25" />
+            <path
+              d="M 400 0 C 700 240, 850 450, 1200 600"
+              stroke="#FF8A24"
+              strokeWidth="2"
+              strokeOpacity="0.5"
             />
-            <div className="absolute -bottom-20 -left-20 w-[400px] h-[400px] bg-[#F26A00]/15 rounded-full blur-3xl pointer-events-none" />
+          </svg>
 
-            {/* Glowing Abstract Arc SVG Overlay */}
-            <svg
-              className="absolute inset-0 w-full h-full object-cover pointer-events-none opacity-40"
-              viewBox="0 0 800 480"
-              fill="none"
-            >
-              <circle cx="580" cy="240" r="180" stroke="#FF8A24" strokeWidth="1" strokeOpacity="0.4" strokeDasharray="4 8" />
-              <circle cx="580" cy="240" r="280" stroke="#F26A00" strokeWidth="1.5" strokeOpacity="0.25" />
-              <path
-                d="M 300 0 C 480 180, 520 320, 800 440"
-                stroke="#FF8A24"
-                strokeWidth="2.5"
-                strokeOpacity="0.6"
-              />
-              <path
-                d="M 240 0 C 440 220, 500 360, 780 480"
-                stroke="#F26A00"
-                strokeWidth="1.5"
-                strokeOpacity="0.4"
-                strokeDasharray="6 6"
-              />
-            </svg>
-
-            {/* Content Top */}
-            <div className="relative z-10 max-w-md space-y-4">
-              {/* Premium Electronics Pill Badge */}
-              <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white/10 border border-white/20 text-[#FF8A24] text-xs font-bold tracking-wide">
-                <Sparkles className="w-3.5 h-3.5" />
+          {/* Overlay Content */}
+          <div className="absolute inset-0 p-6 sm:p-12 lg:p-16 flex flex-col justify-between z-10">
+            {/* Top Row: Pill Badge & 16:9 Indicator */}
+            <div className="flex items-center justify-between">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-[#FF8A24] text-xs font-black tracking-wide shadow-lg">
+                <Sparkles className="w-3.5 h-3.5 text-[#FF8A24]" />
                 <span>{currentBanner.badge}</span>
               </div>
 
-              {/* Main Headline */}
-              <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-[1.1] text-white transition-all duration-500">
+              <div className="flex items-center gap-2 text-[11px] font-mono text-white/70 bg-black/50 backdrop-blur-md px-3 py-1 rounded-full border border-white/10">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span>Slide {String((activeSlide % banners.length) + 1).padStart(2, "0")} / {String(banners.length).padStart(2, "0")}</span>
+              </div>
+            </div>
+
+            {/* Middle: Headline, Subtitle & Action Buttons */}
+            <div className="max-w-2xl space-y-4 sm:space-y-6">
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.08] text-white drop-shadow-lg transition-all duration-500">
                 {currentBanner.title}
               </h1>
 
-              {/* Subtitle */}
-              <p className="text-xs sm:text-sm text-gray-300 leading-relaxed max-w-sm">
+              <p className="text-xs sm:text-base text-gray-200 leading-relaxed max-w-xl drop-shadow-md">
                 {currentBanner.subtitle}
               </p>
 
-              {/* Action Buttons */}
+              {/* Action Buttons & Quick QR Companion */}
               <div className="flex flex-wrap items-center gap-3 pt-2">
                 <Link
                   href={currentBanner.cta_link}
-                  className="px-6 py-3 rounded-full bg-gradient-to-r from-[#F26A00] to-[#FF8A24] hover:from-[#d95e00] hover:to-[#F26A00] text-white font-bold text-xs shadow-lg shadow-orange-600/30 flex items-center gap-2 transition active:scale-95"
+                  className="px-7 py-3.5 rounded-full bg-gradient-to-r from-[#F26A00] to-[#FF8A24] hover:from-[#d95e00] hover:to-[#F26A00] text-white font-black text-xs sm:text-sm shadow-xl shadow-orange-600/40 flex items-center gap-2 transition active:scale-95"
                 >
                   <span>{currentBanner.cta_text}</span>
                   <ArrowRight className="w-4 h-4" />
                 </Link>
+
                 {currentBanner.secondary_cta_text && (
                   <Link
                     href={currentBanner.secondary_cta_link || "/products"}
-                    className="px-6 py-3 rounded-full bg-white/10 hover:bg-white/15 text-white border border-white/20 font-bold text-xs transition"
+                    className="px-6 py-3.5 rounded-full bg-white/15 hover:bg-white/25 backdrop-blur-md text-white border border-white/25 font-bold text-xs sm:text-sm transition"
                   >
                     {currentBanner.secondary_cta_text}
                   </Link>
                 )}
+
+                <Link
+                  href="/qr/shop-entrance"
+                  className="hidden sm:inline-flex items-center gap-2 px-5 py-3.5 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md text-orange-400 border border-orange-500/30 text-xs font-bold transition"
+                  title="Open Store QR Scanner"
+                >
+                  <QrCode className="w-4 h-4 text-[#FF8A24]" />
+                  <span>Scan &amp; Shop</span>
+                </Link>
               </div>
             </div>
 
-            {/* Product Photography Cluster with Admin-Uploaded Image */}
-            <div className="hidden sm:block absolute right-4 bottom-4 md:right-8 md:bottom-8 w-[380px] h-[300px] pointer-events-none">
-              <div className="relative w-full h-full">
-                {/* Main Prominent Banner Product Image */}
-                <div className="absolute right-0 bottom-0 w-64 h-72 rounded-2xl overflow-hidden shadow-2xl border-2 border-white/10">
-                  <Image
-                    src={currentBanner.image_url}
-                    alt={currentBanner.title}
-                    fill
-                    className="object-cover"
-                    priority
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-                </div>
-
-                {/* Sub Accents */}
-                <div className="absolute right-48 bottom-4 w-28 h-32 rounded-xl overflow-hidden shadow-xl border border-white/10">
-                  <Image
-                    src="https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=400&q=80"
-                    alt="Wireless Earbuds"
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Slider Controls (Dots & Arrows) */}
-            <div className="relative z-10 flex items-center justify-between pt-6">
+            {/* Bottom Row: Pagination Dots & Navigation Controls */}
+            <div className="flex items-center justify-between pt-4 border-t border-white/10">
               {/* Pagination Dots */}
               <div className="flex items-center gap-2">
                 {banners.map((_, idx) => (
@@ -340,8 +333,8 @@ export default function HomePage() {
                     onClick={() => setActiveSlide(idx)}
                     className={`h-2 rounded-full transition-all duration-300 ${
                       activeSlide === idx
-                        ? "w-8 bg-[#F26A00]"
-                        : "w-2 bg-white/30 hover:bg-white/50"
+                        ? "w-10 bg-gradient-to-r from-[#F26A00] to-[#FF8A24] shadow-md shadow-orange-500/50"
+                        : "w-2.5 bg-white/35 hover:bg-white/60"
                     }`}
                     aria-label={`Go to slide ${idx + 1}`}
                   />
@@ -354,78 +347,18 @@ export default function HomePage() {
                   onClick={() =>
                     setActiveSlide((prev) => (prev === 0 ? banners.length - 1 : prev - 1))
                   }
-                  className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition border border-white/10"
-                  aria-label="Previous slide"
+                  className="w-10 h-10 rounded-full bg-white/15 hover:bg-white/30 text-white backdrop-blur-md flex items-center justify-center transition border border-white/20 active:scale-95"
+                  aria-label="Previous banner"
                 >
-                  <ChevronLeft className="w-4 h-4" />
+                  <ChevronLeft className="w-5 h-5" />
                 </button>
                 <button
                   onClick={() => setActiveSlide((prev) => (prev + 1) % banners.length)}
-                  className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition border border-white/10"
-                  aria-label="Next slide"
+                  className="w-10 h-10 rounded-full bg-white/15 hover:bg-white/30 text-white backdrop-blur-md flex items-center justify-center transition border border-white/20 active:scale-95"
+                  aria-label="Next banner"
                 >
-                  <ChevronRight className="w-4 h-4" />
+                  <ChevronRight className="w-5 h-5" />
                 </button>
-              </div>
-            </div>
-          </div>
-
-          {/* RIGHT "SCAN & SHOP" PROMO CARD (approx 32% width - 4 Cols) */}
-          <div className="lg:col-span-4 relative rounded-3xl bg-white border border-gray-100 shadow-xl overflow-hidden p-6 sm:p-7 flex flex-col justify-between">
-            {/* Flowing Organic Orange Wave Background */}
-            <div className="absolute -top-12 -right-12 w-72 h-72 bg-gradient-to-bl from-[#F26A00]/20 via-[#FF8A24]/10 to-transparent rounded-full pointer-events-none" />
-            <div className="absolute -bottom-16 -right-8 w-60 h-60 bg-gradient-to-tl from-[#F26A00]/25 to-transparent rounded-full pointer-events-none" />
-
-            <div className="relative z-10 space-y-3">
-              {/* Headline */}
-              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-none">
-                SCAN &amp; <br />
-                <span className="text-[#F26A00]">SHOP</span>
-              </h2>
-
-              <p className="text-xs text-gray-600 leading-relaxed max-w-[240px]">
-                Scan the QR Code to Explore Our Store, Discover Amazing Deals and Order Instantly.
-              </p>
-
-              {/* Authentic Scannable QR Code Frame */}
-              <div className="flex items-center gap-4 pt-2">
-                <AuthenticQR
-                  value={
-                    typeof window !== "undefined"
-                      ? `${window.location.origin}/qr/shop-entrance`
-                      : "https://techhubghana.com/qr/shop-entrance"
-                  }
-                  size={112}
-                  centerBadgeText="TH"
-                  showDownloadButton={false}
-                />
-
-                <div className="space-y-2">
-                  <Link
-                    href="/qr/shop-entrance"
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-gradient-to-r from-[#F26A00] to-[#FF8A24] text-white font-bold text-xs shadow-md shadow-orange-600/30 hover:from-[#d95e00] transition active:scale-95"
-                  >
-                    <span>Scan Now</span>
-                    <ArrowRight className="w-3 h-3" />
-                  </Link>
-                  <p className="text-[10px] text-gray-400 font-medium leading-tight">
-                    Instant MoMo checkout in Accra store
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Cheerful Customer with Phone Photography Frame */}
-            <div className="relative mt-4 aspect-16/10 rounded-2xl overflow-hidden shadow-sm">
-              <Image
-                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80"
-                alt="Happy shopper with smartphone"
-                fill
-                className="object-cover object-top"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-              <div className="absolute bottom-2 left-3 text-[11px] text-white font-bold">
-                Aki Enterprise TechHub • In-Store Ready
               </div>
             </div>
           </div>
@@ -476,6 +409,80 @@ export default function HomePage() {
               </span>
             </Link>
           ))}
+        </div>
+      </section>
+
+      {/* ============================================================== */}
+      {/* 2.5 DEDICATED "SCAN & SHOP" ACCRA STORE PROMOTIONAL BANNER     */}
+      {/* ============================================================== */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="relative rounded-3xl bg-gradient-to-r from-orange-600 via-[#F26A00] to-[#FF8A24] text-white p-6 sm:p-10 overflow-hidden shadow-xl">
+          {/* Decorative glowing circles and wave */}
+          <div className="absolute -top-20 -right-20 w-80 h-80 bg-white/10 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-black/10 rounded-full blur-2xl pointer-events-none" />
+
+          <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8">
+            <div className="space-y-3 text-center lg:text-left max-w-xl">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-white text-[10px] sm:text-xs font-black uppercase tracking-wider">
+                <QrCode className="w-3.5 h-3.5" />
+                <span>Instant In-Store QR Experience</span>
+              </span>
+              <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-tight">
+                Scan &amp; Shop at Our Accra Store
+              </h2>
+              <p className="text-xs sm:text-sm text-orange-50 leading-relaxed">
+                Scan the official QR code to browse real-time inventory, compare battery health ratings, view daily deals, and complete instant mobile money checkout on your own device.
+              </p>
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2 text-xs font-bold text-white">
+                <span className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-300" />
+                  <span>Instant MoMo &amp; Card</span>
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-300" />
+                  <span>Official Aki Enterprise Warranty</span>
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-300" />
+                  <span>Same-Day Accra Delivery</span>
+                </span>
+              </div>
+            </div>
+
+            {/* QR Card with Authentic 2D Code */}
+            <div className="bg-white text-slate-900 p-5 rounded-2xl shadow-2xl flex flex-col sm:flex-row items-center gap-5 shrink-0 border border-orange-200">
+              <div className="shrink-0 bg-gray-50 p-2 rounded-xl border border-gray-100">
+                <AuthenticQR
+                  value={
+                    typeof window !== "undefined"
+                      ? `${window.location.origin}/qr/shop-entrance`
+                      : "https://techhubghana.com/qr/shop-entrance"
+                  }
+                  size={120}
+                  centerBadgeText="TH"
+                  showDownloadButton={true}
+                />
+              </div>
+              <div className="text-center sm:text-left space-y-2">
+                <span className="text-[10px] font-black uppercase tracking-wider text-[#F26A00] block">
+                  Storefront Entry QR
+                </span>
+                <h4 className="text-sm font-black text-slate-900">
+                  Aki Enterprise TechHub
+                </h4>
+                <p className="text-[11px] text-gray-500 max-w-[160px] leading-tight">
+                  Point your phone camera to launch direct catalog
+                </p>
+                <Link
+                  href="/qr/shop-entrance"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#171717] hover:bg-black text-white font-bold text-xs shadow-md transition"
+                >
+                  <span>Open Scanner</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-[#FF8A24]" />
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 

@@ -21,6 +21,7 @@ export interface Category {
   description?: string;
   icon?: string;
   image_url?: string;
+  created_at?: string;
 }
 
 export interface Brand {
@@ -28,6 +29,7 @@ export interface Brand {
   name: string;
   slug: string;
   logo_url?: string;
+  created_at?: string;
 }
 
 export interface ProductVariant {
