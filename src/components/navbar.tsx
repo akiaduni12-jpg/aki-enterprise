@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useCart } from "@/context/cart-context";
 import { CATEGORIES } from "@/lib/mock-data";
+import { getWishlistIds } from "@/lib/customer-store";
 import {
   Search,
   ShoppingBag,
@@ -23,7 +24,16 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [categoriesDropdownOpen, setCategoriesDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [wishlistCount] = useState(2); // Match design mockup wishlist badge
+  const [wishlistCount, setWishlistCount] = useState(0);
+
+  React.useEffect(() => {
+    const updateWishlist = () => {
+      setWishlistCount(getWishlistIds().length);
+    };
+    updateWishlist();
+    window.addEventListener("wishlist_updated", updateWishlist);
+    return () => window.removeEventListener("wishlist_updated", updateWishlist);
+  }, []);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -128,32 +138,34 @@ export function Navbar() {
 
           {/* Right Action Icons: Account, Wishlist, Cart */}
           <div className="flex items-center gap-3 sm:gap-6 shrink-0">
-            {/* Account */}
+            {/* Account (Guest-friendly Customer Hub) */}
             <Link
-              href="/admin/dashboard"
+              href="/account"
               className="hidden lg:flex items-center gap-1.5 text-xs font-semibold text-gray-700 hover:text-[#F26A00] transition"
             >
               <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600">
                 <User className="w-4 h-4" />
               </div>
               <div className="text-left">
-                <span className="block text-[11px] text-gray-400 leading-none">Sign In</span>
+                <span className="block text-[11px] text-gray-400 leading-none">My Hub</span>
                 <span className="flex items-center gap-0.5 text-xs font-bold leading-tight">
                   Account <ChevronDown className="w-3 h-3 text-gray-400" />
                 </span>
               </div>
             </Link>
 
-            {/* Wishlist with Notification Badge */}
+            {/* Wishlist with Dynamic Notification Badge */}
             <Link
-              href="/products?featured=true"
+              href="/account?tab=favorites"
               className="relative hidden sm:flex items-center gap-1.5 text-xs font-semibold text-gray-700 hover:text-[#F26A00] transition"
             >
               <div className="relative w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600">
                 <Heart className="w-4 h-4" />
-                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#F26A00] text-white text-[10px] font-bold flex items-center justify-center shadow-xs">
-                  {wishlistCount}
-                </span>
+                {wishlistCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#F26A00] text-white text-[10px] font-bold flex items-center justify-center shadow-xs">
+                    {wishlistCount}
+                  </span>
+                )}
               </div>
               <span className="hidden xl:inline text-xs font-bold">Wishlist</span>
             </Link>

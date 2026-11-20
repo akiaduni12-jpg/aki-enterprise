@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useCart } from "@/context/cart-context";
 import { formatGHS, getConditionBadge } from "@/lib/utils";
 import { saveOrder } from "@/lib/db-service";
+import { getCustomerProfile, recordCustomerOrder } from "@/lib/customer-store";
 import {
   ShieldCheck,
   Truck,
@@ -35,6 +36,20 @@ export default function CheckoutPage() {
     notes: "",
   });
 
+  React.useEffect(() => {
+    const saved = getCustomerProfile();
+    if (saved && (saved.full_name || saved.phone)) {
+      setFormData({
+        fullName: saved.full_name || "",
+        phone: saved.phone || "",
+        email: saved.email || "",
+        address: saved.delivery_address || "",
+        city: saved.city || "Accra",
+        notes: saved.notes || "",
+      });
+    }
+  }, []);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderComplete, setOrderComplete] = useState<string | null>(null);
 
@@ -57,7 +72,7 @@ export default function CheckoutPage() {
     try {
       const generatedOrderNumber = `TH-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
-      await saveOrder({
+      const orderPayload = {
         order_number: generatedOrderNumber,
         customer: {
           full_name: formData.fullName,
@@ -72,6 +87,8 @@ export default function CheckoutPage() {
         subtotal,
         delivery_fee: deliveryFee,
         total_amount: totalAmount,
+        order_status: "processing" as any,
+        payment_status: paymentMethod === "cash_on_pickup" ? ("pending" as any) : ("paid" as any),
         items: cart.map((item) => ({
           id: `item-${Date.now()}-${Math.random()}`,
           product_id: item.product.id,
@@ -87,7 +104,10 @@ export default function CheckoutPage() {
           total_price: item.selected_variant.price * item.quantity,
           image_url: item.product.images[0] || "",
         })),
-      });
+      };
+
+      await saveOrder(orderPayload);
+      recordCustomerOrder(orderPayload);
 
       setOrderComplete(generatedOrderNumber);
       clearCart();

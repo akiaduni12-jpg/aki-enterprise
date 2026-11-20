@@ -9,6 +9,7 @@ import { getStoredBanners } from "@/lib/banner-store";
 import { formatGHS } from "@/lib/utils";
 import { useCart } from "@/context/cart-context";
 import { AuthenticQR } from "@/components/ui/authentic-qr";
+import { StoreTestimonials } from "@/components/store-testimonials";
 import {
   ArrowRight,
   ShoppingBag,
@@ -1081,69 +1082,9 @@ export default function HomePage() {
       </section>
 
       {/* ============================================================== */}
-      {/* 10. NEW: SOCIAL PROOF / GHANA CUSTOMER TESTIMONIALS            */}
+      {/* 10. REAL CUSTOMER REVIEWS & GHANA TESTIMONIALS (Dynamic)       */}
       {/* ============================================================== */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-4 rounded-full bg-[#F26A00]" />
-            <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
-              What Our Customers Say
-            </h2>
-          </div>
-          <div className="flex items-center gap-1 text-xs text-amber-500 font-bold">
-            <Star className="w-4 h-4 fill-amber-400" />
-            <span>4.9 / 5 Rating (Over 3,400+ Verified Orders)</span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-xs space-y-3">
-            <div className="flex items-center gap-1 text-amber-400">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-4 h-4 fill-amber-400" />
-              ))}
-            </div>
-            <p className="text-xs text-gray-600 leading-relaxed italic">
-              &quot;Bought the UK-Used iPhone 13 in Midnight. The phone is in mint condition with 94% battery health. Tested with my MTN 5G SIM before leaving the shop. Aki Enterprise is 100% legit.&quot;
-            </p>
-            <div className="pt-2 border-t border-gray-100 flex items-center justify-between text-xs">
-              <span className="font-bold text-slate-900">Kofi Ansah</span>
-              <span className="text-[11px] text-emerald-600 font-semibold">Verified Buyer • Accra</span>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-xs space-y-3">
-            <div className="flex items-center gap-1 text-amber-400">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-4 h-4 fill-amber-400" />
-              ))}
-            </div>
-            <p className="text-xs text-gray-600 leading-relaxed italic">
-              &quot;The Anker 65W GaN adapter powers my HP Spectre laptop and iPhone at the same time. Fast delivery to East Legon within 2 hours of placing my MoMo order.&quot;
-            </p>
-            <div className="pt-2 border-t border-gray-100 flex items-center justify-between text-xs">
-              <span className="font-bold text-slate-900">Ama Darkwah</span>
-              <span className="text-[11px] text-emerald-600 font-semibold">Verified Buyer • East Legon</span>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-xs space-y-3">
-            <div className="flex items-center gap-1 text-amber-400">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-4 h-4 fill-amber-400" />
-              ))}
-            </div>
-            <p className="text-xs text-gray-600 leading-relaxed italic">
-              &quot;Ordered the Kingston NV2 1TB NVMe SSD for my gaming laptop. They even guided me on WhatsApp on how to clone my Windows OS safely. Highly recommended store!&quot;
-            </p>
-            <div className="pt-2 border-t border-gray-100 flex items-center justify-between text-xs">
-              <span className="font-bold text-slate-900">Kwame Sarpong</span>
-              <span className="text-[11px] text-emerald-600 font-semibold">Verified Buyer • Kumasi</span>
-            </div>
-          </div>
-        </div>
-      </section>
+      <StoreTestimonials />
 
       {/* ============================================================== */}
       {/* 11. NEW: BRAND PARTNERS MARQUEE STRIP                          */}

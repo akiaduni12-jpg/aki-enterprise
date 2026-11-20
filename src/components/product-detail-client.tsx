@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Product, ProductVariant } from "@/types/ecommerce";
 import { formatGHS, getConditionBadge } from "@/lib/utils";
 import { useCart } from "@/context/cart-context";
+import { ProductReviews } from "@/components/product-reviews";
 import {
   ShieldCheck,
   Truck,
@@ -280,6 +281,11 @@ export function ProductDetailClient({ product }: { product: Product }) {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Customer Product Reviews Section */}
+      <div className="mt-12">
+        <ProductReviews product={product} />
       </div>
     </div>
   );
