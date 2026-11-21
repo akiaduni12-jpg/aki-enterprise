@@ -200,6 +200,16 @@ export function submitProductReview(reviewData: {
 
   const updated = [newReview, ...current];
   saveStoredProductReviews(updated);
+
+  // Sync to backend Supabase API in background
+  if (typeof window !== "undefined") {
+    fetch("/api/feedback", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "review", data: newReview }),
+    }).catch((e) => console.warn("Review background sync notice:", e));
+  }
+
   return newReview;
 }
 
@@ -210,6 +220,15 @@ export function updateProductReviewStatus(
   const current = getStoredProductReviews();
   const updated = current.map((r) => (r.id === id ? { ...r, status } : r));
   saveStoredProductReviews(updated);
+
+  if (typeof window !== "undefined") {
+    fetch("/api/feedback", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "review", id, status }),
+    }).catch((e) => console.warn("Review status background sync notice:", e));
+  }
+
   return updated;
 }
 
@@ -273,6 +292,16 @@ export function submitStoreTestimonial(testimonialData: {
 
   const updated = [newTestimonial, ...current];
   saveStoredTestimonials(updated);
+
+  // Sync to backend Supabase API in background
+  if (typeof window !== "undefined") {
+    fetch("/api/feedback", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "testimonial", data: newTestimonial }),
+    }).catch((e) => console.warn("Testimonial background sync notice:", e));
+  }
+
   return newTestimonial;
 }
 
@@ -283,6 +312,15 @@ export function updateTestimonialStatus(
   const current = getStoredTestimonials();
   const updated = current.map((t) => (t.id === id ? { ...t, status } : t));
   saveStoredTestimonials(updated);
+
+  if (typeof window !== "undefined") {
+    fetch("/api/feedback", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "testimonial", id, status }),
+    }).catch((e) => console.warn("Testimonial status background sync notice:", e));
+  }
+
   return updated;
 }
 

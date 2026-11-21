@@ -12,6 +12,8 @@ export function getStoredBanners(): HeroBanner[] {
     const raw = localStorage.getItem(BANNERS_STORAGE_KEY);
     if (!raw) {
       localStorage.setItem(BANNERS_STORAGE_KEY, JSON.stringify(INITIAL_HERO_BANNERS));
+      // Background sync from API
+      syncBannersFromCloud();
       return INITIAL_HERO_BANNERS;
     }
     const parsed = JSON.parse(raw);
@@ -20,6 +22,23 @@ export function getStoredBanners(): HeroBanner[] {
     console.error("Error reading stored banners:", error);
     return INITIAL_HERO_BANNERS;
   }
+}
+
+export async function syncBannersFromCloud(): Promise<HeroBanner[]> {
+  if (typeof window === "undefined") return INITIAL_HERO_BANNERS;
+
+  try {
+    const res = await fetch("/api/banners");
+    const data = await res.json();
+    if (data.success && Array.isArray(data.banners) && data.banners.length > 0) {
+      localStorage.setItem(BANNERS_STORAGE_KEY, JSON.stringify(data.banners));
+      window.dispatchEvent(new Event("banners_updated"));
+      return data.banners;
+    }
+  } catch (err) {
+    console.warn("Could not sync banners from cloud:", err);
+  }
+  return getStoredBanners();
 }
 
 export function saveStoredBanners(banners: HeroBanner[]): void {
@@ -43,6 +62,16 @@ export function addBanner(bannerData: Omit<HeroBanner, "id" | "created_at">): He
 
   const updated = [...current, newBanner];
   saveStoredBanners(updated);
+
+  // Sync to backend Supabase API in background
+  if (typeof window !== "undefined") {
+    fetch("/api/banners", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newBanner),
+    }).catch((e) => console.warn("Banner background sync notice:", e));
+  }
+
   return newBanner;
 }
 
@@ -50,6 +79,16 @@ export function updateBanner(id: string, updates: Partial<HeroBanner>): HeroBann
   const current = getStoredBanners();
   const updated = current.map((b) => (b.id === id ? { ...b, ...updates } : b));
   saveStoredBanners(updated);
+
+  const target = updated.find((b) => b.id === id);
+  if (target && typeof window !== "undefined") {
+    fetch("/api/banners", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(target),
+    }).catch((e) => console.warn("Banner background sync notice:", e));
+  }
+
   return updated;
 }
 
@@ -57,6 +96,16 @@ export function toggleBannerStatus(id: string): HeroBanner[] {
   const current = getStoredBanners();
   const updated = current.map((b) => (b.id === id ? { ...b, is_active: !b.is_active } : b));
   saveStoredBanners(updated);
+
+  const target = updated.find((b) => b.id === id);
+  if (target && typeof window !== "undefined") {
+    fetch("/api/banners", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(target),
+    }).catch((e) => console.warn("Banner background sync notice:", e));
+  }
+
   return updated;
 }
 
@@ -64,5 +113,12 @@ export function deleteBanner(id: string): HeroBanner[] {
   const current = getStoredBanners();
   const updated = current.filter((b) => b.id !== id);
   saveStoredBanners(updated);
+
+  if (typeof window !== "undefined") {
+    fetch(`/api/banners?id=${encodeURIComponent(id)}`, {
+      method: "DELETE",
+    }).catch((e) => console.warn("Banner background sync notice:", e));
+  }
+
   return updated;
 }

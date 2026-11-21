@@ -214,9 +214,33 @@ export function saveStoreSettings(settings: StoreSettings): void {
   try {
     localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
     window.dispatchEvent(new Event("settings_updated"));
+
+    // Sync to backend Supabase API in background
+    fetch("/api/settings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(settings),
+    }).catch((e) => console.warn("Settings cloud sync notice:", e));
   } catch (error) {
     console.error("Error saving store settings:", error);
   }
+}
+
+export async function syncStoreSettingsFromCloud(): Promise<StoreSettings> {
+  if (typeof window === "undefined") return DEFAULT_STORE_SETTINGS;
+
+  try {
+    const res = await fetch("/api/settings");
+    const data = await res.json();
+    if (data.success && data.settings) {
+      localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(data.settings));
+      window.dispatchEvent(new Event("settings_updated"));
+      return data.settings;
+    }
+  } catch (err) {
+    console.warn("Could not sync settings from cloud:", err);
+  }
+  return getStoreSettings();
 }
 
 export function updateStoreSettings(updates: Partial<StoreSettings>): StoreSettings {

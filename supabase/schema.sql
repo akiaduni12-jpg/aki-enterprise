@@ -208,3 +208,87 @@ GRANT ALL ON ALL ROUTINES IN SCHEMA public TO anon, authenticated, service_role;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO anon, authenticated, service_role;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO anon, authenticated, service_role;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON ROUTINES TO anon, authenticated, service_role;
+
+-- 11. HERO BANNERS & HOMEPAGE SLIDES
+CREATE TABLE IF NOT EXISTS public.hero_banners (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  title TEXT NOT NULL,
+  subtitle TEXT NOT NULL,
+  badge TEXT NOT NULL,
+  accent_color TEXT DEFAULT '#F26A00',
+  image_url TEXT NOT NULL,
+  cta_text TEXT NOT NULL DEFAULT 'Shop Now',
+  cta_link TEXT NOT NULL DEFAULT '/products',
+  secondary_cta_text TEXT,
+  secondary_cta_link TEXT,
+  display_order INTEGER DEFAULT 1,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 12. PRODUCT REVIEWS & TESTIMONIALS
+CREATE TABLE IF NOT EXISTS public.reviews (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  product_id TEXT NOT NULL,
+  product_slug TEXT,
+  product_title TEXT,
+  customer_name TEXT NOT NULL,
+  rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+  title TEXT NOT NULL,
+  comment TEXT NOT NULL,
+  verified_purchase BOOLEAN DEFAULT false,
+  status TEXT DEFAULT 'approved',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.store_testimonials (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  customer_name TEXT NOT NULL,
+  city TEXT NOT NULL,
+  rating INTEGER NOT NULL DEFAULT 5 CHECK (rating >= 1 AND rating <= 5),
+  highlight TEXT NOT NULL,
+  content TEXT NOT NULL,
+  verified_buyer BOOLEAN DEFAULT true,
+  featured BOOLEAN DEFAULT true,
+  status TEXT DEFAULT 'approved',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 13. STORE SETTINGS & CMS POLICIES
+CREATE TABLE IF NOT EXISTS public.store_settings (
+  id TEXT PRIMARY KEY DEFAULT 'current',
+  store_name TEXT NOT NULL DEFAULT 'Aki Enterprise',
+  tagline TEXT DEFAULT 'Original Electronics & Smart Devices • Ghana',
+  business_name TEXT DEFAULT 'Aki Enterprise',
+  owner_name TEXT DEFAULT 'Aki Enterprise Management',
+  phone TEXT NOT NULL DEFAULT '0551243372',
+  whatsapp TEXT NOT NULL DEFAULT '0551243372',
+  email TEXT NOT NULL DEFAULT 'support@akienterprise.com',
+  address TEXT NOT NULL DEFAULT 'Miaso, Kwahu East, Eastern Region, Ghana',
+  city TEXT DEFAULT 'Miaso, Kwahu East',
+  region TEXT DEFAULT 'Eastern Region',
+  country TEXT DEFAULT 'Ghana',
+  currency TEXT DEFAULT 'GH₵',
+  announcement_text TEXT DEFAULT 'Free Delivery on Orders Above GH₵ 500 across Ghana | Genuine Warranty Guaranteed',
+  announcement_enabled BOOLEAN DEFAULT true,
+  delivery_fee NUMERIC(10, 2) DEFAULT 30.00,
+  free_delivery_threshold NUMERIC(10, 2) DEFAULT 500.00,
+  socials JSONB DEFAULT '{"facebook": "https://facebook.com/akienterprise", "instagram": "https://instagram.com/akienterprise", "tiktok": "https://tiktok.com/@akienterprise", "x": "https://x.com/akienterprise", "whatsapp": "https://wa.me/233551243372"}'::jsonb,
+  policies JSONB DEFAULT '{}'::jsonb,
+  google_merchant JSONB DEFAULT '{}'::jsonb,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.hero_banners ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.reviews ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.store_testimonials ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.store_settings ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Public hero banners viewable" ON public.hero_banners FOR SELECT USING (true);
+CREATE POLICY "Public reviews viewable" ON public.reviews FOR SELECT USING (true);
+CREATE POLICY "Public store testimonials viewable" ON public.store_testimonials FOR SELECT USING (true);
+CREATE POLICY "Public store settings viewable" ON public.store_settings FOR SELECT USING (true);
+CREATE POLICY "Public can submit reviews" ON public.reviews FOR INSERT WITH CHECK (true);
+CREATE POLICY "Public can submit testimonials" ON public.store_testimonials FOR INSERT WITH CHECK (true);
+
