@@ -4,9 +4,9 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { PRODUCTS, INITIAL_HERO_BANNERS } from "@/lib/mock-data";
-import { HeroBanner, Product, Category } from "@/types/ecommerce";
+import { HeroBanner, Product, Category, Brand } from "@/types/ecommerce";
 import { getStoredBanners } from "@/lib/banner-store";
-import { getStoredProducts, getStoredCategories } from "@/lib/catalog-store";
+import { getStoredProducts, getStoredCategories, getStoredBrands } from "@/lib/catalog-store";
 import { formatGHS } from "@/lib/utils";
 import { useCart } from "@/context/cart-context";
 import { AuthenticQR } from "@/components/ui/authentic-qr";
@@ -42,6 +42,7 @@ export default function HomePage() {
   const [banners, setBanners] = useState<HeroBanner[]>(INITIAL_HERO_BANNERS);
   const [allProducts, setAllProducts] = useState<Product[]>(PRODUCTS);
   const [allCategories, setAllCategories] = useState<Category[]>([]);
+  const [brands, setBrands] = useState<Brand[]>([]);
   const [phoneFilter, setPhoneFilter] = useState<"all" | "brand_new" | "uk_used">("all");
   const [likedItems, setLikedItems] = useState<Record<string, boolean>>({});
   const [addedToast, setAddedToast] = useState<string | null>(null);
@@ -56,6 +57,10 @@ export default function HomePage() {
       const cats = getStoredCategories();
       if (cats && cats.length > 0) {
         setAllCategories(cats);
+      }
+      const b = getStoredBrands();
+      if (b && b.length > 0) {
+        setBrands(b);
       }
     };
 
@@ -835,39 +840,49 @@ export default function HomePage() {
             })}
           </div>
 
-          {/* Right: "Big Deals. Bigger Savings. Up to 50% OFF" Card (3 Cols) */}
-          <div className="lg:col-span-3 rounded-2xl bg-[#171717] text-white p-6 relative overflow-hidden flex flex-col justify-between shadow-xl min-h-[350px]">
-            {/* Glowing Orange Energy Ring Behind Headphones */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-56 h-56 bg-[#F26A00]/25 rounded-full blur-2xl pointer-events-none" />
+          {/* Right: Dynamic Promo Mini Card (3 Cols) - Synced from Admin Banner Store */}
+          {(() => {
+            const promoBanner = banners[1] || banners[0] || INITIAL_HERO_BANNERS[0];
+            return (
+              <div className="lg:col-span-3 rounded-2xl bg-[#171717] text-white p-6 relative overflow-hidden flex flex-col justify-between shadow-xl min-h-[350px]">
+                {/* Glowing Energy Ring Behind Product */}
+                <div
+                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-56 h-56 rounded-full blur-2xl opacity-25 pointer-events-none"
+                  style={{ backgroundColor: promoBanner.accent_color || "#F26A00" }}
+                />
 
-            <div className="relative z-10 space-y-1">
-              <h3 className="text-xl sm:text-2xl font-black text-white leading-tight">
-                Big Deals. <br />
-                Bigger Savings.
-              </h3>
-              <p className="text-xs text-gray-300 font-semibold">
-                Up to <span className="text-2xl font-black text-[#FF8A24]">50% OFF</span>
-              </p>
-            </div>
+                <div className="relative z-10 space-y-1">
+                  <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#FF8A24] block">
+                    {promoBanner.badge || "Featured Deal"}
+                  </span>
+                  <h3 className="text-xl sm:text-2xl font-black text-white leading-tight">
+                    {promoBanner.title}
+                  </h3>
+                  <p className="text-xs text-gray-300 font-semibold line-clamp-2">
+                    {promoBanner.subtitle}
+                  </p>
+                </div>
 
-            {/* Over-Ear Wireless Headphones Photo */}
-            <div className="relative w-full aspect-square my-2">
-              <Image
-                src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=500&q=80"
-                alt="Big Deals Headphones"
-                fill
-                className="object-contain drop-shadow-2xl"
-              />
-            </div>
+                {/* Promo Image */}
+                <div className="relative w-full aspect-square my-2">
+                  <Image
+                    src={promoBanner.image_url}
+                    alt={promoBanner.title}
+                    fill
+                    className="object-contain drop-shadow-2xl"
+                  />
+                </div>
 
-            <Link
-              href="/products?featured=true"
-              className="relative z-10 w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#F26A00] to-[#FF8A24] hover:from-[#d95e00] text-white font-bold text-xs text-center shadow-lg shadow-orange-600/30 transition flex items-center justify-center gap-2"
-            >
-              <span>Shop the Deals</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
+                <Link
+                  href={promoBanner.cta_link || "/products?featured=true"}
+                  className="relative z-10 w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#F26A00] to-[#FF8A24] hover:from-[#d95e00] text-white font-bold text-xs text-center shadow-lg shadow-orange-600/30 transition flex items-center justify-center gap-2"
+                >
+                  <span>{promoBanner.cta_text || "Shop Deals"}</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            );
+          })()}
         </div>
       </section>
 
@@ -1325,8 +1340,11 @@ export default function HomePage() {
           <span className="text-[11px] font-black uppercase tracking-wider text-gray-400 block text-center mb-4">
             Authorized Brands &amp; Direct Wholesalers
           </span>
-          <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12 opacity-75 grayscale hover:grayscale-0 transition-all duration-300">
-            {["Apple", "Samsung", "Google Pixel", "Anker", "Oraimo", "Crucial", "Kingston", "JBL", "Baseus"].map((b, i) => (
+          <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12 opacity-75 hover:opacity-100 transition-all duration-300">
+            {(brands.length > 0
+              ? brands.map((b) => b.name)
+              : ["Apple", "Samsung", "Google Pixel", "Anker", "Oraimo", "Crucial", "Kingston", "JBL", "Baseus"]
+            ).map((b, i) => (
               <Link
                 key={i}
                 href={`/products?search=${encodeURIComponent(b)}`}

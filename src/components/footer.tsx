@@ -2,7 +2,9 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import dynamic from "next/dynamic";
+import { getStoreSettings, StoreSettings, DEFAULT_STORE_SETTINGS } from "@/lib/settings-store";
+import { PaymentBadge } from "@/components/ui/payment-badge";
+import { SocialIcon } from "@/components/ui/social-icon";
 import {
   Phone,
   MapPin,
@@ -20,6 +22,16 @@ import {
 export function Footer() {
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
+  const [settings, setSettings] = useState<StoreSettings>(DEFAULT_STORE_SETTINGS);
+
+  React.useEffect(() => {
+    const updateSettings = () => {
+      setSettings(getStoreSettings());
+    };
+    updateSettings();
+    window.addEventListener("settings_updated", updateSettings);
+    return () => window.removeEventListener("settings_updated", updateSettings);
+  }, []);
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,8 +91,8 @@ export function Footer() {
 
             {/* Right: Brand Lockup */}
             <div className="hidden xl:flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-[#F26A00]/15 border border-[#F26A00]/30 flex items-center justify-center text-[#FF8A24] font-black text-sm">
-                TH
+              <div className="w-9 h-9 rounded-xl bg-[#F26A00]/15 border border-[#F26A00]/30 flex items-center justify-center text-[#FF8A24] font-black text-xs">
+                AKI
               </div>
               <div>
                 <div className="text-sm font-black text-white tracking-tight">
@@ -130,15 +142,15 @@ export function Footer() {
               <div className="space-y-2.5 text-xs text-gray-300">
                 <div className="flex items-start gap-2.5">
                   <MapPin className="w-4 h-4 text-[#FF8A24] shrink-0 mt-0.5" />
-                  <span>Physical Store: Miaso, Kwahu East, Eastern Region, Ghana</span>
+                  <span>Physical Store: {settings.address}</span>
                 </div>
                 <div className="flex items-center gap-2.5">
                   <Phone className="w-4 h-4 text-[#FF8A24] shrink-0" />
-                  <span>+233 55 124 3372 (Direct &amp; WhatsApp)</span>
+                  <span>{settings.phone} (Direct &amp; WhatsApp)</span>
                 </div>
                 <div className="flex items-center gap-2.5">
                   <Mail className="w-4 h-4 text-[#FF8A24] shrink-0" />
-                  <span>support@akienterprise.com</span>
+                  <span>{settings.email}</span>
                 </div>
               </div>
 
@@ -148,51 +160,11 @@ export function Footer() {
                   Connect With Us
                 </span>
                 <div className="flex items-center gap-2 text-xs">
-                  <a
-                    href="https://facebook.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-8 h-8 rounded-lg bg-white/5 hover:bg-[#F26A00]/20 hover:text-[#FF8A24] border border-white/10 flex items-center justify-center transition"
-                    title="Facebook"
-                  >
-                    f
-                  </a>
-                  <a
-                    href="https://instagram.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-8 h-8 rounded-lg bg-white/5 hover:bg-[#F26A00]/20 hover:text-[#FF8A24] border border-white/10 flex items-center justify-center transition"
-                    title="Instagram"
-                  >
-                    ig
-                  </a>
-                  <a
-                    href="https://tiktok.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-8 h-8 rounded-lg bg-white/5 hover:bg-[#F26A00]/20 hover:text-[#FF8A24] border border-white/10 flex items-center justify-center transition"
-                    title="TikTok"
-                  >
-                    tk
-                  </a>
-                  <a
-                    href="https://x.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-8 h-8 rounded-lg bg-white/5 hover:bg-[#F26A00]/20 hover:text-[#FF8A24] border border-white/10 flex items-center justify-center transition"
-                    title="X (Twitter)"
-                  >
-                    𝕏
-                  </a>
-                  <a
-                    href="https://wa.me/233551243372"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-8 h-8 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30 flex items-center justify-center transition"
-                    title="WhatsApp Direct Support"
-                  >
-                    wa
-                  </a>
+                  <SocialIcon platform="facebook" href={settings.socials.facebook} />
+                  <SocialIcon platform="instagram" href={settings.socials.instagram} />
+                  <SocialIcon platform="tiktok" href={settings.socials.tiktok} />
+                  <SocialIcon platform="x" href={settings.socials.x} />
+                  <SocialIcon platform="whatsapp" href={settings.socials.whatsapp} />
                 </div>
               </div>
             </div>
@@ -255,27 +227,33 @@ export function Footer() {
               </div>
               <ul className="space-y-2 text-xs text-gray-400">
                 <li>
-                  <Link href="/track" className="hover:text-[#FF8A24] transition flex items-center gap-1.5">
+                  <Link href="/orders" className="hover:text-[#FF8A24] transition flex items-center gap-1.5">
                     <ArrowRight className="w-3 h-3 text-[#F26A00]" />
                     <span>Track Your Order</span>
                   </Link>
                 </li>
                 <li>
-                  <Link href="/admin/qr" className="hover:text-[#FF8A24] transition flex items-center gap-1.5">
-                    <QrCode className="w-3 h-3 text-[#F26A00]" />
-                    <span>Scan & Shop in Store</span>
+                  <Link href="/policies/returns" className="hover:text-[#FF8A24] transition flex items-center gap-1.5">
+                    <RefreshCw className="w-3 h-3 text-[#F26A00]" />
+                    <span>Return &amp; Refund Policy</span>
                   </Link>
                 </li>
                 <li>
                   <Link href="/policies/warranty" className="hover:text-[#FF8A24] transition flex items-center gap-1.5">
                     <ShieldCheck className="w-3 h-3 text-[#F26A00]" />
-                    <span>Warranty & Returns</span>
+                    <span>Warranty &amp; Authenticity</span>
                   </Link>
                 </li>
                 <li>
                   <Link href="/policies/delivery" className="hover:text-[#FF8A24] transition flex items-center gap-1.5">
                     <Truck className="w-3 h-3 text-[#F26A00]" />
-                    <span>Delivery & Pickup</span>
+                    <span>Delivery &amp; Pickup</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/about" className="hover:text-[#FF8A24] transition flex items-center gap-1.5">
+                    <ArrowRight className="w-3 h-3 text-[#F26A00]" />
+                    <span>About Aki Enterprise</span>
                   </Link>
                 </li>
                 <li>
@@ -302,22 +280,10 @@ export function Footer() {
 
               {/* Payment Tags */}
               <div className="grid grid-cols-2 gap-2 text-xs font-bold">
-                <div className="p-2 rounded-xl bg-[#222222] border border-white/5 flex items-center gap-2 text-yellow-400">
-                  <span className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse" />
-                  <span>MTN MoMo</span>
-                </div>
-                <div className="p-2 rounded-xl bg-[#222222] border border-white/5 flex items-center gap-2 text-red-400">
-                  <span className="w-2 h-2 rounded-full bg-red-400" />
-                  <span>Telecel Cash</span>
-                </div>
-                <div className="p-2 rounded-xl bg-[#222222] border border-white/5 flex items-center gap-2 text-blue-400">
-                  <span className="w-2 h-2 rounded-full bg-blue-400" />
-                  <span>ATMoney</span>
-                </div>
-                <div className="p-2 rounded-xl bg-[#222222] border border-white/5 flex items-center gap-2 text-gray-200">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                  <span>Visa / Card</span>
-                </div>
+                <PaymentBadge channel="mtn" />
+                <PaymentBadge channel="telecel" />
+                <PaymentBadge channel="airtel" />
+                <PaymentBadge channel="card" />
               </div>
 
               {/* Security Shield */}
@@ -339,17 +305,29 @@ export function Footer() {
               © 2026 <strong className="text-gray-300">Aki Enterprise</strong>. All rights reserved.
             </p>
 
-            <div className="flex items-center gap-4 text-[11px]">
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-[11px]">
+              <Link href="/about" className="hover:text-gray-300 transition">
+                About Us
+              </Link>
+              <span>•</span>
+              <Link href="/policies/returns" className="hover:text-gray-300 transition">
+                Return &amp; Refund Policy
+              </Link>
+              <span>•</span>
+              <Link href="/policies/delivery" className="hover:text-gray-300 transition">
+                Delivery Policy
+              </Link>
+              <span>•</span>
+              <Link href="/policies/warranty" className="hover:text-gray-300 transition">
+                Warranty Protection
+              </Link>
+              <span>•</span>
               <Link href="/policies/terms" className="hover:text-gray-300 transition">
-                Terms & Conditions
+                Terms of Service
               </Link>
               <span>•</span>
               <Link href="/policies/privacy" className="hover:text-gray-300 transition">
                 Privacy Notice
-              </Link>
-              <span>•</span>
-              <Link href="/policies/warranty" className="hover:text-gray-300 transition">
-                Ghana Warranty Protection
               </Link>
             </div>
           </div>

@@ -538,6 +538,25 @@ export default function CheckoutPage() {
           </div>
         </div>
 
+        {/* Google Merchant Center Compliant Policy Notice */}
+        <div className="p-4 rounded-2xl bg-gray-50 border border-gray-200 text-xs text-gray-500 space-y-1.5">
+          <div className="flex items-center gap-2 text-slate-800 font-bold">
+            <ShieldCheck className="w-4 h-4 text-[#F26A00]" />
+            <span>Guaranteed Authenticity &amp; 14-Day Return Protection</span>
+          </div>
+          <p className="leading-relaxed">
+            By placing an order, you agree to our{" "}
+            <Link href="/policies/terms" target="_blank" className="text-[#F26A00] underline font-semibold">
+              Terms of Service
+            </Link>{" "}
+            and{" "}
+            <Link href="/policies/returns" target="_blank" className="text-[#F26A00] underline font-semibold">
+              14-Day Return &amp; Refund Policy
+            </Link>
+            . Orders above GH₵ 500 qualify for free nationwide delivery.
+          </p>
+        </div>
+
         {/* Desktop Place Order Button */}
         <button
           type="submit"

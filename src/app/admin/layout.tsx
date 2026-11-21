@@ -19,6 +19,7 @@ import {
   X,
   Bell,
   MoreHorizontal,
+  Settings,
 } from "lucide-react";
 
 export default function AdminLayout({
@@ -87,6 +88,7 @@ export default function AdminLayout({
     { href: "/admin/orders", label: "Orders & Fulfillment", icon: ShoppingBag },
     { href: "/admin/reviews", label: "Reviews & Testimonials", icon: MessageSquare },
     { href: "/admin/qr", label: "QR In-Store Campaigns", icon: QrCode },
+    { href: "/admin/settings", label: "Store Settings & Policies", icon: Settings },
   ];
 
   return (

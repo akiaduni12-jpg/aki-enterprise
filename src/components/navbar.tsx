@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useCart } from "@/context/cart-context";
 import { CATEGORIES } from "@/lib/mock-data";
 import { getWishlistIds } from "@/lib/customer-store";
+import { getStoreSettings, StoreSettings, DEFAULT_STORE_SETTINGS } from "@/lib/settings-store";
+import { SocialIcon } from "@/components/ui/social-icon";
 import {
   Search,
   ShoppingBag,
@@ -25,14 +27,23 @@ export function Navbar() {
   const [categoriesDropdownOpen, setCategoriesDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [wishlistCount, setWishlistCount] = useState(0);
+  const [settings, setSettings] = useState<StoreSettings>(DEFAULT_STORE_SETTINGS);
 
   React.useEffect(() => {
     const updateWishlist = () => {
       setWishlistCount(getWishlistIds().length);
     };
+    const updateSettings = () => {
+      setSettings(getStoreSettings());
+    };
     updateWishlist();
+    updateSettings();
     window.addEventListener("wishlist_updated", updateWishlist);
-    return () => window.removeEventListener("wishlist_updated", updateWishlist);
+    window.addEventListener("settings_updated", updateSettings);
+    return () => {
+      window.removeEventListener("wishlist_updated", updateWishlist);
+      window.removeEventListener("settings_updated", updateSettings);
+    };
   }, []);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -48,31 +59,31 @@ export function Navbar() {
       <div className="bg-[#171717] text-gray-300 text-[11px] py-1.5 px-4 border-b border-white/10">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           {/* Left Announcement */}
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#FF8A24] animate-pulse" />
-            <p className="font-medium text-gray-200">
-              Free Delivery on Orders Above <span className="text-[#FF8A24] font-bold">GH₵ 500</span>
+          <div className="flex items-center gap-2 overflow-hidden">
+            <span className="w-2 h-2 rounded-full bg-[#FF8A24] animate-pulse shrink-0" />
+            <p className="font-medium text-gray-200 truncate">
+              {settings.announcementEnabled ? settings.announcementText : `${settings.storeName} • Certified Electronics & Smart Devices`}
             </p>
           </div>
 
           {/* Right Store Info & Socials */}
-          <div className="hidden md:flex items-center gap-5 text-gray-400">
+          <div className="hidden md:flex items-center gap-4 text-gray-400 shrink-0">
             <div className="flex items-center gap-1 hover:text-white transition">
               <MapPin className="w-3.5 h-3.5 text-[#FF8A24]" />
-              <span>Miaso, Kwahu East, Ghana</span>
+              <span className="max-w-[200px] truncate">{settings.address}</span>
             </div>
             <span>|</span>
             <div className="flex items-center gap-1 hover:text-white transition">
               <Phone className="w-3.5 h-3.5 text-[#FF8A24]" />
-              <span>+233 55 124 3372</span>
+              <span>{settings.phone}</span>
             </div>
             <span>|</span>
-            {/* Social Icons */}
-            <div className="flex items-center gap-2.5 text-xs text-gray-300">
-              <a href="https://facebook.com" target="_blank" rel="noreferrer" className="hover:text-[#FF8A24] transition font-bold text-[11px]">f</a>
-              <a href="https://instagram.com" target="_blank" rel="noreferrer" className="hover:text-[#FF8A24] transition font-bold text-[11px]">ig</a>
-              <a href="https://tiktok.com" target="_blank" rel="noreferrer" className="hover:text-[#FF8A24] transition font-bold text-[11px]">tk</a>
-              <a href="https://x.com" target="_blank" rel="noreferrer" className="hover:text-[#FF8A24] transition font-bold text-[11px]">𝕏</a>
+            {/* Social Icons with Image/Fallback */}
+            <div className="flex items-center gap-1.5 text-xs text-gray-300">
+              <SocialIcon platform="facebook" href={settings.socials.facebook} className="!w-6 !h-6 !text-[10px]" />
+              <SocialIcon platform="instagram" href={settings.socials.instagram} className="!w-6 !h-6 !text-[10px]" />
+              <SocialIcon platform="tiktok" href={settings.socials.tiktok} className="!w-6 !h-6 !text-[10px]" />
+              <SocialIcon platform="x" href={settings.socials.x} className="!w-6 !h-6 !text-[10px]" />
             </div>
             <span>|</span>
             <Link
