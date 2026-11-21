@@ -17,12 +17,9 @@ import {
   Lock,
 } from "lucide-react";
 
-import AeroShards from "@/components/ui/AeroShards";
-
 export function Footer() {
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
-  const [shardsActive, setShardsActive] = useState(true);
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,35 +95,14 @@ export function Footer() {
         </div>
       </div>
 
-      {/* 2. MAIN FOOTER CANVAS WITH AERO SHARDS 3D ANIMATION */}
-      <div className="relative min-h-[560px] bg-[#141414]">
-        {/* Interactive AeroShards 3D Background */}
-        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-          <AeroShards
-            shardColor="#F26A00"
-            accentColor="#FF8A24"
-            count={150}
-            shardSize={1.8}
-            speed={1.0}
-            mouseInteraction={true}
-            mouseStrength={0.85}
-          />
-        </div>
+      {/* 2. MAIN FOOTER CONTENT */}
+      <div className="relative bg-[#141414] overflow-hidden">
+        {/* Subtle Ambient CSS Glows (Lightweight & High Performance) */}
+        <div className="absolute top-0 right-1/4 w-96 h-96 bg-[#F26A00]/10 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-0 left-10 w-80 h-80 bg-[#FF8A24]/5 rounded-full blur-[100px] pointer-events-none" />
 
         {/* Foreground Content */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-12 pointer-events-auto">
-          {/* AeroShards Live Indicator & Interactive Prompt */}
-          <div className="flex items-center justify-between pb-6 border-b border-white/5 mb-8">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] text-gray-300">
-              <span className="w-2 h-2 rounded-full bg-[#F26A00] animate-pulse" />
-              <span className="font-bold text-white">AeroShards 3D</span>
-              <span className="text-gray-400">• Move cursor to tilt crystal shards, click to ripple</span>
-            </div>
-
-            <div className="text-[10px] text-gray-500 font-mono hidden sm:block">
-              React Bits 3D Crystal Shard Engine
-            </div>
-          </div>
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 pt-12 pb-12 pointer-events-auto">
           {/* Main 4-Column Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 pb-12 border-b border-white/10">
             {/* Column 1: Brand Info & Contact (4 Cols) */}
