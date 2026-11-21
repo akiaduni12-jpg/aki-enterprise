@@ -240,7 +240,21 @@ export default function HomePage() {
 
   // Dynamic Best Sellers List: Admin-marked best sellers + Mockup defaults
   const dynamicBestSellers = React.useMemo(() => {
-    const customBestSellers = allProducts
+    interface DisplayProductItem {
+      id: string;
+      title: string;
+      slug: string;
+      badge: string;
+      badgeColor: string;
+      rating: string;
+      reviews: string;
+      price: number;
+      originalPrice?: number;
+      image: string;
+      productRef: Product;
+    }
+
+    const customBestSellers: DisplayProductItem[] = allProducts
       .filter((p) => p.best_seller)
       .map((p) => {
         const primaryVar = p.variants[0] || {};
@@ -262,7 +276,7 @@ export default function HomePage() {
         };
       });
 
-    const combined = [...customBestSellers];
+    const combined: DisplayProductItem[] = [...customBestSellers];
     MOCKUP_PRODUCTS.forEach((mock) => {
       if (!combined.some((c) => c.slug === mock.slug)) {
         combined.push(mock);
@@ -273,7 +287,21 @@ export default function HomePage() {
 
   // Dynamic Featured Products: Admin-marked featured products + defaults
   const dynamicFeaturedProducts = React.useMemo(() => {
-    const customFeatured = allProducts
+    interface DisplayProductItem {
+      id: string;
+      title: string;
+      slug: string;
+      badge: string;
+      badgeColor: string;
+      rating: string;
+      reviews: string;
+      price: number;
+      originalPrice?: number;
+      image: string;
+      productRef: Product;
+    }
+
+    const customFeatured: DisplayProductItem[] = allProducts
       .filter((p) => p.featured)
       .map((p) => {
         const primaryVar = p.variants[0] || {};
@@ -295,7 +323,7 @@ export default function HomePage() {
         };
       });
 
-    const combined = [...customFeatured];
+    const combined: DisplayProductItem[] = [...customFeatured];
     MOCKUP_PRODUCTS.forEach((mock) => {
       if (!combined.some((c) => c.slug === mock.slug)) {
         combined.push(mock);

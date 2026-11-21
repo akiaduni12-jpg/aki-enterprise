@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { useCart } from "@/context/cart-context";
 import { formatGHS, getConditionBadge } from "@/lib/utils";
 import { saveOrder } from "@/lib/db-service";
-import { getCustomerProfile, recordCustomerOrder } from "@/lib/customer-store";
+import { getCustomerProfile, recordCustomerOrder, saveCustomerProfile } from "@/lib/customer-store";
 import {
   ShieldCheck,
   Truck,
@@ -73,10 +73,7 @@ export default function CheckoutPage() {
     setIsSubmitting(true);
 
     try {
-      const generatedOrderNumber = `AKI-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
-
       const orderPayload = {
-        order_number: generatedOrderNumber,
         customer: {
           full_name: formData.fullName,
           phone: formData.phone,
@@ -90,10 +87,7 @@ export default function CheckoutPage() {
         subtotal,
         delivery_fee: deliveryFee,
         total_amount: totalAmount,
-        order_status: "processing" as any,
-        payment_status: paymentMethod === "cash_on_pickup" ? ("pending" as any) : ("paid" as any),
         items: cart.map((item) => ({
-          id: `item-${Date.now()}-${Math.random()}`,
           product_id: item.product.id,
           variant_id: item.selected_variant.id,
           product_title: item.product.title,
@@ -107,15 +101,48 @@ export default function CheckoutPage() {
           total_price: item.selected_variant.price * item.quantity,
           image_url: item.product.images[0] || "",
         })),
+        origin: window.location.origin,
       };
 
-      await saveOrder(orderPayload);
-      recordCustomerOrder(orderPayload);
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderPayload),
+      });
 
-      setOrderComplete(generatedOrderNumber);
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to process order.");
+      }
+
+      // Save customer profile for future checkouts
+      saveCustomerProfile({
+        full_name: formData.fullName,
+        phone: formData.phone,
+        email: formData.email,
+        delivery_address: formData.address,
+        city: formData.city,
+        notes: formData.notes,
+      });
+
+      // Record in customer local history
+      if (data.order) {
+        recordCustomerOrder(data.order);
+      }
+
+      // If Paystack returned authorization URL, redirect to Paystack Checkout
+      if (data.paystack?.authorization_url) {
+        window.location.href = data.paystack.authorization_url;
+        return;
+      }
+
+      // Cash on pickup or direct completion
+      setOrderComplete(data.order_number);
       clearCart();
-    } catch (err) {
+    } catch (err: any) {
       console.error("Order submit error:", err);
+      alert(err.message || "Something went wrong while processing your order. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -563,7 +590,13 @@ export default function CheckoutPage() {
           disabled={isSubmitting}
           className="hidden md:flex w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-[#F26A00] to-[#FF8A24] hover:from-[#d95e00] hover:to-[#F26A00] text-white font-extrabold text-sm shadow-xl shadow-orange-500/30 items-center justify-center gap-2 transition active:scale-98"
         >
-          <span>{isSubmitting ? "Placing Order..." : `Place Order (${formatGHS(totalAmount)})`}</span>
+          <span>
+            {isSubmitting
+              ? "Connecting to Paystack..."
+              : paymentMethod === "cash_on_pickup"
+              ? `Confirm Shop Pickup Order (${formatGHS(totalAmount)})`
+              : `Pay with Paystack (${formatGHS(totalAmount)})`}
+          </span>
           <ArrowRight className="w-4 h-4" />
         </button>
 
@@ -574,7 +607,13 @@ export default function CheckoutPage() {
             disabled={isSubmitting}
             className="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-[#F26A00] to-[#FF8A24] text-white font-black text-sm shadow-lg shadow-orange-500/30 flex items-center justify-center gap-2 active:scale-98 transition"
           >
-            <span>{isSubmitting ? "Placing Order..." : `Place Order • ${formatGHS(totalAmount)}`}</span>
+            <span>
+              {isSubmitting
+                ? "Connecting..."
+                : paymentMethod === "cash_on_pickup"
+                ? `Confirm Pickup • ${formatGHS(totalAmount)}`
+                : `Pay with Paystack • ${formatGHS(totalAmount)}`}
+            </span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>

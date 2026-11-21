@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/context/cart-context";
@@ -14,12 +14,15 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const viewport: Viewport = {
+  themeColor: "#F26A00",
+};
+
 export const metadata: Metadata = {
   title: "AKI ENTERPRISE | Phones, Electronics & Accessories (Ghana)",
   description:
     "Aki Enterprise - Official electronics store in Ghana. Authentic brand new & Grade-A UK-used iPhones, Samsung smartphones, fast chargers, power banks, and computer accessories with warranty. Delivery across Accra & Ghana.",
   manifest: "/manifest.json",
-  themeColor: "#F26A00",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
