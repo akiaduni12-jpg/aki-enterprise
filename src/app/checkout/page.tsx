@@ -144,7 +144,7 @@ export default function CheckoutPage() {
           <div className="flex justify-between text-xs py-1 border-b border-gray-100">
             <span className="text-gray-500">Fulfillment:</span>
             <span className="font-semibold text-gray-900 capitalize">
-              {fulfillmentType === "shop_pickup" ? "Shop Pickup (Aki Enterprise)" : `Courier Delivery to ${formData.city}`}
+              {fulfillmentType === "shop_pickup" ? "Shop Pickup (Aki Enterprise - Miaso, Kwahu East)" : `Courier Delivery to ${formData.city}`}
             </span>
           </div>
           <div className="flex justify-between text-xs py-1 border-b border-gray-100">
@@ -161,7 +161,7 @@ export default function CheckoutPage() {
 
         <div className="space-y-3">
           <a
-            href={`https://wa.me/233240000000?text=${encodeURIComponent(
+            href={`https://wa.me/233551243372?text=${encodeURIComponent(
               `Hello Aki Enterprise, I just placed order ${orderComplete} for ${formatGHS(totalAmount)}. Here is my phone number: ${formData.phone}`
             )}`}
             target="_blank"
@@ -169,7 +169,7 @@ export default function CheckoutPage() {
             className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs shadow-md transition"
           >
             <Phone className="w-4 h-4" />
-            <span>Confirm Order on WhatsApp</span>
+            <span>Confirm Order on WhatsApp (0551243372)</span>
           </a>
 
           <Link

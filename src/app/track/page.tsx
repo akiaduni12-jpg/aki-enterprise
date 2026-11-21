@@ -143,13 +143,13 @@ export default function TrackOrderPage() {
 
           <div className="pt-2">
             <a
-              href="https://wa.me/233240000000"
+              href="https://wa.me/233551243372"
               target="_blank"
               rel="noopener noreferrer"
               className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-xs font-semibold border border-emerald-200 transition"
             >
               <PhoneCall className="w-4 h-4" />
-              <span>Need help? Chat with Store Staff on WhatsApp</span>
+              <span>Need help? Chat with Store Staff on WhatsApp (0551243372)</span>
             </a>
           </div>
         </div>

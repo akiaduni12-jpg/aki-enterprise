@@ -239,7 +239,7 @@ function CustomerAccountContent() {
 
         {/* 5. Customer Support */}
         <a
-          href="https://wa.me/233241234567?text=Hello%20Aki%20Enterprise%20TechHub%2C%20I%20need%20help%20with%20an%20order"
+          href="https://wa.me/233551243372?text=Hello%20Aki%20Enterprise%20TechHub%2C%20I%20need%20help%20with%20an%20order"
           target="_blank"
           rel="noopener noreferrer"
           className="p-4 flex items-center justify-between hover:bg-gray-50 transition"

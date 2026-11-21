@@ -356,7 +356,7 @@ export function ProductDetailClient({ product }: { product: Product }) {
 
               {/* WhatsApp direct buy/ask button */}
               <a
-                href={`https://wa.me/233240000000?text=${encodeURIComponent(
+                href={`https://wa.me/233551243372?text=${encodeURIComponent(
                   `Hello Aki Enterprise, I want to inquire/order: ${product.title} (${selectedVariant.storage || ""} ${selectedVariant.color} - ${selectedVariant.condition}) for ${formatGHS(selectedVariant.price)}`
                 )}`}
                 target="_blank"
@@ -373,19 +373,19 @@ export function ProductDetailClient({ product }: { product: Product }) {
               <div className="flex items-center gap-2.5">
                 <Store className="w-4 h-4 text-orange-600 shrink-0" />
                 <span>
-                  <strong>Shop Pickup:</strong> Available immediately at Aki Enterprise TechHub shop.
+                  <strong>Shop Pickup:</strong> Available at Aki Enterprise (Miaso, Kwahu East, Eastern Region).
                 </span>
               </div>
               <div className="flex items-center gap-2.5">
                 <Truck className="w-4 h-4 text-orange-600 shrink-0" />
                 <span>
-                  <strong>Fast Delivery:</strong> Same-day in Accra/Tema, 1-2 days across other Ghana regions.
+                  <strong>Fast Delivery:</strong> Express dispatch across Eastern Region, Accra and nationwide.
                 </span>
               </div>
               <div className="flex items-center gap-2.5">
                 <ShieldCheck className="w-4 h-4 text-orange-600 shrink-0" />
                 <span>
-                  <strong>Authenticity Guarantee:</strong> OriginalIMEI serial, fully unlocked, warranty included.
+                  <strong>Authenticity Guarantee:</strong> Original IMEI serial, fully unlocked, warranty included.
                 </span>
               </div>
             </div>

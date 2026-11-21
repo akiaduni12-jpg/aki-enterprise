@@ -130,11 +130,11 @@ export function Footer() {
               <div className="space-y-2.5 text-xs text-gray-300">
                 <div className="flex items-start gap-2.5">
                   <MapPin className="w-4 h-4 text-[#FF8A24] shrink-0 mt-0.5" />
-                  <span>Physical Store: Accra, Greater Accra Region, Ghana</span>
+                  <span>Physical Store: Miaso, Kwahu East, Eastern Region, Ghana</span>
                 </div>
                 <div className="flex items-center gap-2.5">
                   <Phone className="w-4 h-4 text-[#FF8A24] shrink-0" />
-                  <span>+233 24 123 4567 / +233 50 000 0000</span>
+                  <span>+233 55 124 3372 (Direct &amp; WhatsApp)</span>
                 </div>
                 <div className="flex items-center gap-2.5">
                   <Mail className="w-4 h-4 text-[#FF8A24] shrink-0" />
@@ -185,7 +185,7 @@ export function Footer() {
                     𝕏
                   </a>
                   <a
-                    href="https://wa.me/233241234567"
+                    href="https://wa.me/233551243372"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-8 h-8 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30 flex items-center justify-center transition"

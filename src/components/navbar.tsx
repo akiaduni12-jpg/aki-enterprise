@@ -59,12 +59,12 @@ export function Navbar() {
           <div className="hidden md:flex items-center gap-5 text-gray-400">
             <div className="flex items-center gap-1 hover:text-white transition">
               <MapPin className="w-3.5 h-3.5 text-[#FF8A24]" />
-              <span>Accra, Ghana</span>
+              <span>Miaso, Kwahu East, Ghana</span>
             </div>
             <span>|</span>
             <div className="flex items-center gap-1 hover:text-white transition">
               <Phone className="w-3.5 h-3.5 text-[#FF8A24]" />
-              <span>+233 24 123 4567</span>
+              <span>+233 55 124 3372</span>
             </div>
             <span>|</span>
             {/* Social Icons */}

@@ -69,8 +69,20 @@ export default function AdminCatalogPage() {
   const [pWarrantyMonths, setPWarrantyMonths] = useState(12);
   const [pStorage, setPStorage] = useState("128GB");
   const [pRam, setPRam] = useState("8GB");
-  const [pColor, setPColor] = useState("Space Black");
-  const [pColorHex, setPColorHex] = useState("#222222");
+  const [pColor, setPColor] = useState("Natural Titanium");
+  const [pColorHex, setPColorHex] = useState("#9a978f");
+  const [pAvailableStorages, setPAvailableStorages] = useState("128GB, 256GB, 512GB");
+
+  // Detailed Features & Specs
+  const [pFeatures, setPFeatures] = useState(
+    "A17 Pro Chip with 6-core GPU\nGrade 5 Titanium design with textured matte glass\n48MP Main Camera with 5x Telephoto zoom\nUSB-C connector with fast 10Gb/s transfer\nAll-day battery life with certified health warranty"
+  );
+  const [pSpecDisplay, setPSpecDisplay] = useState("6.7-inch Super Retina XDR OLED 120Hz ProMotion");
+  const [pSpecProcessor, setPSpecProcessor] = useState("Apple A17 Pro (3nm) / Octa-Core High Performance");
+  const [pSpecCamera, setPSpecCamera] = useState("48MP Main + 12MP Ultra-Wide + 5x Telephoto");
+  const [pSpecOS, setPSpecOS] = useState("iOS 18 (Upgradable) / Android 15");
+  const [pSpecNetwork, setPSpecNetwork] = useState("5G / Dual SIM + eSIM Unlocked (MTN, Telecel, AT)");
+
   const [pImages, setPImages] = useState<string[]>([
     "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=800&q=80",
   ]);
@@ -183,21 +195,57 @@ export default function AdminCatalogPage() {
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/(^-|-$)+/g, "");
 
-    const variant: ProductVariant = {
-      id: `var-${Date.now()}`,
-      product_id: editingProductId || `prod-${Date.now()}`,
-      sku: `${generatedSlug}-${pStorage}-${pCondition}`.toUpperCase(),
-      condition: pCondition,
-      storage: pStorage,
-      ram: pRam,
-      color: pColor,
-      color_hex: pColorHex,
-      battery_health: pCondition === "uk_used" ? pBatteryHealth : "100%",
-      warranty_months: pWarrantyMonths,
-      price: Number(pBasePrice),
-      original_price: pOriginalPrice ? Number(pOriginalPrice) : undefined,
-      stock_quantity: Number(pStock),
+    // Parse features from lines
+    const parsedFeatures = pFeatures.trim()
+      ? pFeatures
+          .split("\n")
+          .map((f) => f.trim())
+          .filter(Boolean)
+      : [
+          `Original ${brandName} certified unit`,
+          `${pCondition === "uk_used" ? "Grade A UK-Used" : "Brand New Factory Sealed"}`,
+          `${pWarrantyMonths} Months Aki Enterprise Store Warranty`,
+          `Battery Health: ${pCondition === "uk_used" ? pBatteryHealth : "100% Factory"}`,
+        ];
+
+    // Build specs record
+    const parsedSpecs: Record<string, string> = {
+      Display: pSpecDisplay.trim() || "OLED Super Retina 120Hz",
+      Processor: pSpecProcessor.trim() || "Octa-Core High Performance",
+      Main_Camera: pSpecCamera.trim() || "High-Res AI Camera System",
+      OS: pSpecOS.trim() || "Latest OS",
+      Network: pSpecNetwork.trim() || "5G / 4G LTE Unlocked (MTN, Telecel, AT)",
+      Storage: pStorage,
+      RAM: pRam,
     };
+
+    // Parse multi-storage options
+    const storageList = pAvailableStorages
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const storagesToUse = storageList.length > 0 ? storageList : [pStorage];
+
+    const variantsToSave: ProductVariant[] = storagesToUse.map((st, idx) => {
+      // Step pricing for larger capacities
+      const stepPrice = idx === 0 ? Number(pBasePrice) : Number(pBasePrice) + idx * 1500;
+      const stepOriginal = pOriginalPrice ? Number(pOriginalPrice) + idx * 1500 : undefined;
+      return {
+        id: `var-${Date.now()}-${idx}`,
+        product_id: editingProductId || `prod-${Date.now()}`,
+        sku: `${generatedSlug}-${st}-${pCondition}`.toUpperCase(),
+        condition: pCondition,
+        storage: st,
+        ram: pRam,
+        color: pColor,
+        color_hex: pColorHex,
+        battery_health: pCondition === "uk_used" ? pBatteryHealth : "100%",
+        warranty_months: pWarrantyMonths,
+        price: stepPrice,
+        original_price: stepOriginal,
+        stock_quantity: Math.max(1, Math.round(Number(pStock) / storagesToUse.length)),
+      };
+    });
 
     if (editingProductId) {
       updateProduct(editingProductId, {
@@ -211,7 +259,9 @@ export default function AdminCatalogPage() {
         images: pImages.length > 0 ? pImages : ["/placeholder.png"],
         featured: pFeatured,
         best_seller: pBestSeller,
-        variants: [variant],
+        features: parsedFeatures,
+        specs: parsedSpecs,
+        variants: variantsToSave,
       });
       showToast("Product updated successfully!");
     } else {
@@ -229,20 +279,9 @@ export default function AdminCatalogPage() {
         featured: pFeatured,
         best_seller: pBestSeller,
         new_arrival: true,
-        features: [
-          `Original ${brandName} certified unit`,
-          `${pCondition === "uk_used" ? "Grade A UK-Used" : "Brand New Factory Sealed"}`,
-          `${pWarrantyMonths} Months Aki Enterprise Store Warranty`,
-          `Battery Health: ${pCondition === "uk_used" ? pBatteryHealth : "100% Factory"}`,
-        ],
-        specs: {
-          Display: "OLED Super Retina / AMOLED 120Hz",
-          Storage: pStorage,
-          RAM: pRam,
-          Battery: "All-Day Fast Charging Supported",
-          Network: "5G / 4G LTE Unlocked (MTN, Telecel, AT)",
-        },
-        variants: [variant],
+        features: parsedFeatures,
+        specs: parsedSpecs,
+        variants: variantsToSave,
       });
       showToast("New Product successfully added to store!");
     }
@@ -264,6 +303,22 @@ export default function AdminCatalogPage() {
     setPFeatured(!!prod.featured);
     setPBestSeller(!!prod.best_seller);
 
+    if (prod.features && prod.features.length > 0) {
+      setPFeatures(prod.features.join("\n"));
+    }
+    if (prod.specs) {
+      setPSpecDisplay(prod.specs.Display || prod.specs.Screen || "");
+      setPSpecProcessor(prod.specs.Processor || prod.specs.Chipset || "");
+      setPSpecCamera(prod.specs.Main_Camera || prod.specs.Camera || "");
+      setPSpecOS(prod.specs.OS || "");
+      setPSpecNetwork(prod.specs.Network || "");
+    }
+
+    const storages = Array.from(new Set(prod.variants.map((v) => v.storage).filter(Boolean)));
+    if (storages.length > 0) {
+      setPAvailableStorages(storages.join(", "));
+    }
+
     const firstVar = prod.variants?.[0];
     if (firstVar) {
       setPCondition(firstVar.condition === "uk_used" ? "uk_used" : "brand_new");
@@ -271,8 +326,8 @@ export default function AdminCatalogPage() {
       setPWarrantyMonths(firstVar.warranty_months || 12);
       setPStorage(firstVar.storage || "128GB");
       setPRam(firstVar.ram || "8GB");
-      setPColor(firstVar.color || "Space Black");
-      setPColorHex(firstVar.color_hex || "#222222");
+      setPColor(firstVar.color || "Natural Titanium");
+      setPColorHex(firstVar.color_hex || "#9a978f");
       setPStock(firstVar.stock_quantity || 10);
       setPOriginalPrice(firstVar.original_price);
     }
@@ -965,17 +1020,17 @@ export default function AdminCatalogPage() {
                   </div>
                 </div>
 
-                {/* Storage & RAM & Color */}
+                {/* Storage & RAM & Color Swatches */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
                   <div>
                     <label className="text-[11px] font-semibold text-gray-400 block mb-1">
-                      Storage Variant
+                      Base Storage
                     </label>
                     <input
                       type="text"
                       value={pStorage}
                       onChange={(e) => setPStorage(e.target.value)}
-                      placeholder="e.g. 256GB"
+                      placeholder="e.g. 128GB"
                       className="w-full px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500"
                     />
                   </div>
@@ -995,16 +1050,81 @@ export default function AdminCatalogPage() {
 
                   <div>
                     <label className="text-[11px] font-semibold text-gray-400 block mb-1">
-                      Color Name
+                      Color Name &amp; Swatch
                     </label>
-                    <input
-                      type="text"
-                      value={pColor}
-                      onChange={(e) => setPColor(e.target.value)}
-                      placeholder="e.g. Natural Titanium"
-                      className="w-full px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500"
-                    />
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={pColorHex}
+                        onChange={(e) => setPColorHex(e.target.value)}
+                        className="w-8 h-8 rounded-lg border border-slate-700 bg-slate-900 cursor-pointer p-0.5 shrink-0"
+                        title="Pick visual color"
+                      />
+                      <input
+                        type="text"
+                        value={pColor}
+                        onChange={(e) => setPColor(e.target.value)}
+                        placeholder="e.g. Natural Titanium"
+                        className="flex-1 px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500"
+                      />
+                    </div>
                   </div>
+                </div>
+
+                {/* Quick Color Presets */}
+                <div className="pt-2">
+                  <label className="text-[10px] text-gray-400 block mb-1.5 font-semibold">
+                    Quick Color Swatch Presets:
+                  </label>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {[
+                      { name: "Natural Titanium", hex: "#9a978f" },
+                      { name: "Space Black", hex: "#1e293b" },
+                      { name: "Ocean Blue", hex: "#2563eb" },
+                      { name: "Rose Pink", hex: "#ec4899" },
+                      { name: "Pure White", hex: "#f8fafc" },
+                      { name: "Gold", hex: "#eab308" },
+                      { name: "Deep Purple", hex: "#581c87" },
+                      { name: "Forest Green", hex: "#15803d" },
+                    ].map((swatch) => (
+                      <button
+                        key={swatch.name}
+                        type="button"
+                        onClick={() => {
+                          setPColor(swatch.name);
+                          setPColorHex(swatch.hex);
+                        }}
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold border transition ${
+                          pColor === swatch.name
+                            ? "border-orange-500 bg-orange-500/20 text-orange-300"
+                            : "border-slate-800 bg-slate-900/80 text-gray-300 hover:border-slate-700"
+                        }`}
+                      >
+                        <span
+                          className="w-2.5 h-2.5 rounded-full border border-white/20"
+                          style={{ backgroundColor: swatch.hex }}
+                        />
+                        <span>{swatch.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Multiple Storage Variants Chips */}
+                <div className="pt-2 border-t border-slate-800/80">
+                  <label className="text-[11px] font-semibold text-gray-400 block mb-1">
+                    Multiple Storage Option Chips (Comma separated)
+                  </label>
+                  <input
+                    type="text"
+                    value={pAvailableStorages}
+                    onChange={(e) => setPAvailableStorages(e.target.value)}
+                    placeholder="e.g. 128GB, 256GB, 512GB, 1TB"
+                    className="w-full px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500 font-mono"
+                  />
+                  <p className="text-[10px] text-gray-500 mt-1">
+                    Creates the interactive storage selector buttons on the product detail page.
+                  </p>
                 </div>
               </div>
 
@@ -1078,7 +1198,7 @@ export default function AdminCatalogPage() {
               {/* Description */}
               <div>
                 <label className="text-xs font-bold text-gray-300 block mb-1">
-                  Product Description
+                  Product Overview Description
                 </label>
                 <textarea
                   rows={3}
@@ -1087,6 +1207,96 @@ export default function AdminCatalogPage() {
                   placeholder="Provide device highlights, condition summary, and packaging contents..."
                   className="w-full px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500 resize-none"
                 />
+              </div>
+
+              {/* Key Highlights (Bullet Points) */}
+              <div>
+                <label className="text-xs font-bold text-gray-300 block mb-1 flex items-center justify-between">
+                  <span>Key Highlights (Bullet Points, 1 per line)</span>
+                  <span className="text-[10px] text-gray-500 font-normal">Shows with checkmarks on product page</span>
+                </label>
+                <textarea
+                  rows={4}
+                  value={pFeatures}
+                  onChange={(e) => setPFeatures(e.target.value)}
+                  placeholder="e.g.&#10;A17 Pro Chip with 6-core GPU&#10;Grade 5 Titanium design with textured matte glass&#10;48MP Main Camera with 5x Telephoto zoom&#10;USB-C connector with 10Gb/s transfer speeds"
+                  className="w-full px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500 resize-none font-mono"
+                />
+              </div>
+
+              {/* Technical Specifications Table */}
+              <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-3">
+                <h4 className="text-xs font-bold text-[#FF8A24] uppercase tracking-wider flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Technical Specifications (Detailed Specs Table)</span>
+                </h4>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[11px] font-semibold text-gray-400 block mb-1">
+                      Display / Screen
+                    </label>
+                    <input
+                      type="text"
+                      value={pSpecDisplay}
+                      onChange={(e) => setPSpecDisplay(e.target.value)}
+                      placeholder="e.g. 6.7-inch Super Retina XDR OLED 120Hz"
+                      className="w-full px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-semibold text-gray-400 block mb-1">
+                      Processor / Chipset
+                    </label>
+                    <input
+                      type="text"
+                      value={pSpecProcessor}
+                      onChange={(e) => setPSpecProcessor(e.target.value)}
+                      placeholder="e.g. Apple A17 Pro (3nm) / Snapdragon 8 Gen 3"
+                      className="w-full px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-semibold text-gray-400 block mb-1">
+                      Main Camera
+                    </label>
+                    <input
+                      type="text"
+                      value={pSpecCamera}
+                      onChange={(e) => setPSpecCamera(e.target.value)}
+                      placeholder="e.g. 48MP Main + 12MP Ultra-Wide + 5x Telephoto"
+                      className="w-full px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-semibold text-gray-400 block mb-1">
+                      Operating System (OS)
+                    </label>
+                    <input
+                      type="text"
+                      value={pSpecOS}
+                      onChange={(e) => setPSpecOS(e.target.value)}
+                      placeholder="e.g. iOS 18 (Upgradable) / Android 15"
+                      className="w-full px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-semibold text-gray-400 block mb-1">
+                    Network &amp; Connectivity
+                  </label>
+                  <input
+                    type="text"
+                    value={pSpecNetwork}
+                    onChange={(e) => setPSpecNetwork(e.target.value)}
+                    placeholder="e.g. 5G / 4G LTE Unlocked (MTN, Telecel, AT)"
+                    className="w-full px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500"
+                  />
+                </div>
               </div>
 
               {/* Badges / Visibility */}
