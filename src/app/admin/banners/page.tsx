@@ -19,7 +19,6 @@ import {
   Trash2,
   CheckCircle2,
   ExternalLink,
-  Sparkles,
   ArrowRight,
   Sliders,
   Layers,
@@ -325,7 +324,7 @@ export default function AdminBannersPage() {
                   {/* Top Badge */}
                   <div className="flex items-center justify-between">
                     <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-[#FF8A24] text-[10px] sm:text-xs font-black tracking-wide">
-                      <Sparkles className="w-3 h-3 text-[#FF8A24]" />
+                      <span className="w-2 h-2 rounded-full bg-[#FF8A24]" />
                       <span>{previewBanner.badge}</span>
                     </span>
 
@@ -365,7 +364,7 @@ export default function AdminBannersPage() {
                       <span className="w-2 h-1.5 rounded-full bg-white/40" />
                     </div>
                     <span className="text-[10px] text-gray-300 font-mono">
-                      Aki Enterprise TechHub • 16:9 Showcase
+                      Aki Enterprise • 16:9 Showcase
                     </span>
                   </div>
                 </div>

@@ -73,7 +73,7 @@ export default function CheckoutPage() {
     setIsSubmitting(true);
 
     try {
-      const generatedOrderNumber = `TH-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+      const generatedOrderNumber = `AKI-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
       const orderPayload = {
         order_number: generatedOrderNumber,

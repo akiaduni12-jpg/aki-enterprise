@@ -13,7 +13,6 @@ import {
   CheckCircle2,
   Plus,
   MapPin,
-  Sparkles,
   X,
   Send,
 } from "lucide-react";
@@ -163,7 +162,7 @@ export function StoreTestimonials() {
             <div className="flex items-center justify-between border-b border-gray-100 pb-3">
               <div>
                 <h3 className="text-base font-black text-slate-900">
-                  Share Your TechHub Experience
+                  Share Your Aki Enterprise Experience
                 </h3>
                 <p className="text-xs text-gray-500">
                   Aki Enterprise • Customer Satisfaction Review

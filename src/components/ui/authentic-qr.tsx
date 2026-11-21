@@ -16,7 +16,7 @@ interface AuthenticQRProps {
 export function AuthenticQR({
   value,
   size = 240,
-  centerBadgeText = "TH",
+  centerBadgeText = "AKI",
   showDownloadButton = false,
   className = "",
 }: AuthenticQRProps) {

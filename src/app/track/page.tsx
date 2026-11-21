@@ -56,7 +56,7 @@ export default function TrackOrderPage() {
             <input
               type="text"
               required
-              placeholder="e.g. TH-2026-4819"
+              placeholder="e.g. AKI-2026-4819"
               value={orderQuery}
               onChange={(e) => setOrderQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-3 text-sm bg-white border border-gray-200 rounded-xl focus:outline-hidden focus:border-orange-500 shadow-2xs"

@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!product) {
     return {
-      title: "Product Not Found | TECHHUB",
+      title: "Product Not Found | AKI ENTERPRISE",
     };
   }
 

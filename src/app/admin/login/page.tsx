@@ -9,7 +9,6 @@ import {
   Lock,
   Mail,
   ArrowRight,
-  Sparkles,
   Eye,
   EyeOff,
   AlertCircle,
@@ -18,7 +17,7 @@ import {
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("admin@techhubghana.com");
+  const [email, setEmail] = useState("admin@akienterprise.com");
   const [password, setPassword] = useState("AkiEnterprise2026!");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -58,7 +57,7 @@ export default function AdminLoginPage() {
       if (
         (email.trim().toLowerCase().includes("admin") ||
           email.trim().toLowerCase().includes("owner") ||
-          email.trim().toLowerCase().includes("techhub")) &&
+          email.trim().toLowerCase().includes("aki")) &&
         password.length >= 6
       ) {
         localStorage.setItem(
@@ -146,7 +145,7 @@ export default function AdminLoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@techhubghana.com"
+                  placeholder="admin@akienterprise.com"
                   className="w-full pl-10 pr-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs placeholder-gray-500 focus:outline-hidden focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition"
                 />
                 <Mail className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -200,7 +199,7 @@ export default function AdminLoginPage() {
 
       {/* Footer */}
       <div className="max-w-6xl mx-auto w-full text-center text-xs text-gray-500 py-3 relative z-10">
-        © 2026 Aki Enterprise (TechHub) • Internal Operations Portal
+        © 2026 Aki Enterprise • Internal Operations Portal
       </div>
     </div>
   );

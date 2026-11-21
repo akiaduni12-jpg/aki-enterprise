@@ -1,7 +1,7 @@
 {
-  "name": "TechHub - Aki Enterprise",
-  "short_name": "TechHub",
-  "description": "Shop Smart. Live Better. Certified smartphones, power banks, accessories and everyday electronics in Ghana.",
+  "name": "Aki Enterprise",
+  "short_name": "Aki Enterprise",
+  "description": "Certified smartphones, power banks, accessories and everyday electronics in Ghana.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#171717",

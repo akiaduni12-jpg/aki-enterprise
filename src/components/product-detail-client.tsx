@@ -53,7 +53,7 @@ export function ProductDetailClient({ product }: { product: Product }) {
     window.location.href = "/checkout";
   };
 
-  const shareText = `Check out the ${product.title} (${selectedVariant.storage || ""} ${selectedVariant.color}) at Aki Enterprise TechHub for ${formatGHS(selectedVariant.price)}!`;
+  const shareText = `Check out the ${product.title} (${selectedVariant.storage || ""} ${selectedVariant.color}) at Aki Enterprise for ${formatGHS(selectedVariant.price)}!`;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-8 pb-24 md:pb-12">

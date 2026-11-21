@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   Search,
-  Sparkles,
   ArrowRight,
   ShoppingBag,
 } from "lucide-react";

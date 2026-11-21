@@ -4,8 +4,9 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { PRODUCTS, INITIAL_HERO_BANNERS } from "@/lib/mock-data";
-import { HeroBanner } from "@/types/ecommerce";
+import { HeroBanner, Product, Category } from "@/types/ecommerce";
 import { getStoredBanners } from "@/lib/banner-store";
+import { getStoredProducts, getStoredCategories } from "@/lib/catalog-store";
 import { formatGHS } from "@/lib/utils";
 import { useCart } from "@/context/cart-context";
 import { AuthenticQR } from "@/components/ui/authentic-qr";
@@ -21,7 +22,6 @@ import {
   ShieldCheck,
   Headphones,
   RotateCcw,
-  Sparkles,
   CreditCard,
   CheckCircle2,
   Zap,
@@ -40,9 +40,29 @@ export default function HomePage() {
   const { addToCart } = useCart();
   const [activeSlide, setActiveSlide] = useState(0);
   const [banners, setBanners] = useState<HeroBanner[]>(INITIAL_HERO_BANNERS);
+  const [allProducts, setAllProducts] = useState<Product[]>(PRODUCTS);
+  const [allCategories, setAllCategories] = useState<Category[]>([]);
   const [phoneFilter, setPhoneFilter] = useState<"all" | "brand_new" | "uk_used">("all");
   const [likedItems, setLikedItems] = useState<Record<string, boolean>>({});
   const [addedToast, setAddedToast] = useState<string | null>(null);
+
+  // Sync Products & Categories from Admin Catalog Store
+  useEffect(() => {
+    const loadCatalog = () => {
+      const prods = getStoredProducts();
+      if (prods && prods.length > 0) {
+        setAllProducts(prods);
+      }
+      const cats = getStoredCategories();
+      if (cats && cats.length > 0) {
+        setAllCategories(cats);
+      }
+    };
+
+    loadCatalog();
+    window.addEventListener("catalog_updated", loadCatalog);
+    return () => window.removeEventListener("catalog_updated", loadCatalog);
+  }, []);
 
   // Sync Banners from Admin Banner Store
   useEffect(() => {
@@ -213,19 +233,104 @@ export default function HomePage() {
   // Dynamic Current Banner from Admin Banner Store
   const currentBanner = banners[activeSlide % banners.length] || INITIAL_HERO_BANNERS[0];
 
-  // Filtered Smartphones List
-  const SMARTPHONES_LIST = PRODUCTS.filter((p) => p.category_slug === "smartphones").filter((p) => {
+  // Dynamic Best Sellers List: Admin-marked best sellers + Mockup defaults
+  const dynamicBestSellers = React.useMemo(() => {
+    const customBestSellers = allProducts
+      .filter((p) => p.best_seller)
+      .map((p) => {
+        const primaryVar = p.variants[0] || {};
+        const price = primaryVar.price || p.base_price;
+        const orig = primaryVar.original_price;
+        const discount = orig ? `-${Math.round(((orig - price) / orig) * 100)}%` : "Hot";
+        return {
+          id: p.id,
+          title: p.title,
+          slug: p.slug,
+          badge: discount,
+          badgeColor: "bg-orange-500",
+          rating: "4.8",
+          reviews: "2.1k",
+          price: price,
+          originalPrice: orig,
+          image: p.images[0] || "/placeholder.png",
+          productRef: p,
+        };
+      });
+
+    const combined = [...customBestSellers];
+    MOCKUP_PRODUCTS.forEach((mock) => {
+      if (!combined.some((c) => c.slug === mock.slug)) {
+        combined.push(mock);
+      }
+    });
+    return combined.slice(0, 10);
+  }, [allProducts]);
+
+  // Dynamic Featured Products: Admin-marked featured products + defaults
+  const dynamicFeaturedProducts = React.useMemo(() => {
+    const customFeatured = allProducts
+      .filter((p) => p.featured)
+      .map((p) => {
+        const primaryVar = p.variants[0] || {};
+        const price = primaryVar.price || p.base_price;
+        const orig = primaryVar.original_price;
+        const discount = orig ? `-${Math.round(((orig - price) / orig) * 100)}%` : "Featured";
+        return {
+          id: p.id,
+          title: p.title,
+          slug: p.slug,
+          badge: discount,
+          badgeColor: "bg-orange-500",
+          rating: "4.8",
+          reviews: "2.5k",
+          price: price,
+          originalPrice: orig,
+          image: p.images[0] || "/placeholder.png",
+          productRef: p,
+        };
+      });
+
+    const combined = [...customFeatured];
+    MOCKUP_PRODUCTS.forEach((mock) => {
+      if (!combined.some((c) => c.slug === mock.slug)) {
+        combined.push(mock);
+      }
+    });
+    return combined.slice(0, 5);
+  }, [allProducts]);
+
+  // Dynamic Categories: Admin categories merged with defaults
+  const dynamicCategories = React.useMemo(() => {
+    if (allCategories.length === 0) return DISPLAY_CATEGORIES;
+    const adminMapped = allCategories.map((c) => ({
+      name: c.name,
+      slug: c.slug,
+      count: `${allProducts.filter((p) => p.category_slug === c.slug).length}+ items`,
+      image: c.image_url || "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=300&q=80",
+    }));
+
+    const combined = [...adminMapped];
+    DISPLAY_CATEGORIES.forEach((def) => {
+      if (!combined.some((c) => c.slug === def.slug)) {
+        combined.push(def);
+      }
+    });
+    return combined.slice(0, 8);
+  }, [allCategories, allProducts]);
+
+  // Filtered Smartphones List from live allProducts
+  const SMARTPHONES_LIST = allProducts.filter((p) => p.category_slug === "smartphones").filter((p) => {
     if (phoneFilter === "all") return true;
     return p.variants.some((v) => v.condition === phoneFilter);
   });
 
-  // Audio & Wearables
-  const AUDIO_WEARABLES = PRODUCTS.filter(
+  // Audio & Wearables from live allProducts
+  const AUDIO_WEARABLES = allProducts.filter(
     (p) => p.category_slug === "audio-earbuds" || p.category_slug === "smartwatches"
   );
 
-  // Computer & Upgrades
-  const COMPUTER_UPGRADES = PRODUCTS.filter((p) => p.category_slug === "computer-accessories");
+  // Computer & Upgrades from live allProducts
+  const COMPUTER_UPGRADES = allProducts.filter((p) => p.category_slug === "computer-accessories");
 
   return (
     <div className="space-y-14 pb-20 bg-[#F8FAFC]">
@@ -326,7 +431,7 @@ export default function HomePage() {
             {/* Top Row: Pill Badge & 16:9 Indicator */}
             <div className="flex items-center justify-between">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-[#FF8A24] text-xs font-black tracking-wide shadow-lg">
-                <Sparkles className="w-3.5 h-3.5 text-[#FF8A24]" />
+                <span className="w-2 h-2 rounded-full bg-[#FF8A24]" />
                 <span>{currentBanner.badge}</span>
               </div>
 
@@ -385,8 +490,8 @@ export default function HomePage() {
                     key={idx}
                     onClick={() => setActiveSlide(idx)}
                     className={`h-2 rounded-full transition-all duration-300 ${activeSlide === idx
-                        ? "w-10 bg-gradient-to-r from-[#F26A00] to-[#FF8A24] shadow-md shadow-orange-500/50"
-                        : "w-2.5 bg-white/35 hover:bg-white/60"
+                      ? "w-10 bg-gradient-to-r from-[#F26A00] to-[#FF8A24] shadow-md shadow-orange-500/50"
+                      : "w-2.5 bg-white/35 hover:bg-white/60"
                       }`}
                     aria-label={`Go to slide ${idx + 1}`}
                   />
@@ -439,7 +544,7 @@ export default function HomePage() {
 
         {/* Categories Horizontal Grid (Screen 1 Match: 2 rows of 4 on mobile) */}
         <div className="grid grid-cols-4 sm:grid-cols-4 lg:grid-cols-8 gap-2 sm:gap-4">
-          {DISPLAY_CATEGORIES.map((cat, idx) => (
+          {dynamicCategories.map((cat, idx) => (
             <Link
               key={idx}
               href={`/products?category=${cat.slug}`}
@@ -486,7 +591,7 @@ export default function HomePage() {
 
         {/* Best Sellers Scrollable Carousel / Grid */}
         <div className="flex sm:grid sm:grid-cols-3 lg:grid-cols-5 gap-3 overflow-x-auto pb-2 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
-          {MOCKUP_PRODUCTS.map((prod) => {
+          {dynamicBestSellers.map((prod) => {
             const isLiked = likedItems[prod.id] || false;
             return (
               <div
@@ -590,10 +695,10 @@ export default function HomePage() {
                   value={
                     typeof window !== "undefined"
                       ? `${window.location.origin}/qr`
-                      : "https://techhubghana.com/qr"
+                      : "https://akienterprise.com/qr"
                   }
                   size={120}
-                  centerBadgeText="TH"
+                  centerBadgeText="AKI"
                   showDownloadButton={true}
                 />
               </div>
@@ -602,7 +707,7 @@ export default function HomePage() {
                   Storefront Entry QR
                 </span>
                 <h4 className="text-sm font-black text-slate-900">
-                  Aki Enterprise TechHub
+                  Aki Enterprise
                 </h4>
                 <p className="text-[11px] text-gray-500 max-w-[160px] leading-tight">
                   Point your phone camera to launch direct catalog
@@ -643,7 +748,7 @@ export default function HomePage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
           {/* Left: 5 Product Cards Grid (9 Cols on wide screens) */}
           <div className="lg:col-span-9 grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4">
-            {MOCKUP_PRODUCTS.map((prod) => {
+            {dynamicFeaturedProducts.map((prod) => {
               const isLiked = likedItems[prod.id] || false;
               return (
                 <div
@@ -788,8 +893,8 @@ export default function HomePage() {
             <button
               onClick={() => setPhoneFilter("all")}
               className={`px-3.5 py-1.5 rounded-lg transition ${phoneFilter === "all"
-                  ? "bg-[#171717] text-white shadow-xs"
-                  : "text-gray-600 hover:text-gray-900"
+                ? "bg-[#171717] text-white shadow-xs"
+                : "text-gray-600 hover:text-gray-900"
                 }`}
             >
               All Phones
@@ -797,8 +902,8 @@ export default function HomePage() {
             <button
               onClick={() => setPhoneFilter("brand_new")}
               className={`px-3.5 py-1.5 rounded-lg transition ${phoneFilter === "brand_new"
-                  ? "bg-[#171717] text-white shadow-xs"
-                  : "text-gray-600 hover:text-gray-900"
+                ? "bg-[#171717] text-white shadow-xs"
+                : "text-gray-600 hover:text-gray-900"
                 }`}
             >
               Brand New
@@ -806,8 +911,8 @@ export default function HomePage() {
             <button
               onClick={() => setPhoneFilter("uk_used")}
               className={`px-3.5 py-1.5 rounded-lg transition ${phoneFilter === "uk_used"
-                  ? "bg-[#F26A00] text-white shadow-xs"
-                  : "text-gray-600 hover:text-gray-900"
+                ? "bg-[#F26A00] text-white shadow-xs"
+                : "text-gray-600 hover:text-gray-900"
                 }`}
             >
               UK-Used Grade A
@@ -1159,7 +1264,7 @@ export default function HomePage() {
               How QR Scan &amp; Shop Works in Our Store
             </h2>
             <p className="text-xs sm:text-sm text-gray-500">
-              Visiting Aki Enterprise TechHub in Accra? Skip queues, view exact battery health stats, and pay via MoMo right from your phone.
+              Visiting Aki Enterprise in Miaso, Kwahu East? Skip queues, view exact battery health stats, and pay via MoMo right from your phone.
             </p>
           </div>
 

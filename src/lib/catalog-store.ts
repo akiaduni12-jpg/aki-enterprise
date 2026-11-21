@@ -176,7 +176,7 @@ export async function addCategory(categoryData: {
     name: categoryData.name,
     slug,
     description: categoryData.description || "",
-    icon: categoryData.icon || "Sparkles",
+    icon: categoryData.icon || "FolderTree",
     image_url: categoryData.image_url,
     created_at: new Date().toISOString(),
   };

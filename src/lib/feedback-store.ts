@@ -138,7 +138,7 @@ export const INITIAL_STORE_TESTIMONIALS: StoreTestimonial[] = [
     rating: 5,
     highlight: "Genuine Anker & Original Accessories",
     content:
-      "Finding original GaN chargers in Accra used to be difficult with all the fake copies in town. TechHub sells 100% genuine Anker and Oraimo chargers. Highly recommended!",
+      "Finding original GaN chargers in Accra used to be difficult with all the fake copies in town. Aki Enterprise sells 100% genuine Anker and Oraimo chargers. Highly recommended!",
     verified_buyer: true,
     featured: true,
     status: "approved",

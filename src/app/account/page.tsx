@@ -32,7 +32,6 @@ import {
   ArrowRight,
   ShieldCheck,
   Lock,
-  Sparkles,
   ExternalLink,
   ChevronRight,
   ChevronLeft,
@@ -40,6 +39,7 @@ import {
   Headphones,
   Settings,
   LogOut,
+  X,
 } from "lucide-react";
 
 function CustomerAccountContent() {
@@ -164,7 +164,6 @@ function CustomerAccountContent() {
           {/* Gold Customer Badge */}
           <div className="pt-1">
             <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black uppercase tracking-wider shadow-md">
-              <Sparkles className="w-3 h-3 text-amber-900" />
               <span>Gold Customer</span>
             </span>
           </div>
@@ -239,7 +238,7 @@ function CustomerAccountContent() {
 
         {/* 5. Customer Support */}
         <a
-          href="https://wa.me/233551243372?text=Hello%20Aki%20Enterprise%20TechHub%2C%20I%20need%20help%20with%20an%20order"
+          href="https://wa.me/233551243372?text=Hello%20Aki%20Enterprise%2C%20I%20need%20help%20with%20an%20order"
           target="_blank"
           rel="noopener noreferrer"
           className="p-4 flex items-center justify-between hover:bg-gray-50 transition"
@@ -304,7 +303,7 @@ function CustomerAccountContent() {
                 onClick={() => setShowAddressDrawer(false)}
                 className="p-1 rounded-full text-gray-400 hover:text-black hover:bg-gray-100"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
 

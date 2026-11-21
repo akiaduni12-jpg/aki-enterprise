@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Download, X, Smartphone, Check, Sparkles } from "lucide-react";
+import { Download, X, Smartphone, Check } from "lucide-react";
 
 export function PWAInstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -14,7 +14,7 @@ export function PWAInstallPrompt() {
     if (typeof window !== "undefined" && "serviceWorker" in navigator) {
       navigator.serviceWorker
         .register("/sw.js")
-        .then((reg) => console.log("TechHub PWA Service Worker active:", reg.scope))
+        .then((reg) => console.log("Aki Enterprise PWA Service Worker active:", reg.scope))
         .catch((err) => console.warn("PWA Service Worker notice:", err));
     }
 
@@ -85,7 +85,7 @@ export function PWAInstallPrompt() {
           <div>
             <div className="flex items-center gap-1.5">
               <h4 className="text-xs font-black tracking-tight text-white">
-                Install TechHub App
+                Install Aki Enterprise App
               </h4>
               <span className="px-1.5 py-0.2 rounded text-[8px] font-bold bg-orange-500/20 text-[#FF8A24] border border-orange-500/30">
                 PWA

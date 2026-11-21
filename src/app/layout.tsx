@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "TechHub",
+    title: "Aki Enterprise",
   },
   icons: {
     icon: "/icons/icon.svg",

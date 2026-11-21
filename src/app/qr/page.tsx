@@ -4,11 +4,11 @@ import React, { useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AuthenticQR } from "@/components/ui/authentic-qr";
-import { ChevronLeft, Download, ShoppingBag, Sparkles } from "lucide-react";
+import { ChevronLeft, Download, ShoppingBag, QrCode } from "lucide-react";
 
 export default function ScanAndShopQRPage() {
   const router = useRouter();
-  const storeUrl = typeof window !== "undefined" ? window.location.origin : "https://techhubghana.com";
+  const storeUrl = typeof window !== "undefined" ? window.location.origin : "https://akienterprise.com";
 
   return (
     <div className="min-h-screen bg-[#0E0C0A] text-white flex flex-col justify-between p-4 sm:p-6 relative overflow-hidden">
@@ -39,7 +39,7 @@ export default function ScanAndShopQRPage() {
         {/* Title & Subtitle */}
         <div className="space-y-2">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-500/20 text-[#FF8A24] border border-orange-500/30 text-[11px] font-black uppercase tracking-wider shadow-lg">
-            <Sparkles className="w-3.5 h-3.5" />
+            <QrCode className="w-3.5 h-3.5" />
             <span>Smart QR Retail</span>
           </div>
 
@@ -56,7 +56,7 @@ export default function ScanAndShopQRPage() {
           <AuthenticQR
             value={storeUrl}
             size={220}
-            centerBadgeText="TH"
+            centerBadgeText="AKI"
             showDownloadButton={false}
           />
         </div>
@@ -70,7 +70,7 @@ export default function ScanAndShopQRPage() {
               if (canvas) {
                 const a = document.createElement("a");
                 a.href = canvas.toDataURL("image/png");
-                a.download = "techhub-scan-and-shop-qr.png";
+                a.download = "akienterprise-scan-and-shop-qr.png";
                 a.click();
               }
             }}
@@ -82,10 +82,10 @@ export default function ScanAndShopQRPage() {
         </div>
       </div>
 
-      {/* Screen 9 Footer: Powered by TechHub */}
+      {/* Screen 9 Footer: Powered by Aki Enterprise */}
       <div className="relative z-10 text-center pb-2">
         <p className="text-xs font-semibold text-gray-400">
-          Powered by <span className="text-[#FF8A24] font-bold">TechHub</span> • Aki Enterprise
+          Powered by <span className="text-[#FF8A24] font-bold">Aki Enterprise</span> • Ghana
         </p>
       </div>
     </div>

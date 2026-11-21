@@ -21,7 +21,6 @@ import {
   CheckCircle2,
   XCircle,
   Trash2,
-  Sparkles,
   ShieldCheck,
   MapPin,
   ExternalLink,
@@ -378,7 +377,7 @@ export default function AdminReviewsPage() {
                             : "bg-slate-900 text-gray-500 border border-slate-700"
                         }`}
                       >
-                        <Sparkles className="w-3 h-3" />
+                        <Star className="w-3 h-3" />
                         <span>{t.featured ? "Featured on Home" : "Not Featured"}</span>
                       </button>
                     </td>

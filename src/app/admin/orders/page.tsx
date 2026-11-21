@@ -29,7 +29,7 @@ interface MockAdminOrder {
 
 const INITIAL_ORDERS: MockAdminOrder[] = [
   {
-    id: "TH-2026-9042",
+    id: "AKI-2026-9042",
     customerName: "Kofi Boateng",
     phone: "0244 881 290",
     email: "kofi.b@gmail.com",
@@ -41,7 +41,7 @@ const INITIAL_ORDERS: MockAdminOrder[] = [
     paymentMethod: "Paystack MTN MoMo",
   },
   {
-    id: "TH-2026-9041",
+    id: "AKI-2026-9041",
     customerName: "Ama Serwaa",
     phone: "0501 329 881",
     email: "ama.s@yahoo.com",
@@ -53,7 +53,7 @@ const INITIAL_ORDERS: MockAdminOrder[] = [
     paymentMethod: "Pay at Shop Counter",
   },
   {
-    id: "TH-2026-9040",
+    id: "AKI-2026-9040",
     customerName: "Emmanuel Doe",
     phone: "0202 991 402",
     email: "edoe@outlook.com",
@@ -65,7 +65,7 @@ const INITIAL_ORDERS: MockAdminOrder[] = [
     paymentMethod: "Paystack Telecel Cash",
   },
   {
-    id: "TH-2026-9038",
+    id: "AKI-2026-9038",
     customerName: "Dr. Selorm Mensah",
     phone: "0243 002 993",
     email: "selorm@clinic.gh",

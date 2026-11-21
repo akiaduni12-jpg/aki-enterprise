@@ -15,7 +15,7 @@ import {
   Heart,
   User,
   ChevronDown,
-  Sparkles,
+  Tag,
   SlidersHorizontal,
 } from "lucide-react";
 
@@ -49,7 +49,7 @@ export function Navbar() {
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           {/* Left Announcement */}
           <div className="flex items-center gap-2">
-            <span className="p-0.5 rounded bg-orange-500/20 text-[#FF8A24]">📣</span>
+            <span className="w-2 h-2 rounded-full bg-[#FF8A24] animate-pulse" />
             <p className="font-medium text-gray-200">
               Free Delivery on Orders Above <span className="text-[#FF8A24] font-bold">GH₵ 500</span>
             </p>
@@ -97,11 +97,11 @@ export function Navbar() {
             <div className="flex flex-col">
               <div className="flex items-center gap-1.5 leading-none">
                 <span className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 font-sans">
-                  Tech<span className="text-[#F26A00]">Hub</span>
+                  Aki <span className="text-[#F26A00]">Enterprise</span>
                 </span>
               </div>
               <span className="hidden sm:inline-block text-[10px] text-gray-400 tracking-tight font-medium mt-0.5">
-                Shop Smart. Live Better. • <strong className="text-gray-600">Aki Enterprise</strong>
+                Electronics &amp; Smart Devices • Ghana
               </span>
             </div>
           </Link>
@@ -312,7 +312,7 @@ export function Navbar() {
 
           {/* Flash Promo Indicator */}
           <div className="flex items-center gap-1.5 text-[#F26A00] bg-orange-50 px-3 py-1 rounded-full text-[11px] font-bold border border-orange-200/50">
-            <Sparkles className="w-3.5 h-3.5 text-[#F26A00]" />
+            <Tag className="w-3.5 h-3.5 text-[#F26A00]" />
             <span>Up to 50% Off On Accessories</span>
           </div>
         </div>

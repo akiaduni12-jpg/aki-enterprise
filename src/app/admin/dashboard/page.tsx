@@ -30,7 +30,7 @@ export default function AdminDashboardPage() {
 
   const mockRecentOrders = [
     {
-      id: "TH-2026-9042",
+      id: "AKI-2026-9042",
       customer: "Kofi Boateng",
       phone: "0244 881 290",
       items: "iPhone 15 Pro Max 256GB (Natural Titanium)",
@@ -39,7 +39,7 @@ export default function AdminDashboardPage() {
       status: "processing",
     },
     {
-      id: "TH-2026-9041",
+      id: "AKI-2026-9041",
       customer: "Ama Serwaa",
       phone: "0501 329 881",
       items: "iPhone 13 UK-Used (Midnight) + Oraimo FreePods",
@@ -48,7 +48,7 @@ export default function AdminDashboardPage() {
       status: "ready_for_pickup",
     },
     {
-      id: "TH-2026-9040",
+      id: "AKI-2026-9040",
       customer: "Emmanuel Doe",
       phone: "0202 991 402",
       items: "Anker 20,000mAh Power Bank (x2)",

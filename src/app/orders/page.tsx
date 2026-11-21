@@ -14,7 +14,7 @@ export default function MyOrdersPage() {
   // Default demo orders matching Screen 8 mockup perfectly
   const DEMO_ORDERS = [
     {
-      order_number: "#TH-2025-1047",
+      order_number: "#AKI-2025-1047",
       created_at: "16 Nov, 2025",
       items_count: 2,
       total_amount: 24999,
@@ -22,7 +22,7 @@ export default function MyOrdersPage() {
       status_color: "bg-emerald-100 text-emerald-700 border-emerald-200",
     },
     {
-      order_number: "#TH-2025-1046",
+      order_number: "#AKI-2025-1046",
       created_at: "14 Nov, 2025",
       items_count: 1,
       total_amount: 7499,
@@ -30,7 +30,7 @@ export default function MyOrdersPage() {
       status_color: "bg-blue-100 text-blue-700 border-blue-200",
     },
     {
-      order_number: "#TH-2025-1045",
+      order_number: "#AKI-2025-1045",
       created_at: "12 Nov, 2025",
       items_count: 1,
       total_amount: 4999,

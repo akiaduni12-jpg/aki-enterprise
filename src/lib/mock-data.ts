@@ -148,7 +148,7 @@ export const PRODUCTS: Product[] = [
       "A15 Bionic chip with 4-core GPU",
       "Dual 12MP camera system with Cinematic mode (1080p at 30 fps)",
       "Tested battery health 88% - 95%",
-      "6 Months Aki Enterprise TechHub Store Warranty",
+      "6 Months Aki Enterprise Store Warranty",
     ],
     specs: {
       Display: "6.1-inch Super Retina XDR OLED",
@@ -400,7 +400,7 @@ export const PRODUCTS: Product[] = [
     features: [
       "16GB Single Module DDR4-3200 SODIMM",
       "Improves system responsiveness and loading speeds",
-      "Easy installation with free in-store fitting at TechHub",
+      "Easy installation with free in-store fitting at Aki Enterprise",
       "Standard 1.2V low power consumption",
     ],
     specs: {
@@ -726,7 +726,7 @@ export const PRODUCTS: Product[] = [
       "Gen 4x4 NVMe PCIe performance",
       "Read speeds up to 3,500MB/s, write up to 2,100MB/s",
       "Single-sided M.2 2280 form factor fits thin ultrabooks",
-      "Free OS cloning and installation assistance at TechHub store",
+      "Free OS cloning and installation assistance at Aki Enterprise store",
     ],
     specs: {
       Capacity: "1TB (1000GB)",

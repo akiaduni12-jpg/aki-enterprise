@@ -117,7 +117,7 @@ export function Footer() {
                       AKI <span className="text-[#FF8A24]">ENTERPRISE</span>
                     </span>
                     <span className="block text-[10px] text-gray-400 uppercase tracking-widest font-semibold">
-                      TechHub Electronics • Ghana
+                      Original Electronics &amp; Accessories • Ghana
                     </span>
                   </div>
                 </Link>
@@ -138,7 +138,7 @@ export function Footer() {
                 </div>
                 <div className="flex items-center gap-2.5">
                   <Mail className="w-4 h-4 text-[#FF8A24] shrink-0" />
-                  <span>support@techhubghana.com</span>
+                  <span>support@akienterprise.com</span>
                 </div>
               </div>
 
@@ -336,7 +336,7 @@ export function Footer() {
           {/* Bottom Copyright & Legal Links */}
           <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
             <p>
-              © 2026 <strong className="text-gray-300">Aki Enterprise</strong> ("TechHub"). All rights reserved.
+              © 2026 <strong className="text-gray-300">Aki Enterprise</strong>. All rights reserved.
             </p>
 
             <div className="flex items-center gap-4 text-[11px]">

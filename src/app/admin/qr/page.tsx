@@ -165,17 +165,14 @@ export default function AdminQRPage() {
                 <span className="text-xl font-black tracking-tight text-slate-950">
                   AKI <span className="text-orange-600">ENTERPRISE</span>
                 </span>
-                <span className="text-[9px] font-bold bg-orange-100 text-orange-700 px-1 py-0.2 rounded uppercase">
-                  TechHub
-                </span>
               </div>
               <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">
-                In-Store Scan & Buy • Ghana
+                In-Store Scan &amp; Buy • Ghana
               </p>
 
               {/* Tag / Location */}
               <div className="bg-orange-50 border border-orange-200 text-orange-800 text-xs font-bold px-3 py-1 rounded-full mb-4">
-                📍 {selectedForPrint.location_tag}
+                Location: {selectedForPrint.location_tag}
               </div>
 
               {/* Authentic Scannable QR Code Matrix */}
@@ -184,10 +181,10 @@ export default function AdminQRPage() {
                   value={
                     typeof window !== "undefined"
                       ? `${window.location.origin}/qr/${selectedForPrint.slug}`
-                      : `https://techhubghana.com/qr/${selectedForPrint.slug}`
+                      : `https://akienterprise.com/qr/${selectedForPrint.slug}`
                   }
                   size={190}
-                  centerBadgeText="TH"
+                  centerBadgeText="AKI"
                   showDownloadButton={true}
                 />
                 <span className="text-[10px] font-mono text-gray-400 mt-2 uppercase tracking-wider">
@@ -204,14 +201,14 @@ export default function AdminQRPage() {
               </p>
 
               <div className="mt-4 pt-3 border-t border-gray-200 w-full flex items-center justify-around text-[10px] font-bold text-gray-500 uppercase">
-                <span>✓ Shop Warranty</span>
-                <span>✓ Pay with MoMo</span>
-                <span>✓ Instant Pickup</span>
+                <span>Shop Warranty</span>
+                <span>Pay with MoMo</span>
+                <span>Instant Pickup</span>
               </div>
             </div>
 
             <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs text-gray-400 space-y-1">
-              <p className="font-semibold text-gray-200">💡 Dynamic Redirect Active:</p>
+              <p className="font-semibold text-gray-200">Dynamic Redirect Active:</p>
               <p className="text-[11px]">
                 Target: <code className="text-orange-400 font-mono">{selectedForPrint.destination_path}</code>. You can change this destination at any time without needing to reprint this physical poster.
               </p>

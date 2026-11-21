@@ -30,7 +30,6 @@ import {
   Image as ImageIcon,
   CheckCircle2,
   X,
-  Sparkles,
   ShieldCheck,
   BatteryCharging,
   Layers,
@@ -744,7 +743,7 @@ export default function AdminCatalogPage() {
                     <h3 className="font-bold text-white text-sm">{cat.name}</h3>
                     <p className="text-[10px] text-gray-500 font-mono">/{cat.slug}</p>
                     <p className="text-xs text-gray-400 line-clamp-2">
-                      {cat.description || "Electronics product category for TechHub store."}
+                      {cat.description || "Electronics product category for Aki Enterprise store."}
                     </p>
                   </div>
                 </div>
@@ -1227,7 +1226,7 @@ export default function AdminCatalogPage() {
               {/* Technical Specifications Table */}
               <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-3">
                 <h4 className="text-xs font-bold text-[#FF8A24] uppercase tracking-wider flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5" />
+                  <ShieldCheck className="w-3.5 h-3.5" />
                   <span>Technical Specifications (Detailed Specs Table)</span>
                 </h4>
 
