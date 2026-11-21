@@ -62,6 +62,7 @@ function CustomerAccountContent() {
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const [passwordProtection, setPasswordProtection] = useState(false);
   const [accountPassword, setAccountPassword] = useState("");
+  const [showAddressDrawer, setShowAddressDrawer] = useState(false);
 
   const { addToCart } = useCart();
 
@@ -189,7 +190,7 @@ function CustomerAccountContent() {
         {/* 2. My Addresses */}
         <button
           type="button"
-          onClick={() => setActiveTab("profile")}
+          onClick={() => setShowAddressDrawer(true)}
           className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition text-left"
         >
           <div className="flex items-center gap-3">
@@ -202,10 +203,9 @@ function CustomerAccountContent() {
         </button>
 
         {/* 3. Wishlist */}
-        <button
-          type="button"
-          onClick={() => setActiveTab("favorites")}
-          className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition text-left"
+        <Link
+          href="/wishlist"
+          className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition"
         >
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-orange-50 text-[#F26A00] flex items-center justify-center">
@@ -221,7 +221,7 @@ function CustomerAccountContent() {
             )}
             <ChevronRight className="w-4 h-4 text-gray-400" />
           </div>
-        </button>
+        </Link>
 
         {/* 4. Payment Methods */}
         <div className="p-4 flex items-center justify-between hover:bg-gray-50 transition">
@@ -256,7 +256,7 @@ function CustomerAccountContent() {
         {/* 6. Settings */}
         <button
           type="button"
-          onClick={() => setActiveTab("profile")}
+          onClick={() => setShowAddressDrawer(true)}
           className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition text-left"
         >
           <div className="flex items-center gap-3">
@@ -290,6 +290,111 @@ function CustomerAccountContent() {
         </button>
       </div>
 
+      {/* Mobile Address & Details Modal */}
+      {showAddressDrawer && (
+        <div className="md:hidden fixed inset-0 z-50 flex items-end bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="w-full bg-white rounded-t-3xl p-6 space-y-4 max-h-[85vh] overflow-y-auto shadow-2xl">
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+              <div className="flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-[#F26A00]" />
+                <h3 className="font-bold text-sm text-slate-900">Delivery Address & Contact</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAddressDrawer(false)}
+                className="p-1 rounded-full text-gray-400 hover:text-black hover:bg-gray-100"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form
+              onSubmit={(e) => {
+                handleSaveProfile(e);
+                setShowAddressDrawer(false);
+              }}
+              className="space-y-3"
+            >
+              <div>
+                <label className="text-[11px] font-bold text-gray-700 block mb-1">Full Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={profile.full_name}
+                  onChange={(e) => setProfile({ ...profile, full_name: e.target.value })}
+                  placeholder="Kwame Mensah"
+                  className="w-full px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:border-orange-500"
+                />
+              </div>
+
+              <div>
+                <label className="text-[11px] font-bold text-gray-700 block mb-1">Ghana Phone (MoMo) *</label>
+                <input
+                  type="tel"
+                  required
+                  value={profile.phone}
+                  onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
+                  placeholder="024 123 4567"
+                  className="w-full px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:border-orange-500 font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="text-[11px] font-bold text-gray-700 block mb-1">Email (Optional)</label>
+                <input
+                  type="email"
+                  value={profile.email}
+                  onChange={(e) => setProfile({ ...profile, email: e.target.value })}
+                  placeholder="kwame@gmail.com"
+                  className="w-full px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:border-orange-500"
+                />
+              </div>
+
+              <div>
+                <label className="text-[11px] font-bold text-gray-700 block mb-1">City / Region *</label>
+                <input
+                  type="text"
+                  required
+                  value={profile.city}
+                  onChange={(e) => setProfile({ ...profile, city: e.target.value })}
+                  placeholder="Accra, Kumasi, Tema"
+                  className="w-full px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:border-orange-500"
+                />
+              </div>
+
+              <div>
+                <label className="text-[11px] font-bold text-gray-700 block mb-1">Delivery Address & Landmarks</label>
+                <textarea
+                  rows={2}
+                  value={profile.delivery_address}
+                  onChange={(e) => setProfile({ ...profile, delivery_address: e.target.value })}
+                  placeholder="123 Oxford Street, near Shell"
+                  className="w-full px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:border-orange-500"
+                />
+              </div>
+
+              <div className="pt-2 flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAddressDrawer(false)}
+                  className="flex-1 py-2.5 rounded-xl border border-gray-200 text-xs font-bold text-gray-600 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#F26A00] to-[#FF8A24] text-white text-xs font-bold shadow-md shadow-orange-500/30"
+                >
+                  Save Address
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Desktop Tabs & View (Hidden on mobile for exact Screen 7 view) */}
+      <div className="hidden md:block space-y-6">
       {/* Desktop Header Banner */}
       <div className="hidden md:block bg-[#171717] text-white rounded-3xl p-6 sm:p-8 relative overflow-hidden shadow-xl">
         <div className="absolute top-0 right-0 w-80 h-80 bg-[#F26A00]/20 rounded-full blur-3xl pointer-events-none" />
@@ -733,6 +838,7 @@ function CustomerAccountContent() {
           </form>
         </div>
       )}
+      </div>
     </div>
   );
 }

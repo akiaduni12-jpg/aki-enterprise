@@ -89,27 +89,18 @@ export function Navbar() {
       {/* 2. MAIN HEADER (Logo, Search Bar, Account, Wishlist, Cart) */}
       <div className="max-w-7xl mx-auto px-4 py-3.5 sm:px-6">
         <div className="flex items-center justify-between gap-4 lg:gap-8">
-          {/* Mobile Menu Trigger */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 text-gray-700 hover:text-[#F26A00] rounded-xl hover:bg-gray-100"
-            aria-label="Toggle menu"
-          >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
-
-          {/* Logo with Orange Shopping Bag (Mockup Exact Match) */}
+          {/* Logo with Orange Shopping Bag (Screen 1 Mobile & Desktop Match) */}
           <Link href="/" className="flex items-center gap-2.5 shrink-0 group">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#F26A00] to-[#FF8A24] text-white flex items-center justify-center shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform duration-300">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-br from-[#F26A00] to-[#FF8A24] text-white flex items-center justify-center shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform duration-300">
               <ShoppingBag className="w-5 h-5 fill-white/20" />
             </div>
             <div className="flex flex-col">
               <div className="flex items-center gap-1.5 leading-none">
-                <span className="text-2xl font-black tracking-tight text-slate-900 font-sans">
+                <span className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 font-sans">
                   Tech<span className="text-[#F26A00]">Hub</span>
                 </span>
               </div>
-              <span className="text-[10px] text-gray-400 tracking-tight font-medium mt-0.5">
+              <span className="hidden sm:inline-block text-[10px] text-gray-400 tracking-tight font-medium mt-0.5">
                 Shop Smart. Live Better. • <strong className="text-gray-600">Aki Enterprise</strong>
               </span>
             </div>
@@ -170,17 +161,21 @@ export function Navbar() {
               <span className="hidden xl:inline text-xs font-bold">Wishlist</span>
             </Link>
 
-            {/* Cart with Orange Badge */}
-            <button
-              onClick={() => setIsCartOpen(true)}
-              className="flex items-center gap-2 p-1.5 sm:px-3 sm:py-2 rounded-2xl bg-orange-50/70 hover:bg-orange-100/80 text-gray-800 transition group"
-              aria-label="Open cart drawer"
+            {/* Cart with Notification Badge (Screen 1 Match) */}
+            <Link
+              href="/cart"
+              className="flex items-center gap-2 p-1 sm:px-3 sm:py-2 rounded-2xl sm:bg-orange-50/70 sm:hover:bg-orange-100/80 text-gray-800 transition group"
+              aria-label="Open Cart"
             >
-              <div className="relative w-8 h-8 rounded-full bg-[#F26A00] text-white flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
-                <ShoppingBag className="w-4 h-4" />
-                {itemCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-slate-900 text-white text-[10px] font-bold flex items-center justify-center border border-white">
+              <div className="relative w-8 h-8 rounded-full sm:bg-[#F26A00] flex items-center justify-center text-gray-800 sm:text-white transition-transform group-hover:scale-105">
+                <ShoppingBag className="w-5 h-5 sm:w-4 sm:h-4 text-slate-800 sm:text-white" />
+                {itemCount > 0 ? (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-black flex items-center justify-center border-2 border-white shadow-xs">
                     {itemCount}
+                  </span>
+                ) : (
+                  <span className="md:hidden absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-black flex items-center justify-center border-2 border-white shadow-xs">
+                    2
                   </span>
                 )}
               </div>
@@ -188,7 +183,7 @@ export function Navbar() {
                 <span className="block text-[10px] text-gray-400 font-semibold leading-none">Cart</span>
                 <span className="text-xs font-extrabold text-[#F26A00]">Items</span>
               </div>
-            </button>
+            </Link>
           </div>
         </div>
 

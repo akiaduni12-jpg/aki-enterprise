@@ -1,5 +1,6 @@
 import React, { Suspense } from "react";
-import { PRODUCTS, CATEGORIES, BRANDS } from "@/lib/mock-data";
+import { CATEGORIES, BRANDS } from "@/lib/mock-data";
+import { getProducts } from "@/lib/db-service";
 import { ProductCard } from "@/components/product-card";
 import Link from "next/link";
 import { Filter, ChevronLeft, Search } from "lucide-react";
@@ -18,7 +19,8 @@ async function ProductsList({ searchParams }: ProductsPageProps) {
   const resolvedParams = await searchParams;
   const { category, brand, condition, search, featured } = resolvedParams;
 
-  let filtered = [...PRODUCTS];
+  const allProducts = await getProducts();
+  let filtered = [...allProducts];
 
   if (category) {
     filtered = filtered.filter((p) => p.category_slug === category);

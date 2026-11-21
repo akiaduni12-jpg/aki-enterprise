@@ -44,7 +44,7 @@ export function MobileNavBar() {
       label: "Account",
       href: "/account",
       icon: User,
-      isActive: pathname === "/account",
+      isActive: pathname === "/account" || pathname?.startsWith("/orders"),
     },
   ];
 

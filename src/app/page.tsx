@@ -243,10 +243,49 @@ export default function HomePage() {
       )}
 
       {/* ============================================================== */}
-      {/* 1. HERO SECTION: FULL-WIDTH 16:9 WIDESCREEN SHOWCASE SLIDER     */}
+      {/* 1. HERO SECTION: DEDICATED SCREEN 1 MOBILE HERO + 16:9 DESKTOP SLIDER */}
       {/* ============================================================== */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-5">
-        <div className="relative w-full aspect-[16/9] sm:aspect-[21/9] lg:aspect-[16/9] min-h-[460px] max-h-[640px] rounded-3xl overflow-hidden shadow-2xl bg-[#171717] group">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-3 sm:pt-5">
+        {/* Mobile Showcase Hero (Screen 1 Exact Match) */}
+        <div className="sm:hidden relative h-44 rounded-3xl overflow-hidden bg-[#141414] border border-white/10 p-5 flex items-center justify-between shadow-xl">
+          {/* Glowing Orange Curved Edge on Right */}
+          <div className="absolute -right-10 -top-10 w-48 h-48 rounded-full bg-gradient-to-br from-[#F26A00] to-[#FF8A24] opacity-75 blur-2xl pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-transparent to-[#141414] z-10 pointer-events-none" />
+
+          {/* Left Hero Text & CTA */}
+          <div className="relative z-20 max-w-[170px] space-y-1.5">
+            <h2 className="text-xl font-black text-white leading-tight tracking-tight drop-shadow-sm">
+              Latest <br />
+              Smartphones
+            </h2>
+            <p className="text-xs font-semibold text-gray-300">
+              Up to <span className="text-[#FF8A24] font-bold">20% OFF</span>
+            </p>
+            <div className="pt-1">
+              <Link
+                href="/products?category=smartphones"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-gradient-to-r from-[#F26A00] to-[#FF8A24] text-white text-xs font-black shadow-md shadow-orange-600/40 active:scale-95 transition"
+              >
+                <span>Shop Now</span>
+                <ArrowRight className="w-3 h-3" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Right Hero Image (iPhone showcase) */}
+          <div className="relative z-10 w-32 h-36 shrink-0">
+            <Image
+              src="https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&w=400&q=80"
+              alt="Latest Smartphones"
+              fill
+              className="object-contain drop-shadow-2xl"
+              priority
+            />
+          </div>
+        </div>
+
+        {/* Desktop 16:9 Widescreen Showcase Slider */}
+        <div className="hidden sm:block relative w-full aspect-[21/9] lg:aspect-[16/9] min-h-[460px] max-h-[640px] rounded-3xl overflow-hidden shadow-2xl bg-[#171717] group">
           {/* Edge-to-Edge 16:9 Active Banner Photography */}
           <Image
             src={currentBanner.image_url}
@@ -385,15 +424,15 @@ export default function HomePage() {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <span className="w-2 h-4 rounded-full bg-[#F26A00]" />
-            <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
+            <h2 className="text-base sm:text-xl font-black text-slate-900 tracking-tight">
               Shop by Category
             </h2>
           </div>
           <Link
-            href="/products"
-            className="text-xs font-bold text-[#F26A00] hover:text-[#d95e00] flex items-center gap-1 transition"
+            href="/categories"
+            className="text-xs font-bold text-[#F26A00] hover:text-[#d95e00] flex items-center gap-0.5 transition"
           >
-            <span>View All Categories</span>
+            <span>See All</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
@@ -422,6 +461,88 @@ export default function HomePage() {
               </span>
             </Link>
           ))}
+        </div>
+      </section>
+
+      {/* ============================================================== */}
+      {/* 2.2 BEST SELLERS ROW (Screen 1 Match: Horizontal Cards & Add + Button) */}
+      {/* ============================================================== */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="flex items-center justify-between mb-3.5">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-4 rounded-full bg-[#F26A00]" />
+            <h2 className="text-base sm:text-xl font-black text-slate-900 tracking-tight">
+              Best Sellers
+            </h2>
+          </div>
+          <Link
+            href="/products?featured=true"
+            className="text-xs font-bold text-[#F26A00] hover:text-[#d95e00] flex items-center gap-0.5 transition"
+          >
+            <span>See All</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
+        {/* Best Sellers Scrollable Carousel / Grid */}
+        <div className="flex sm:grid sm:grid-cols-3 lg:grid-cols-5 gap-3 overflow-x-auto pb-2 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
+          {MOCKUP_PRODUCTS.map((prod) => {
+            const isLiked = likedItems[prod.id] || false;
+            return (
+              <div
+                key={prod.id}
+                className="w-40 sm:w-auto shrink-0 bg-white rounded-2xl border border-gray-100 p-3 shadow-2xs hover:shadow-lg hover:border-orange-200 transition flex flex-col justify-between"
+              >
+                <div>
+                  <div className="relative w-full aspect-square rounded-xl bg-gray-50 overflow-hidden mb-2">
+                    <Image
+                      src={prod.image}
+                      alt={prod.title}
+                      fill
+                      className="object-cover"
+                    />
+                    <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded text-[9px] font-black bg-orange-500 text-white shadow-xs">
+                      {prod.badge}
+                    </span>
+                    <button
+                      onClick={() => toggleLike(prod.id)}
+                      className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-white/90 backdrop-blur-xs flex items-center justify-center text-gray-400 hover:text-red-500 shadow-xs"
+                    >
+                      <Heart className={`w-3 h-3 ${isLiked ? "fill-red-500 text-red-500" : ""}`} />
+                    </button>
+                  </div>
+
+                  <Link href={`/product/${prod.slug}`}>
+                    <h3 className="font-bold text-xs text-gray-900 line-clamp-1 hover:text-orange-600 transition">
+                      {prod.title}
+                    </h3>
+                  </Link>
+
+                  <div className="flex items-baseline gap-1 mt-1">
+                    <span className="font-extrabold text-xs sm:text-sm text-[#F26A00]">
+                      {formatGHS(prod.price)}
+                    </span>
+                    {prod.originalPrice && (
+                      <span className="text-[10px] text-gray-400 line-through">
+                        {formatGHS(prod.originalPrice)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="pt-2 mt-2 border-t border-gray-50 flex items-center justify-between">
+                  <span className="text-[9px] font-bold text-emerald-600">In Stock</span>
+                  <button
+                    onClick={() => handleQuickAdd(prod.productRef, prod.productRef.variants[0])}
+                    className="px-2.5 py-1 rounded-lg bg-[#F26A00] text-white text-[10px] font-black flex items-center gap-1 active:scale-95 shadow-xs"
+                  >
+                    <span>Add</span>
+                    <span>+</span>
+                  </button>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </section>
 
