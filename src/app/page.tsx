@@ -549,7 +549,7 @@ export default function HomePage() {
       {/* ============================================================== */}
       {/* 2.5 DEDICATED "SCAN & SHOP" ACCRA STORE PROMOTIONAL BANNER     */}
       {/* ============================================================== */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6">
+      <section className="hidden md:block max-w-7xl mx-auto px-4 sm:px-6">
         <div className="relative rounded-3xl bg-gradient-to-r from-orange-600 via-[#F26A00] to-[#FF8A24] text-white p-6 sm:p-10 overflow-hidden shadow-xl">
           {/* Decorative glowing circles and wave */}
           <div className="absolute -top-20 -right-20 w-80 h-80 bg-white/10 rounded-full blur-2xl pointer-events-none" />
@@ -1149,7 +1149,7 @@ export default function HomePage() {
       {/* ============================================================== */}
       {/* 9. NEW: IN-STORE QR SHOPPING EXPERIENCE GUIDE (Aki Enterprise) */}
       {/* ============================================================== */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6">
+      <section className="hidden md:block max-w-7xl mx-auto px-4 sm:px-6">
         <div className="bg-white rounded-3xl border border-gray-100 p-6 sm:p-10 shadow-xs">
           <div className="text-center max-w-xl mx-auto space-y-2 mb-8">
             <span className="px-3 py-1 rounded-full bg-orange-100 text-[#F26A00] text-xs font-bold">
