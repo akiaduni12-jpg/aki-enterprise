@@ -29,7 +29,7 @@ const CHANNEL_DEFAULTS = {
     dotColor: "bg-blue-400",
     textColor: "text-blue-400",
     alt: "AirtelTigo / ATMoney Ghana",
-    imagePath: "/images/payments/airtel.png",
+    imagePath: "/images/payments/airtel.jpg",
   },
   card: {
     name: "Visa / Card",
