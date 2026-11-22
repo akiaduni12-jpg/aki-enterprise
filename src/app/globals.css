@@ -112,3 +112,75 @@ body {
     animation: none !important;
   }
 }
+
+/* ============================================================================
+   CLEAN PRINT STYLES FOR QR STANDEES, INVOICES & OFFICIAL RECEIPTS
+   Ensures window.print() prints ONLY the relevant document on crisp paper
+   with NO headers, navbars, sidebars, buttons, or dark theme backgrounds.
+   ============================================================================ */
+@media print {
+  @page {
+    margin: 1cm;
+    size: auto;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Universal hide for non-printable chrome */
+  nav,
+  header,
+  footer,
+  aside,
+  button,
+  .no-print,
+  .admin-sidebar {
+    display: none !important;
+  }
+
+  /* When printing QR Posters/Standees */
+  .qr-screen-header,
+  .qr-screen-campaigns,
+  .qr-screen-tips {
+    display: none !important;
+  }
+
+  #printable-qr-standee,
+  #printable-qr-card {
+    position: static !important;
+    display: block !important;
+    width: 100% !important;
+    max-width: 520px !important;
+    margin: 0 auto !important;
+    border: 3px solid #000000 !important;
+    box-shadow: none !important;
+    page-break-inside: avoid !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  /* When printing Order Receipts / Invoices */
+  .receipt-screen-actions {
+    display: none !important;
+  }
+
+  #printable-receipt,
+  #printable-invoice {
+    position: static !important;
+    display: block !important;
+    width: 100% !important;
+    max-width: 600px !important;
+    margin: 0 auto !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: none !important;
+    page-break-inside: avoid !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+}

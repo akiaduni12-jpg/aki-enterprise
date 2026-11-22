@@ -156,8 +156,8 @@ function VerifyContent() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-12">
-      {/* Success Badge & Header */}
-      <div className="text-center mb-8">
+      {/* Success Badge & Header (Screen only) */}
+      <div className="text-center mb-8 no-print">
         <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-3 shadow-md shadow-emerald-500/10">
           <CheckCircle2 className="w-10 h-10" />
         </div>
@@ -173,8 +173,16 @@ function VerifyContent() {
         </p>
       </div>
 
-      {/* Order & Payment Summary Card */}
-      <div className="bg-white rounded-3xl border border-gray-100 shadow-xl p-6 sm:p-8 space-y-6">
+      {/* Order & Payment Summary Card (Printable Official Receipt) */}
+      <div id="printable-receipt" className="bg-white rounded-3xl border border-gray-100 shadow-xl p-6 sm:p-8 space-y-6">
+        {/* Printable Official Store Header */}
+        <div className="hidden print:block pb-4 mb-2 border-b-2 border-black text-center space-y-1">
+          <h2 className="text-2xl font-black text-black">AKI ENTERPRISE</h2>
+          <p className="text-xs font-bold text-gray-700 uppercase tracking-wider">Official Sales &amp; Delivery Receipt</p>
+          <p className="text-[11px] text-gray-600">Store: Miaso, Kwahu East, Ghana • Phone / WhatsApp: 0551243372</p>
+          <p className="text-[10px] text-gray-500">Date: {new Date().toLocaleDateString("en-GB")}</p>
+        </div>
+
         {/* Order Number Row */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 border-b border-gray-100">
           <div>
@@ -268,8 +276,8 @@ function VerifyContent() {
           </span>
         </div>
 
-        {/* Action Buttons */}
-        <div className="space-y-3 pt-2">
+        {/* Action Buttons (Screen only) */}
+        <div className="space-y-3 pt-2 no-print receipt-screen-actions">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Link
               href="/orders"

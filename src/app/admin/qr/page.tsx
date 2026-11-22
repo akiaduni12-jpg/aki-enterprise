@@ -121,10 +121,22 @@ export default function AdminQRPage() {
     window.print();
   };
 
+  const handlePrintStoreStand = () => {
+    const counterCamp =
+      campaigns.find((c) => c.slug === "store-catalog" || c.destination_path === "/products") ||
+      campaigns[0];
+    if (counterCamp) {
+      setSelectedForPrint(counterCamp);
+    }
+    setTimeout(() => {
+      window.print();
+    }, 150);
+  };
+
   return (
     <div className="space-y-8">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 no-print">
         <div>
           <div className="flex items-center gap-2">
             <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
@@ -138,18 +150,26 @@ export default function AdminQRPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 self-start sm:self-auto">
+        <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+          <button
+            onClick={handlePrintStoreStand}
+            className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white hover:bg-gray-100 text-slate-900 font-bold text-xs shadow-md transition cursor-pointer"
+            title="Print ready-to-display counter table-tent flyer"
+          >
+            <Printer className="w-4 h-4 text-orange-600" />
+            <span>Print Store Counter Stand</span>
+          </button>
           <button
             onClick={fetchCampaigns}
             disabled={isLoading}
-            className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-gray-200 border border-slate-700 font-semibold text-xs transition"
+            className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-gray-200 border border-slate-700 font-semibold text-xs transition cursor-pointer"
           >
             <RefreshCw className={`w-3.5 h-3.5 text-orange-400 ${isLoading ? "animate-spin" : ""}`} />
             <span>Sync</span>
           </button>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#F26A00] to-[#FF8A24] hover:from-[#d95e00] text-white font-bold text-xs shadow-md transition"
+            className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-[#F26A00] to-[#FF8A24] hover:from-[#d95e00] text-white font-bold text-xs shadow-md transition cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>New QR Campaign</span>
@@ -158,15 +178,15 @@ export default function AdminQRPage() {
       </div>
 
       {notification && (
-        <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-semibold animate-in fade-in">
+        <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-semibold animate-in fade-in no-print">
           <CheckCircle className="w-4 h-4 shrink-0" />
           <span>{notification}</span>
         </div>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left: Campaign Table & Performance */}
-        <div className="lg:col-span-7 space-y-4">
+        {/* Left: Campaign Table & Performance (Hidden on print) */}
+        <div className="lg:col-span-7 space-y-4 no-print">
           <div className="bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden shadow-sm">
             <div className="p-4 border-b border-slate-800 flex items-center justify-between">
               <h3 className="font-bold text-sm text-white">Active QR Shelf &amp; Poster Campaigns</h3>
@@ -248,73 +268,86 @@ export default function AdminQRPage() {
         {/* Right: Print-Ready Shelf Banner Asset Preview */}
         <div className="lg:col-span-5">
           <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 shadow-xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800 no-print">
               <h3 className="font-bold text-sm text-white flex items-center gap-2">
                 <Printer className="w-4 h-4 text-orange-500" />
                 <span>Printable Shelf / Poster Artwork</span>
               </h3>
               <button
                 onClick={handlePrint}
-                className="px-3 py-1 bg-white hover:bg-gray-100 text-slate-900 rounded-lg font-bold text-xs flex items-center gap-1.5 shadow-sm transition"
+                className="px-3 py-1 bg-white hover:bg-gray-100 text-slate-900 rounded-lg font-bold text-xs flex items-center gap-1.5 shadow-sm transition cursor-pointer"
               >
-                <Printer className="w-3.5 h-3.5" />
-                <span>Print Sheet</span>
+                <Printer className="w-3.5 h-3.5 text-orange-600" />
+                <span>Print Poster</span>
               </button>
             </div>
 
-            {/* Printable Graphic Card */}
+            {/* Printable Graphic Card (Isolated for print) */}
             <div
               id="printable-qr-card"
-              className="bg-white text-slate-950 p-6 rounded-2xl border-4 border-slate-900 flex flex-col items-center text-center shadow-inner"
+              className="bg-white text-slate-950 p-6 sm:p-8 rounded-3xl border-4 border-slate-900 flex flex-col items-center text-center shadow-inner"
             >
               {/* Brand Header */}
               <div className="flex items-center gap-1.5 mb-1">
-                <span className="text-xl font-black tracking-tight text-slate-950">
-                  AKI <span className="text-orange-600">ENTERPRISE</span>
+                <span className="text-2xl font-black tracking-tight text-slate-950">
+                  AKI <span className="text-[#F26A00]">ENTERPRISE</span>
                 </span>
               </div>
               <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">
-                In-Store Scan &amp; Buy • Ghana
+                Official Retail Store • Ghana
               </p>
 
               {/* Tag / Location */}
-              <div className="bg-orange-50 border border-orange-200 text-orange-800 text-xs font-bold px-3 py-1 rounded-full mb-4">
+              <div className="bg-orange-50 border border-orange-200 text-orange-800 text-xs font-bold px-3 py-1 rounded-full mb-3">
                 Location: {selectedForPrint.location_tag}
               </div>
 
+              {/* Action Headline */}
+              <h3 className="text-base sm:text-lg font-black text-slate-900 uppercase tracking-tight mb-2">
+                Scan to Explore &amp; Order on Phone
+              </h3>
+
               {/* Authentic Scannable QR Code Matrix */}
-              <div className="mb-4 flex flex-col items-center">
+              <div className="mb-3 flex flex-col items-center">
                 <AuthenticQR
                   value={
                     typeof window !== "undefined"
                       ? `${window.location.origin}/qr/${selectedForPrint.slug}`
                       : `https://akienterprise.com/qr/${selectedForPrint.slug}`
                   }
-                  size={190}
+                  size={200}
                   centerBadgeText="AKI"
                   showDownloadButton={true}
                 />
-                <span className="text-[10px] font-mono text-gray-400 mt-2 uppercase tracking-wider">
+                <span className="text-[9px] font-mono text-gray-400 mt-1 uppercase tracking-wider">
                   SCAN WITH ANY SMARTPHONE CAMERA
                 </span>
               </div>
 
-              {/* Scan Call to Action */}
-              <h4 className="font-black text-sm text-slate-900 uppercase">
-                {selectedForPrint.campaign_name}
-              </h4>
-              <p className="text-xs text-gray-600 mt-1 max-w-xs leading-relaxed">
-                Scan now to view battery health, warranty terms &amp; pay instantly via MTN MoMo, Telecel Cash or Card!
-              </p>
+              {/* Campaign Destination & Instructions */}
+              <div className="w-full bg-gray-50 rounded-2xl p-3 border border-gray-100 text-left space-y-1.5 my-2">
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
+                  How to Shop in Store:
+                </span>
+                <ol className="text-xs text-gray-700 space-y-1 list-decimal list-inside font-medium">
+                  <li>Open Camera or Scanner on your phone</li>
+                  <li>Scan the QR code above to browse our live inventory</li>
+                  <li>Order online or pay instantly with MoMo or Cash at counter</li>
+                </ol>
+              </div>
 
-              <div className="mt-4 pt-3 border-t border-gray-200 w-full flex items-center justify-around text-[10px] font-bold text-gray-500 uppercase">
+              <div className="mt-3 pt-3 border-t border-gray-200 w-full flex items-center justify-around text-[10px] font-bold text-gray-600 uppercase">
+                <span>100% Genuine</span>
                 <span>Shop Warranty</span>
-                <span>Pay with MoMo</span>
                 <span>Instant Pickup</span>
               </div>
+
+              <p className="mt-3 text-[10px] text-gray-400 border-t border-gray-100 pt-2 w-full">
+                Aki Enterprise • Miaso, Kwahu East, Ghana • Phone / WhatsApp: 0551243372
+              </p>
             </div>
 
-            <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs text-gray-400 space-y-1">
+            <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs text-gray-400 space-y-1 no-print">
               <p className="font-semibold text-gray-200">Dynamic Redirect Active:</p>
               <p className="text-[11px]">
                 Target: <code className="text-orange-400 font-mono">{selectedForPrint.destination_path}</code>. You can change this destination at any time without needing to reprint this physical poster.

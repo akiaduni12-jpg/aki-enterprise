@@ -906,6 +906,18 @@ export const PRODUCTS: Product[] = [
 
 export const INITIAL_QR_CAMPAIGNS: QRCampaign[] = [
   {
+    id: "qr-store-counter",
+    campaign_name: "Official Store Counter Stand (Scan & Explore)",
+    slug: "store-catalog",
+    destination_path: "/products",
+    location_tag: "Miaso Main Shop Counter & Table Tent",
+    is_active: true,
+    scans_count: 840,
+    orders_count: 94,
+    total_revenue: 142800.0,
+    created_at: "2026-10-01T00:00:00Z",
+  },
+  {
     id: "qr-1",
     campaign_name: "Front Shop Entrance Mega Banner",
     slug: "shop-entrance",
