@@ -11,9 +11,11 @@ import {
   deleteProduct,
   getStoredCategories,
   addCategory,
+  updateCategory,
   deleteCategory,
   getStoredBrands,
   addBrand,
+  updateBrand,
   deleteBrand,
 } from "@/lib/catalog-store";
 import { formatGHS, getConditionBadge } from "@/lib/utils";
@@ -92,6 +94,7 @@ export default function AdminCatalogPage() {
   const [pBestSeller, setPBestSeller] = useState(false);
 
   // Form State: Category
+  const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
   const [cName, setCName] = useState("");
   const [cSlug, setCSlug] = useState("");
   const [cDescription, setCDescription] = useState("");
@@ -99,6 +102,7 @@ export default function AdminCatalogPage() {
   const [cImageUrl, setCImageUrl] = useState("");
 
   // Form State: Brand
+  const [editingBrandId, setEditingBrandId] = useState<string | null>(null);
   const [bName, setBName] = useState("");
   const [bSlug, setBSlug] = useState("");
   const [bLogoUrl, setBLogoUrl] = useState("");
@@ -399,25 +403,60 @@ export default function AdminCatalogPage() {
     }
   };
 
-  // Save Category
+  // Category Modal Handlers
+  const handleOpenNewCategory = () => {
+    setEditingCategoryId(null);
+    setCName("");
+    setCSlug("");
+    setCDescription("");
+    setCIcon("FolderTree");
+    setCImageUrl("");
+    setIsCategoryModalOpen(true);
+  };
+
+  const handleOpenEditCategory = (cat: Category) => {
+    setEditingCategoryId(cat.id);
+    setCName(cat.name);
+    setCSlug(cat.slug);
+    setCDescription(cat.description || "");
+    setCIcon(cat.icon || "FolderTree");
+    setCImageUrl(cat.image_url || "");
+    setIsCategoryModalOpen(true);
+  };
+
+  // Save Category (Create or Update)
   const handleSaveCategory = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!cName.trim()) return;
 
-    await addCategory({
-      name: cName,
-      slug: cSlug || cName.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
-      description: cDescription,
-      icon: cIcon,
-      image_url: cImageUrl || "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=300&q=80",
-    });
+    const generatedSlug = cSlug || cName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+
+    if (editingCategoryId) {
+      updateCategory(editingCategoryId, {
+        name: cName,
+        slug: generatedSlug,
+        description: cDescription,
+        icon: cIcon,
+        image_url: cImageUrl || "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=300&q=80",
+      });
+      showToast("Category updated successfully!");
+    } else {
+      await addCategory({
+        name: cName,
+        slug: generatedSlug,
+        description: cDescription,
+        icon: cIcon,
+        image_url: cImageUrl || "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=300&q=80",
+      });
+      showToast("New Category added!");
+    }
 
     setCName("");
     setCSlug("");
     setCDescription("");
     setCImageUrl("");
+    setEditingCategoryId(null);
     setIsCategoryModalOpen(false);
-    showToast("New Category added!");
     refreshData();
   };
 
@@ -430,23 +469,54 @@ export default function AdminCatalogPage() {
     }
   };
 
-  // Save Brand
+  // Brand Modal Handlers
+  const handleOpenNewBrand = () => {
+    setEditingBrandId(null);
+    setBName("");
+    setBSlug("");
+    setBLogoUrl("");
+    setBCountry("USA");
+    setIsBrandModalOpen(true);
+  };
+
+  const handleOpenEditBrand = (brand: Brand) => {
+    setEditingBrandId(brand.id);
+    setBName(brand.name);
+    setBSlug(brand.slug);
+    setBLogoUrl(brand.logo_url || "");
+    setBCountry((brand as any).country || "USA");
+    setIsBrandModalOpen(true);
+  };
+
+  // Save Brand (Create or Update)
   const handleSaveBrand = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!bName.trim()) return;
 
-    await addBrand({
-      name: bName,
-      slug: bSlug || bName.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
-      logo_url: bLogoUrl || "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?auto=format&fit=crop&w=300&q=80",
-      country: bCountry,
-    });
+    const generatedSlug = bSlug || bName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+
+    if (editingBrandId) {
+      updateBrand(editingBrandId, {
+        name: bName,
+        slug: generatedSlug,
+        logo_url: bLogoUrl || "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?auto=format&fit=crop&w=300&q=80",
+      });
+      showToast("Brand updated successfully!");
+    } else {
+      await addBrand({
+        name: bName,
+        slug: generatedSlug,
+        logo_url: bLogoUrl || "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?auto=format&fit=crop&w=300&q=80",
+        country: bCountry,
+      });
+      showToast("New Brand added!");
+    }
 
     setBName("");
     setBSlug("");
     setBLogoUrl("");
+    setEditingBrandId(null);
     setIsBrandModalOpen(false);
-    showToast("New Brand added!");
     refreshData();
   };
 
@@ -514,7 +584,7 @@ export default function AdminCatalogPage() {
 
           {activeTab === "categories" && (
             <button
-              onClick={() => setIsCategoryModalOpen(true)}
+              onClick={handleOpenNewCategory}
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#F26A00] to-[#FF8A24] hover:from-[#d95e00] text-white font-bold text-xs shadow-lg shadow-orange-600/30 transition active:scale-95"
             >
               <Plus className="w-4 h-4" />
@@ -524,7 +594,7 @@ export default function AdminCatalogPage() {
 
           {activeTab === "brands" && (
             <button
-              onClick={() => setIsBrandModalOpen(true)}
+              onClick={handleOpenNewBrand}
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#F26A00] to-[#FF8A24] hover:from-[#d95e00] text-white font-bold text-xs shadow-lg shadow-orange-600/30 transition active:scale-95"
             >
               <Plus className="w-4 h-4" />
@@ -820,8 +890,15 @@ export default function AdminCatalogPage() {
                       <Eye className="w-4 h-4" />
                     </Link>
                     <button
+                      onClick={() => handleOpenEditCategory(cat)}
+                      className="text-gray-400 hover:text-[#FF8A24] transition"
+                      title="Edit category"
+                    >
+                      <Edit3 className="w-4 h-4" />
+                    </button>
+                    <button
                       onClick={() => handleDeleteCategory(cat.id, cat.name)}
-                      className="text-gray-400 hover:text-red-400"
+                      className="text-gray-400 hover:text-red-400 transition"
                       title="Delete category"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -872,13 +949,30 @@ export default function AdminCatalogPage() {
                     {products.filter((p) => p.brand_name.toLowerCase() === br.name.toLowerCase()).length} products
                   </span>
 
-                  <button
-                    onClick={() => handleDeleteBrand(br.id, br.name)}
-                    className="text-gray-400 hover:text-red-400"
-                    title="Delete brand"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <Link
+                      href={`/products?brand=${encodeURIComponent(br.slug || br.name)}`}
+                      target="_blank"
+                      className="text-gray-400 hover:text-white transition"
+                      title="View on store"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </Link>
+                    <button
+                      onClick={() => handleOpenEditBrand(br)}
+                      className="text-gray-400 hover:text-[#FF8A24] transition"
+                      title="Edit brand"
+                    >
+                      <Edit3 className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteBrand(br.id, br.name)}
+                      className="text-gray-400 hover:text-red-400 transition"
+                      title="Delete brand"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -1419,7 +1513,9 @@ export default function AdminCatalogPage() {
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-slate-950 border border-slate-800 rounded-3xl w-full max-w-md p-6 space-y-5 shadow-2xl">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h2 className="text-lg font-black text-white">Create New Category</h2>
+              <h2 className="text-lg font-black text-white">
+                {editingCategoryId ? "Edit Category" : "Create New Category"}
+              </h2>
               <button
                 onClick={() => setIsCategoryModalOpen(false)}
                 className="w-7 h-7 rounded-full bg-slate-900 text-gray-400 hover:text-white flex items-center justify-center"
@@ -1514,7 +1610,7 @@ export default function AdminCatalogPage() {
                   type="submit"
                   className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#F26A00] to-[#FF8A24] text-white font-bold text-xs shadow-md transition active:scale-95"
                 >
-                  Save Category
+                  {editingCategoryId ? "Update Category" : "Save Category"}
                 </button>
               </div>
             </form>
@@ -1529,7 +1625,9 @@ export default function AdminCatalogPage() {
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-slate-950 border border-slate-800 rounded-3xl w-full max-w-md p-6 space-y-5 shadow-2xl">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h2 className="text-lg font-black text-white">Add Partner Brand</h2>
+              <h2 className="text-lg font-black text-white">
+                {editingBrandId ? "Edit Partner Brand" : "Add Partner Brand"}
+              </h2>
               <button
                 onClick={() => setIsBrandModalOpen(false)}
                 className="w-7 h-7 rounded-full bg-slate-900 text-gray-400 hover:text-white flex items-center justify-center"
@@ -1624,7 +1722,7 @@ export default function AdminCatalogPage() {
                   type="submit"
                   className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#F26A00] to-[#FF8A24] text-white font-bold text-xs shadow-md transition active:scale-95"
                 >
-                  Save Brand
+                  {editingBrandId ? "Update Brand" : "Save Brand"}
                 </button>
               </div>
             </form>

@@ -1,6 +1,5 @@
 import React, { Suspense } from "react";
-import { CATEGORIES, BRANDS } from "@/lib/mock-data";
-import { getProducts } from "@/lib/db-service";
+import { getProducts, getCategories, getBrands } from "@/lib/db-service";
 import { ProductCard } from "@/components/product-card";
 import Link from "next/link";
 import { Filter, ChevronLeft, Search } from "lucide-react";
@@ -19,7 +18,12 @@ async function ProductsList({ searchParams }: ProductsPageProps) {
   const resolvedParams = await searchParams;
   const { category, brand, condition, search, featured } = resolvedParams;
 
-  const allProducts = await getProducts();
+  const [allProducts, allCategories, allBrands] = await Promise.all([
+    getProducts(),
+    getCategories(),
+    getBrands(),
+  ]);
+
   let filtered = [...allProducts];
 
   if (category) {
@@ -50,8 +54,8 @@ async function ProductsList({ searchParams }: ProductsPageProps) {
     );
   }
 
-  const currentCategory = CATEGORIES.find((c) => c.slug === category);
-  const activeBrandName = BRANDS.find((b) => b.slug.toLowerCase() === (brand || "").toLowerCase())?.name || brand;
+  const currentCategory = allCategories.find((c) => c.slug === category);
+  const activeBrandName = allBrands.find((b) => b.slug.toLowerCase() === (brand || "").toLowerCase())?.name || brand;
 
   // Curated brands list for mobile pills (Screen 3 Match)
   const MOBILE_BRAND_PILLS = [
@@ -162,7 +166,7 @@ async function ProductsList({ searchParams }: ProductsPageProps) {
                 >
                   All Categories
                 </Link>
-                {CATEGORIES.map((cat) => (
+                {allCategories.map((cat) => (
                   <Link
                     key={cat.id}
                     href={`/products?category=${cat.slug}`}
@@ -215,23 +219,33 @@ async function ProductsList({ searchParams }: ProductsPageProps) {
               </div>
             </div>
 
-            {/* Brands */}
+            {/* Brands with Logos */}
             <div>
               <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">
-                Brand
+                Partner Brands
               </h3>
-              <div className="space-y-1.5 text-xs">
-                {BRANDS.map((b) => (
+              <div className="space-y-1 text-xs">
+                {allBrands.map((b) => (
                   <Link
                     key={b.id}
-                    href={`/products?brand=${b.slug}${category ? `&category=${category}` : ""}`}
-                    className={`block px-2.5 py-1.5 rounded-lg transition ${
-                      brand === b.slug
+                    href={`/products?brand=${encodeURIComponent(b.slug || b.name)}${category ? `&category=${category}` : ""}`}
+                    className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg transition ${
+                      brand === b.slug || brand?.toLowerCase() === b.name.toLowerCase()
                         ? "bg-orange-50 font-bold text-orange-600"
                         : "text-gray-600 hover:bg-gray-50"
                     }`}
                   >
-                    {b.name}
+                    {b.logo_url && (
+                      <div className="relative w-4 h-4 rounded-xs overflow-hidden shrink-0 border border-gray-200/60 bg-white">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={b.logo_url}
+                          alt={b.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                    <span>{b.name}</span>
                   </Link>
                 ))}
               </div>

@@ -254,8 +254,32 @@ export async function addCategory(categoryData: {
 
 export function updateCategory(id: string, updates: Partial<Category>): Category[] {
   const current = getStoredCategories();
+  const cat = current.find((c) => c.id === id);
   const updated = current.map((c) => (c.id === id ? { ...c, ...updates } : c));
   saveStoredCategories(updated);
+
+  if (isSupabaseConfigured && supabase) {
+    try {
+      const dbUpdates: Record<string, any> = {};
+      if (updates.name) dbUpdates.name = updates.name;
+      if (updates.slug) dbUpdates.slug = updates.slug;
+      if (updates.description !== undefined) dbUpdates.description = updates.description;
+      if (updates.icon) dbUpdates.icon = updates.icon;
+      if (updates.image_url) dbUpdates.image_url = updates.image_url;
+
+      const matchCriteria = cat?.slug ? `id.eq.${id},slug.eq.${cat.slug}` : `id.eq.${id}`;
+      supabase
+        .from("categories")
+        .update(dbUpdates)
+        .or(matchCriteria)
+        .then((res: any) => {
+          if (res?.error) console.warn("Supabase category update warning:", res.error.message);
+        });
+    } catch (err) {
+      console.warn("Background category update notice:", err);
+    }
+  }
+
   return updated;
 }
 
@@ -361,8 +385,30 @@ export async function addBrand(brandData: {
 
 export function updateBrand(id: string, updates: Partial<Brand>): Brand[] {
   const current = getStoredBrands();
+  const brand = current.find((b) => b.id === id);
   const updated = current.map((b) => (b.id === id ? { ...b, ...updates } : b));
   saveStoredBrands(updated);
+
+  if (isSupabaseConfigured && supabase) {
+    try {
+      const dbUpdates: Record<string, any> = {};
+      if (updates.name) dbUpdates.name = updates.name;
+      if (updates.slug) dbUpdates.slug = updates.slug;
+      if (updates.logo_url) dbUpdates.logo_url = updates.logo_url;
+
+      const matchCriteria = brand?.slug ? `id.eq.${id},slug.eq.${brand.slug}` : `id.eq.${id}`;
+      supabase
+        .from("brands")
+        .update(dbUpdates)
+        .or(matchCriteria)
+        .then((res: any) => {
+          if (res?.error) console.warn("Supabase brand update warning:", res.error.message);
+        });
+    } catch (err) {
+      console.warn("Background brand update notice:", err);
+    }
+  }
+
   return updated;
 }
 

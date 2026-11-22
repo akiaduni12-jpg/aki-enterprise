@@ -1368,17 +1368,31 @@ export default function HomePage() {
           <span className="text-[11px] font-black uppercase tracking-wider text-gray-400 block text-center mb-4">
             Authorized Brands &amp; Direct Wholesalers
           </span>
-          <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12 opacity-75 hover:opacity-100 transition-all duration-300">
-            {(brands.length > 0
-              ? brands.map((b) => b.name)
-              : ["Apple", "Samsung", "Google Pixel", "Anker", "Oraimo", "Crucial", "Kingston", "JBL", "Baseus"]
-            ).map((b, i) => (
+          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 transition-all duration-300">
+            {brands.map((b) => (
               <Link
-                key={i}
-                href={`/products?search=${encodeURIComponent(b)}`}
-                className="text-sm font-black text-gray-700 hover:text-[#F26A00] tracking-tight transition"
+                key={b.id || b.name}
+                href={`/products?brand=${encodeURIComponent(b.slug || b.name)}`}
+                className="group flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-gray-50/70 hover:bg-orange-50/40 border border-gray-200/70 hover:border-orange-500/40 transition shadow-2xs"
+                title={`Browse ${b.name} at Aki Enterprise`}
               >
-                {b}
+                {b.logo_url ? (
+                  <div className="relative w-6 h-6 rounded-md overflow-hidden bg-white shrink-0 border border-gray-200/60 shadow-2xs">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={b.logo_url}
+                      alt={b.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition duration-300"
+                    />
+                  </div>
+                ) : (
+                  <span className="w-6 h-6 rounded-md bg-orange-100 text-orange-600 font-bold text-[10px] flex items-center justify-center">
+                    {b.name.slice(0, 2).toUpperCase()}
+                  </span>
+                )}
+                <span className="text-xs font-bold text-gray-700 group-hover:text-[#F26A00] tracking-tight transition">
+                  {b.name}
+                </span>
               </Link>
             ))}
           </div>
