@@ -20,7 +20,10 @@ import {
   Bell,
   MoreHorizontal,
   Settings,
+  Users,
+  Send,
 } from "lucide-react";
+import { getAdminSession, clearAdminSession } from "@/lib/admin-auth";
 
 export default function AdminLayout({
   children,
@@ -41,9 +44,8 @@ export default function AdminLayout({
     }
 
     try {
-      const sessionRaw = localStorage.getItem("techhub_admin_session");
-      if (sessionRaw) {
-        const session = JSON.parse(sessionRaw);
+      const session = getAdminSession();
+      if (session) {
         setAdminUser(session);
         setIsAuthenticated(true);
       } else {
@@ -58,7 +60,7 @@ export default function AdminLayout({
   }, [pathname, router]);
 
   const handleLogout = () => {
-    localStorage.removeItem("techhub_admin_session");
+    clearAdminSession();
     setIsAuthenticated(false);
     router.push("/admin/login");
   };
@@ -86,6 +88,8 @@ export default function AdminLayout({
     { href: "/admin/products", label: "Products & Variants", icon: Package },
     { href: "/admin/inventory", label: "Inventory & Stock-In", icon: Layers },
     { href: "/admin/orders", label: "Orders & Fulfillment", icon: ShoppingBag },
+    { href: "/admin/customers", label: "Customers & CRM", icon: Users },
+    { href: "/admin/sms", label: "SMS Gateway & Alerts", icon: Send },
     { href: "/admin/reviews", label: "Reviews & Testimonials", icon: MessageSquare },
     { href: "/admin/qr", label: "QR In-Store Campaigns", icon: QrCode },
     { href: "/admin/settings", label: "Store Settings & Policies", icon: Settings },
@@ -230,7 +234,7 @@ export default function AdminLayout({
                   {adminUser?.email || "admin@akienterprise.com"}
                 </span>
                 <span className="block text-[9px] text-emerald-400 uppercase font-semibold">
-                  ● Role: Owner
+                  ● Role: {adminUser?.role || "Owner"}
                 </span>
               </div>
             </div>

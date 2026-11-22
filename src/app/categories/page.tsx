@@ -9,6 +9,7 @@ import {
   Search,
   ArrowRight,
   ShoppingBag,
+  X,
 } from "lucide-react";
 
 const CATEGORIES_LIST = [
@@ -65,32 +66,66 @@ const CATEGORIES_LIST = [
 export default function CategoriesPage() {
   const router = useRouter();
   const [search, setSearch] = useState("");
+  const [showSearch, setShowSearch] = useState(false);
 
   const filteredCategories = CATEGORIES_LIST.filter((c) =>
     c.name.toLowerCase().includes(search.toLowerCase())
   );
 
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (search.trim()) {
+      router.push(`/products?search=${encodeURIComponent(search.trim())}`);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] pb-12">
       {/* Top Header Bar matching Screen 2 in Design */}
-      <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-gray-100 px-4 py-3.5 flex items-center justify-between">
-        <button
-          onClick={() => router.back()}
-          className="p-1.5 rounded-full hover:bg-gray-100 text-slate-800 transition"
-          aria-label="Go back"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </button>
+      <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-gray-100 px-4 py-3.5 space-y-2">
+        <div className="flex items-center justify-between">
+          <button
+            onClick={() => router.back()}
+            className="p-1.5 rounded-full hover:bg-gray-100 text-slate-800 transition cursor-pointer"
+            aria-label="Go back"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
 
-        <h1 className="text-base font-black text-slate-900 tracking-tight">Categories</h1>
+          <h1 className="text-base font-black text-slate-900 tracking-tight">Categories</h1>
 
-        <Link
-          href="/products"
-          className="p-1.5 rounded-full hover:bg-gray-100 text-slate-800 transition"
-          aria-label="Search products"
-        >
-          <Search className="w-5 h-5" />
-        </Link>
+          <button
+            onClick={() => setShowSearch(!showSearch)}
+            className="p-1.5 rounded-full hover:bg-gray-100 text-slate-800 transition cursor-pointer"
+            aria-label="Search categories and products"
+          >
+            {showSearch ? <X className="w-5 h-5 text-gray-500" /> : <Search className="w-5 h-5" />}
+          </button>
+        </div>
+
+        {/* Expandable Live Category Search Bar */}
+        {showSearch && (
+          <form onSubmit={handleSearchSubmit} className="relative animate-in fade-in pt-1">
+            <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              autoFocus
+              placeholder="Filter categories or press Enter to search products..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-9 pr-9 py-2 text-xs bg-gray-100 border border-transparent rounded-xl focus:bg-white focus:border-[#F26A00] focus:outline-hidden transition"
+            />
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 rounded-full"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </form>
+        )}
       </div>
 
       <div className="max-w-md mx-auto px-4 pt-4 space-y-4">

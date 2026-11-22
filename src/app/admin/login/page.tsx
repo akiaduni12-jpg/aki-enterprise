@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { saveAdminSession } from "@/lib/admin-auth";
 import {
   ShieldCheck,
   Lock,
@@ -40,35 +41,37 @@ export default function AdminLoginPage() {
           // If user doesn't exist in Supabase auth yet, provide clear notice or allow local staff PIN
           console.warn("Supabase auth response:", error.message);
         } else if (data.session) {
-          localStorage.setItem(
-            "techhub_admin_session",
-            JSON.stringify({
-              email: data.user.email,
-              role: "owner",
-              signedInAt: new Date().toISOString(),
-            })
-          );
+          saveAdminSession({
+            email: data.user.email || email.trim(),
+            role: "owner",
+            full_name: "Store Administrator",
+            signedInAt: new Date().toISOString(),
+          });
           router.push("/admin/dashboard");
           return;
         }
       }
 
       // 2. Verified Staff Fallback Access for Owner/Manager Demo
+      const lowerEmail = email.trim().toLowerCase();
+      const isOwnerRole = lowerEmail.includes("owner") || lowerEmail.includes("aki");
+      const isManagerRole = lowerEmail.includes("manager");
+      const detectedRole = isOwnerRole ? "owner" : isManagerRole ? "manager" : "staff";
+
       if (
-        (email.trim().toLowerCase().includes("admin") ||
-          email.trim().toLowerCase().includes("owner") ||
-          email.trim().toLowerCase().includes("aki")) &&
+        (lowerEmail.includes("admin") ||
+          lowerEmail.includes("owner") ||
+          lowerEmail.includes("manager") ||
+          lowerEmail.includes("staff") ||
+          lowerEmail.includes("aki")) &&
         password.length >= 6
       ) {
-        localStorage.setItem(
-          "techhub_admin_session",
-          JSON.stringify({
-            email: email.trim(),
-            role: "owner",
-            full_name: "Store Administrator",
-            signedInAt: new Date().toISOString(),
-          })
-        );
+        saveAdminSession({
+          email: email.trim(),
+          role: detectedRole,
+          full_name: isOwnerRole ? "Store Owner (Aki)" : isManagerRole ? "Store Manager" : "Operations Staff",
+          signedInAt: new Date().toISOString(),
+        });
         router.push("/admin/dashboard");
       } else {
         setErrorMsg("Invalid staff credentials. Please check your admin email and password.");

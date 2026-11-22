@@ -22,6 +22,7 @@ import {
   CheckCircle2,
   Truck,
   ExternalLink,
+  Users,
 } from "lucide-react";
 
 interface LiveOrder {
@@ -258,6 +259,13 @@ export default function AdminDashboardPage() {
           >
             <Layers className="w-4 h-4 text-orange-400" />
             <span>Inventory</span>
+          </Link>
+          <Link
+            href="/admin/customers"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-gray-200 border border-slate-700 font-semibold text-xs transition"
+          >
+            <Users className="w-4 h-4 text-orange-400" />
+            <span>Customers</span>
           </Link>
         </div>
       </div>

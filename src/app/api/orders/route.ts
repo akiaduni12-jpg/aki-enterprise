@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServiceSupabase, isSupabaseConfigured } from "@/lib/supabase";
+import {
+  sendOrderCreatedCustomerSMS,
+  sendOrderCreatedAdminAlertSMS,
+  insertArkeselContact,
+} from "@/lib/arkesel-sms";
 
 export async function POST(request: NextRequest) {
   try {
@@ -177,6 +182,18 @@ export async function POST(request: NextRequest) {
         };
       }
     }
+
+    // Asynchronously dispatch Arkesel SMS notifications (does not block HTTP response)
+    Promise.allSettled([
+      sendOrderCreatedCustomerSMS(insertedOrder),
+      sendOrderCreatedAdminAlertSMS(insertedOrder),
+      insertArkeselContact({
+        phone: customer.phone,
+        firstName: customer.full_name?.split(" ")[0],
+        lastName: customer.full_name?.split(" ").slice(1).join(" "),
+        email: customer.email || undefined,
+      }),
+    ]).catch((smsErr) => console.warn("[Orders API] SMS dispatch notice:", smsErr));
 
     return NextResponse.json({
       success: true,

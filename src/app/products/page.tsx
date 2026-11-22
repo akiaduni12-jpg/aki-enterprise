@@ -2,7 +2,7 @@ import React, { Suspense } from "react";
 import { getProducts, getCategories, getBrands } from "@/lib/db-service";
 import { ProductCard } from "@/components/product-card";
 import Link from "next/link";
-import { Filter, ChevronLeft, Search } from "lucide-react";
+import { Filter, ChevronLeft, Search, X } from "lucide-react";
 
 interface ProductsPageProps {
   searchParams: Promise<{
@@ -45,13 +45,22 @@ async function ProductsList({ searchParams }: ProductsPageProps) {
   }
 
   if (search) {
-    const q = search.toLowerCase();
-    filtered = filtered.filter(
-      (p) =>
-        p.title.toLowerCase().includes(q) ||
-        p.description.toLowerCase().includes(q) ||
-        p.category_name.toLowerCase().includes(q)
-    );
+    const q = search.trim().toLowerCase();
+    filtered = filtered.filter((p) => {
+      const matchTitle = p.title.toLowerCase().includes(q);
+      const matchDesc = p.description.toLowerCase().includes(q);
+      const matchCat = p.category_name?.toLowerCase().includes(q);
+      const matchBrand = p.brand_name?.toLowerCase().includes(q);
+      const matchFeatures = p.features?.some((f) => f.toLowerCase().includes(q));
+      const matchVariants = p.variants?.some(
+        (v) =>
+          v.storage?.toLowerCase().includes(q) ||
+          v.color?.toLowerCase().includes(q) ||
+          v.condition?.toLowerCase().includes(q) ||
+          v.sku?.toLowerCase().includes(q)
+      );
+      return matchTitle || matchDesc || matchCat || matchBrand || matchFeatures || matchVariants;
+    });
   }
 
   const currentCategory = allCategories.find((c) => c.slug === category);
@@ -70,25 +79,39 @@ async function ProductsList({ searchParams }: ProductsPageProps) {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-8 pb-24 md:pb-12">
-      {/* Mobile Top App Bar (Screen 3 Match: "< Smartphones" + Search Icon) */}
+      {/* Mobile Top App Bar (Screen 3 Match: "< Smartphones" + Search Icon / Clear) */}
       <div className="flex md:hidden items-center justify-between mb-3 pt-1">
         <Link
           href="/categories"
-          className="flex items-center gap-1.5 text-slate-900 hover:text-orange-600 transition"
+          className="flex items-center gap-1.5 text-slate-900 hover:text-orange-600 transition truncate max-w-[80%]"
         >
-          <ChevronLeft className="w-5 h-5 text-gray-800" />
-          <h1 className="text-base font-black text-slate-900 tracking-tight">
-            {currentCategory ? currentCategory.name : activeBrandName || "Smartphones"}
+          <ChevronLeft className="w-5 h-5 text-gray-800 shrink-0" />
+          <h1 className="text-base font-black text-slate-900 tracking-tight truncate">
+            {search
+              ? `Results: "${search}"`
+              : currentCategory
+                ? currentCategory.name
+                : activeBrandName || "Smartphones"}
           </h1>
         </Link>
 
-        <Link
-          href="/products"
-          className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:text-black transition"
-          aria-label="Search products"
-        >
-          <Search className="w-4 h-4" />
-        </Link>
+        {search ? (
+          <Link
+            href="/products"
+            className="w-8 h-8 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center transition shrink-0"
+            aria-label="Clear search"
+          >
+            <X className="w-4 h-4" />
+          </Link>
+        ) : (
+          <Link
+            href="/categories"
+            className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:text-black transition shrink-0"
+            aria-label="Search and Categories"
+          >
+            <Search className="w-4 h-4" />
+          </Link>
+        )}
       </div>
 
       {/* Horizontal Brand Filter Pills (Screen 3 Match: "All | iPhone | Samsung | Tecno") */}
@@ -96,20 +119,21 @@ async function ProductsList({ searchParams }: ProductsPageProps) {
         {MOBILE_BRAND_PILLS.map((pill) => {
           const isSelected = (!brand && pill.slug === "") || (brand?.toLowerCase() === pill.slug.toLowerCase());
           const targetUrl = pill.slug
-            ? `/products?brand=${pill.slug}${category ? `&category=${category}` : ""}`
+            ? `/products?brand=${pill.slug}${category ? `&category=${category}` : ""}${search ? `&search=${encodeURIComponent(search)}` : ""}`
             : category
-            ? `/products?category=${category}`
-            : "/products";
+              ? `/products?category=${category}${search ? `&search=${encodeURIComponent(search)}` : ""}`
+              : search
+                ? `/products?search=${encodeURIComponent(search)}`
+                : "/products";
 
           return (
             <Link
               key={pill.label}
               href={targetUrl}
-              className={`px-4 py-1.5 rounded-full text-xs font-bold transition whitespace-nowrap ${
-                isSelected
+              className={`px-4 py-1.5 rounded-full text-xs font-bold transition whitespace-nowrap ${isSelected
                   ? "bg-[#F26A00] text-white shadow-md shadow-orange-500/30"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
+                }`}
             >
               {pill.label}
             </Link>
@@ -122,11 +146,17 @@ async function ProductsList({ searchParams }: ProductsPageProps) {
         <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
           <Link href="/" className="hover:text-orange-600">Home</Link>
           <span>/</span>
-          <span className="text-gray-900 font-medium">Catalog</span>
+          <Link href="/products" className="hover:text-orange-600">Catalog</Link>
           {currentCategory && (
             <>
               <span>/</span>
               <span className="text-orange-600 font-semibold">{currentCategory.name}</span>
+            </>
+          )}
+          {search && (
+            <>
+              <span>/</span>
+              <span className="text-gray-900 font-semibold">Search: &quot;{search}&quot;</span>
             </>
           )}
         </div>
@@ -134,12 +164,28 @@ async function ProductsList({ searchParams }: ProductsPageProps) {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-black text-slate-900">
-              {currentCategory ? currentCategory.name : "All Electronics & Gadgets"}
+              {search
+                ? `Search results for "${search}"`
+                : currentCategory
+                  ? currentCategory.name
+                  : activeBrandName
+                    ? `${activeBrandName} Devices`
+                    : "All Electronics & Gadgets"}
             </h1>
             <p className="text-xs sm:text-sm text-gray-500 mt-1">
-              Showing {filtered.length} products available for pickup &amp; delivery in Ghana
+              Showing {filtered.length} {filtered.length === 1 ? "product" : "products"} available for pickup &amp; delivery in Ghana
             </p>
           </div>
+
+          {search && (
+            <Link
+              href={category ? `/products?category=${category}` : "/products"}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-orange-50 hover:bg-orange-100 text-orange-600 text-xs font-bold transition self-start sm:self-auto border border-orange-200"
+            >
+              <span>Clear search &quot;{search}&quot;</span>
+              <X className="w-3.5 h-3.5" />
+            </Link>
+          )}
         </div>
       </div>
 
@@ -160,9 +206,8 @@ async function ProductsList({ searchParams }: ProductsPageProps) {
               <div className="space-y-1.5 text-xs">
                 <Link
                   href="/products"
-                  className={`block px-2.5 py-1.5 rounded-lg transition ${
-                    !category ? "bg-orange-50 font-bold text-orange-600" : "text-gray-600 hover:bg-gray-50"
-                  }`}
+                  className={`block px-2.5 py-1.5 rounded-lg transition ${!category ? "bg-orange-50 font-bold text-orange-600" : "text-gray-600 hover:bg-gray-50"
+                    }`}
                 >
                   All Categories
                 </Link>
@@ -170,11 +215,10 @@ async function ProductsList({ searchParams }: ProductsPageProps) {
                   <Link
                     key={cat.id}
                     href={`/products?category=${cat.slug}`}
-                    className={`block px-2.5 py-1.5 rounded-lg transition ${
-                      category === cat.slug
+                    className={`block px-2.5 py-1.5 rounded-lg transition ${category === cat.slug
                         ? "bg-orange-50 font-bold text-orange-600"
                         : "text-gray-600 hover:bg-gray-50"
-                    }`}
+                      }`}
                   >
                     {cat.name}
                   </Link>
@@ -190,29 +234,26 @@ async function ProductsList({ searchParams }: ProductsPageProps) {
               <div className="space-y-1.5 text-xs">
                 <Link
                   href="/products"
-                  className={`block px-2.5 py-1.5 rounded-lg transition ${
-                    !condition ? "bg-orange-50 font-bold text-orange-600" : "text-gray-600 hover:bg-gray-50"
-                  }`}
+                  className={`block px-2.5 py-1.5 rounded-lg transition ${!condition ? "bg-orange-50 font-bold text-orange-600" : "text-gray-600 hover:bg-gray-50"
+                    }`}
                 >
                   Any Condition
                 </Link>
                 <Link
                   href={`/products?condition=brand_new${category ? `&category=${category}` : ""}`}
-                  className={`block px-2.5 py-1.5 rounded-lg transition ${
-                    condition === "brand_new"
+                  className={`block px-2.5 py-1.5 rounded-lg transition ${condition === "brand_new"
                       ? "bg-emerald-50 font-bold text-emerald-700"
                       : "text-gray-600 hover:bg-gray-50"
-                  }`}
+                    }`}
                 >
                   Brand New (Factory Sealed)
                 </Link>
                 <Link
                   href={`/products?condition=uk_used${category ? `&category=${category}` : ""}`}
-                  className={`block px-2.5 py-1.5 rounded-lg transition ${
-                    condition === "uk_used"
+                  className={`block px-2.5 py-1.5 rounded-lg transition ${condition === "uk_used"
                       ? "bg-amber-50 font-bold text-amber-800"
                       : "text-gray-600 hover:bg-gray-50"
-                  }`}
+                    }`}
                 >
                   UK Used (Grade-A Tested)
                 </Link>
@@ -229,11 +270,10 @@ async function ProductsList({ searchParams }: ProductsPageProps) {
                   <Link
                     key={b.id}
                     href={`/products?brand=${encodeURIComponent(b.slug || b.name)}${category ? `&category=${category}` : ""}`}
-                    className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg transition ${
-                      brand === b.slug || brand?.toLowerCase() === b.name.toLowerCase()
+                    className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg transition ${brand === b.slug || brand?.toLowerCase() === b.name.toLowerCase()
                         ? "bg-orange-50 font-bold text-orange-600"
                         : "text-gray-600 hover:bg-gray-50"
-                    }`}
+                      }`}
                   >
                     {b.logo_url && (
                       <div className="relative w-4 h-4 rounded-xs overflow-hidden shrink-0 border border-gray-200/60 bg-white">

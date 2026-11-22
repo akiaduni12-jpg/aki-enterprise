@@ -40,5 +40,19 @@ export default async function ProductPage({ params }: Props) {
     notFound();
   }
 
-  return <ProductDetailClient product={product} />;
+  // Find up to 4 related / recommended products
+  const relatedProducts = allProducts
+    .filter((p) => p.id !== product.id)
+    .sort((a, b) => {
+      // Prioritize same category first
+      if (a.category_slug === product.category_slug && b.category_slug !== product.category_slug) return -1;
+      if (b.category_slug === product.category_slug && a.category_slug !== product.category_slug) return 1;
+      // Then prioritize same brand
+      if (a.brand_id === product.brand_id && b.brand_id !== product.brand_id) return -1;
+      if (b.brand_id === product.brand_id && a.brand_id !== product.brand_id) return 1;
+      return 0;
+    })
+    .slice(0, 4);
+
+  return <ProductDetailClient product={product} relatedProducts={relatedProducts} />;
 }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServiceSupabase, isSupabaseConfigured } from "@/lib/supabase";
+import { sendOrderStatusCustomerSMS } from "@/lib/arkesel-sms";
 
 export async function GET(
   request: NextRequest,
@@ -69,6 +70,12 @@ export async function PATCH(
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+
+    if (order_status && updated?.customer_phone) {
+      sendOrderStatusCustomerSMS(updated, order_status).catch((e) =>
+        console.warn("[Orders API] Status update SMS error:", e)
+      );
     }
 
     return NextResponse.json({ success: true, order: updated });

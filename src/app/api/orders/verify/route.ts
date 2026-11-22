@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServiceSupabase, isSupabaseConfigured } from "@/lib/supabase";
+import { sendOrderPaidCustomerSMS } from "@/lib/arkesel-sms";
 
 export async function GET(request: NextRequest) {
   try {
@@ -99,6 +100,11 @@ export async function GET(request: NextRequest) {
           console.warn("[Orders Verify] Supabase update warning:", updateErr.message);
         } else {
           updatedOrder = dbUpdated;
+          if (updatedOrder?.customer_phone) {
+            sendOrderPaidCustomerSMS(updatedOrder).catch((e) =>
+              console.warn("[Orders Verify] SMS notify error:", e)
+            );
+          }
         }
       } catch (dbErr) {
         console.error("[Orders Verify] DB update exception:", dbErr);
