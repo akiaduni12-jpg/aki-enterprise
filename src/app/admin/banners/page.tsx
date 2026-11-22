@@ -31,6 +31,8 @@ import {
   Check,
   X,
   Edit3,
+  Loader2,
+  Cloud,
 } from "lucide-react";
 
 const SAMPLE_16_9_PRESETS = [
@@ -81,6 +83,7 @@ export default function AdminBannersPage() {
   const [accentColor, setAccentColor] = useState("#F26A00");
   const [displayOrder, setDisplayOrder] = useState(1);
   const [isActive, setIsActive] = useState(true);
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     setBanners(getStoredBanners());
@@ -97,16 +100,46 @@ export default function AdminBannersPage() {
     setTimeout(() => setNotification(null), 3000);
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      setImageUrl(reader.result as string);
-      showNotification("16:9 image file loaded into preview!");
-    };
-    reader.readAsDataURL(file);
+    setIsUploading(true);
+    showNotification("Uploading 16:9 banner to Cloudinary CDN...");
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("folder", "aki_enterprise/banners");
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        throw new Error("Upload failed");
+      }
+
+      const data = await res.json();
+      setImageUrl(data.url);
+      showNotification(
+        data.provider === "cloudinary"
+          ? "16:9 Banner hosted on Cloudinary CDN!"
+          : "16:9 Banner file attached!"
+      );
+    } catch (err: any) {
+      console.error("Cloudinary upload failed, using local fallback", err);
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImageUrl(reader.result as string);
+        showNotification("16:9 image file loaded into preview!");
+      };
+      reader.readAsDataURL(file);
+    } finally {
+      setIsUploading(false);
+      e.target.value = "";
+    }
   };
 
   const handleToggle = (id: string) => {
@@ -527,6 +560,12 @@ export default function AdminBannersPage() {
                       <span className="text-xs">No image selected</span>
                     </div>
                   )}
+                  {imageUrl && imageUrl.includes("res.cloudinary.com") && (
+                    <div className="absolute top-2 left-2 px-2.5 py-1 rounded-md bg-blue-600/90 text-white font-bold text-[10px] flex items-center gap-1 shadow-md">
+                      <Cloud className="w-3 h-3" />
+                      <span>Cloudinary CDN</span>
+                    </div>
+                  )}
                   <div className="absolute top-2 right-2 px-2.5 py-1 rounded-md bg-black/70 text-white font-mono text-[10px]">
                     16:9 Widescreen
                   </div>
@@ -543,12 +582,17 @@ export default function AdminBannersPage() {
                     className="flex-1 px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500"
                   />
 
-                  <label className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl cursor-pointer transition flex items-center justify-center gap-2 shrink-0">
-                    <Upload className="w-4 h-4 text-[#FF8A24]" />
-                    <span>Upload from Device</span>
+                  <label className={`px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl cursor-pointer transition flex items-center justify-center gap-2 shrink-0 ${isUploading ? "pointer-events-none opacity-50" : ""}`}>
+                    {isUploading ? (
+                      <Loader2 className="w-4 h-4 text-[#FF8A24] animate-spin" />
+                    ) : (
+                      <Upload className="w-4 h-4 text-[#FF8A24]" />
+                    )}
+                    <span>{isUploading ? "Uploading to Cloudinary..." : "Upload from Device"}</span>
                     <input
                       type="file"
                       accept="image/*"
+                      disabled={isUploading}
                       className="hidden"
                       onChange={handleFileUpload}
                     />

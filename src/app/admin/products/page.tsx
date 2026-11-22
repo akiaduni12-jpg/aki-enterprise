@@ -34,6 +34,8 @@ import {
   BatteryCharging,
   Layers,
   ArrowRight,
+  Loader2,
+  Cloud,
 } from "lucide-react";
 
 export default function AdminCatalogPage() {
@@ -101,6 +103,7 @@ export default function AdminCatalogPage() {
   const [bSlug, setBSlug] = useState("");
   const [bLogoUrl, setBLogoUrl] = useState("");
   const [bCountry, setBCountry] = useState("USA");
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -128,29 +131,83 @@ export default function AdminCatalogPage() {
     return () => window.removeEventListener("catalog_updated", handleUpdate);
   }, []);
 
-  // Handle local image file upload (converts file to base64 DataURL)
-  const handleFileUpload = (
+  // Handle image file upload with Cloudinary CDN integration
+  const handleFileUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
     destination: "product" | "category" | "brand"
   ) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result as string;
-      if (destination === "product") {
-        setPImages((prev) => [...prev, result]);
-        showToast("Image uploaded to product gallery!");
-      } else if (destination === "category") {
-        setCImageUrl(result);
-        showToast("Category image attached!");
-      } else if (destination === "brand") {
-        setBLogoUrl(result);
-        showToast("Brand logo attached!");
+    setIsUploadingImage(true);
+    showToast("Uploading to Cloudinary CDN...");
+
+    try {
+      const folderMap = {
+        product: "aki_enterprise/products",
+        category: "aki_enterprise/categories",
+        brand: "aki_enterprise/brands",
+      };
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("folder", folderMap[destination]);
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        throw new Error("Upload failed");
       }
-    };
-    reader.readAsDataURL(file);
+
+      const data = await res.json();
+      const uploadedUrl = data.url;
+
+      if (destination === "product") {
+        setPImages((prev) => [...prev, uploadedUrl]);
+        showToast(
+          data.provider === "cloudinary"
+            ? "Image hosted on Cloudinary CDN!"
+            : "Image uploaded to product gallery!"
+        );
+      } else if (destination === "category") {
+        setCImageUrl(uploadedUrl);
+        showToast(
+          data.provider === "cloudinary"
+            ? "Category image hosted on Cloudinary CDN!"
+            : "Category image attached!"
+        );
+      } else if (destination === "brand") {
+        setBLogoUrl(uploadedUrl);
+        showToast(
+          data.provider === "cloudinary"
+            ? "Brand logo hosted on Cloudinary CDN!"
+            : "Brand logo attached!"
+        );
+      }
+    } catch (err: any) {
+      console.error("Cloudinary upload failed, using local reader fallback", err);
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result as string;
+        if (destination === "product") {
+          setPImages((prev) => [...prev, result]);
+          showToast("Image attached locally.");
+        } else if (destination === "category") {
+          setCImageUrl(result);
+          showToast("Category image attached locally.");
+        } else if (destination === "brand") {
+          setBLogoUrl(result);
+          showToast("Brand logo attached locally.");
+        }
+      };
+      reader.readAsDataURL(file);
+    } finally {
+      setIsUploadingImage(false);
+      e.target.value = "";
+    }
   };
 
   // Open Create Product Modal
@@ -1144,11 +1201,16 @@ export default function AdminCatalogPage() {
                       <button
                         type="button"
                         onClick={() => setPImages((prev) => prev.filter((_, i) => i !== idx))}
-                        className="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-600 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-sm"
+                        className="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-600 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-sm z-10"
                         title="Remove image"
                       >
                         <X className="w-3 h-3" />
                       </button>
+                      {img.includes("res.cloudinary.com") && (
+                        <span className="absolute top-1 left-1 px-1 py-0.2 rounded text-[7px] bg-blue-600/90 text-white font-bold flex items-center gap-0.5">
+                          <Cloud className="w-2.5 h-2.5" /> CDN
+                        </span>
+                      )}
                       {idx === 0 && (
                         <span className="absolute bottom-1 left-1 px-1.5 py-0.2 rounded text-[8px] bg-black/70 text-white font-bold">
                           Cover
@@ -1157,13 +1219,20 @@ export default function AdminCatalogPage() {
                     </div>
                   ))}
 
-                  {/* Local File Upload Button */}
-                  <label className="w-20 h-20 rounded-xl border border-dashed border-slate-700 hover:border-orange-500 bg-slate-900/50 flex flex-col items-center justify-center cursor-pointer transition text-gray-400 hover:text-white shrink-0">
-                    <Upload className="w-5 h-5 text-[#FF8A24]" />
-                    <span className="text-[9px] mt-1 font-semibold">Upload File</span>
+                  {/* Cloudinary CDN Upload Button */}
+                  <label className={`w-20 h-20 rounded-xl border border-dashed border-slate-700 hover:border-orange-500 bg-slate-900/50 flex flex-col items-center justify-center cursor-pointer transition text-gray-400 hover:text-white shrink-0 ${isUploadingImage ? "pointer-events-none opacity-50" : ""}`}>
+                    {isUploadingImage ? (
+                      <Loader2 className="w-5 h-5 text-[#FF8A24] animate-spin" />
+                    ) : (
+                      <Upload className="w-5 h-5 text-[#FF8A24]" />
+                    )}
+                    <span className="text-[9px] mt-1 font-semibold">
+                      {isUploadingImage ? "Uploading..." : "Cloudinary"}
+                    </span>
                     <input
                       type="file"
                       accept="image/*"
+                      disabled={isUploadingImage}
                       className="hidden"
                       onChange={(e) => handleFileUpload(e, "product")}
                     />
