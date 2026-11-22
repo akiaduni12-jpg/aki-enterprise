@@ -1,8 +1,11 @@
-import React from "react";
+"use client";
+
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { formatGHS } from "@/lib/utils";
-import { PRODUCTS, INITIAL_QR_CAMPAIGNS } from "@/lib/mock-data";
+import { getStoredProducts } from "@/lib/catalog-store";
+import { Product, ProductVariant } from "@/types/ecommerce";
 import {
   DollarSign,
   ShoppingBag,
@@ -14,53 +17,102 @@ import {
   Layers,
   ChevronRight,
   TrendingUp,
-  BarChart3,
   Clock,
+  RefreshCw,
+  CheckCircle2,
+  Truck,
+  ExternalLink,
 } from "lucide-react";
 
-export default function AdminDashboardPage() {
-  // Aggregate stats
-  const totalVariants = PRODUCTS.reduce((acc, p) => acc + p.variants.length, 0);
-  const lowStockVariants = PRODUCTS.flatMap((p) =>
-    p.variants.filter((v) => v.stock_quantity <= 5).map((v) => ({ ...v, productTitle: p.title }))
-  );
-  const totalQRScans = INITIAL_QR_CAMPAIGNS.reduce((acc, qr) => acc + qr.scans_count, 0);
-  const totalQROrders = INITIAL_QR_CAMPAIGNS.reduce((acc, qr) => acc + qr.orders_count, 0);
-  const totalQRRevenue = INITIAL_QR_CAMPAIGNS.reduce((acc, qr) => acc + qr.total_revenue, 0);
+interface LiveOrder {
+  id: string;
+  order_number: string;
+  customer_name: string;
+  customer_phone: string;
+  subtotal: number;
+  delivery_fee: number;
+  total_amount: number;
+  payment_method: string;
+  payment_status: string;
+  order_status: string;
+  fulfillment_type: string;
+  delivery_city?: string;
+  created_at: string;
+  items?: Array<{
+    product_title: string;
+    variant_sku?: string;
+    quantity: number;
+    unit_price: number;
+    image_url?: string;
+  }>;
+}
 
-  const mockRecentOrders = [
-    {
-      id: "AKI-2026-9042",
-      customer: "Kofi Boateng",
-      phone: "0244 881 290",
-      items: "iPhone 15 Pro Max 256GB (Natural Titanium)",
-      amount: 14800,
-      fulfillment: "Courier (East Legon)",
-      status: "processing",
-    },
-    {
-      id: "AKI-2026-9041",
-      customer: "Ama Serwaa",
-      phone: "0501 329 881",
-      items: "iPhone 13 UK-Used (Midnight) + Oraimo FreePods",
-      amount: 5620,
-      fulfillment: "Shop Pickup (Aki Enterprise)",
-      status: "ready_for_pickup",
-    },
-    {
-      id: "AKI-2026-9040",
-      customer: "Emmanuel Doe",
-      phone: "0202 991 402",
-      items: "Anker 20,000mAh Power Bank (x2)",
-      amount: 1300,
-      fulfillment: "Courier (Kumasi)",
-      status: "out_for_delivery",
-    },
-  ];
+export default function AdminDashboardPage() {
+  const [orders, setOrders] = useState<LiveOrder[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [lastRefreshed, setLastRefreshed] = useState<Date>(new Date());
+
+  const fetchDashboardData = async () => {
+    setIsLoading(true);
+    try {
+      // 1. Fetch live products from store
+      const prods = getStoredProducts();
+      setProducts(prods);
+
+      // 2. Fetch live orders from Supabase API
+      const res = await fetch("/api/orders");
+      const data = await res.json();
+      if (data.success && Array.isArray(data.orders)) {
+        setOrders(data.orders);
+      }
+    } catch (err) {
+      console.error("Dashboard data load notice:", err);
+    } finally {
+      setIsLoading(false);
+      setLastRefreshed(new Date());
+    }
+  };
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  // Calculate dynamic metrics
+  const totalPaidRevenue = orders
+    .filter((o) => o.payment_status === "paid" || o.order_status === "delivered" || o.order_status === "completed")
+    .reduce((acc, o) => acc + (Number(o.total_amount) || 0), 0);
+
+  const pendingOrdersCount = orders.filter(
+    (o) => o.order_status === "pending_payment" || o.order_status === "processing"
+  ).length;
+
+  const inTransitCount = orders.filter(
+    (o) => o.order_status === "out_for_delivery" || o.order_status === "ready_for_pickup"
+  ).length;
+
+  // Flatten all variants from active products
+  const allVariants: (ProductVariant & { productTitle: string; productImage?: string })[] =
+    products.flatMap((p) =>
+      p.variants.map((v) => ({
+        ...v,
+        productTitle: p.title,
+        productImage: p.images?.[0],
+      }))
+    );
+
+  const lowStockVariants = allVariants.filter((v) => v.stock_quantity <= 5);
+
+  const recentOrders = orders.slice(0, 5);
+
+  // Top products (most variants or featured)
+  const topProducts = products.filter((p) => p.featured || p.best_seller).slice(0, 4);
 
   return (
     <div className="space-y-8">
-      {/* Mobile Screen 10 Match: Total Sales Banner, Orders Overview & Top Products */}
+      {/* ==================================================================== */}
+      {/* MOBILE SCREEN: Total Sales Banner, Orders Overview & Top Products */}
+      {/* ==================================================================== */}
       <div className="md:hidden space-y-5">
         {/* Total Sales Orange Banner Card */}
         <div className="relative rounded-3xl bg-gradient-to-r from-[#FF8A24] via-[#F26A00] to-[#EA580C] text-white p-6 overflow-hidden shadow-xl">
@@ -68,12 +120,15 @@ export default function AdminDashboardPage() {
 
           <div className="relative z-10 flex items-center justify-between">
             <div className="space-y-1">
-              <span className="text-xs text-orange-100 font-semibold uppercase tracking-wider">
-                Total Sales
-              </span>
-              <h2 className="text-3xl font-black text-white tracking-tight">GH₵ 48,750</h2>
+              <div className="flex items-center gap-1.5 text-xs text-orange-100 font-semibold uppercase tracking-wider">
+                <span>Total Live Revenue</span>
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              </div>
+              <h2 className="text-3xl font-black text-white tracking-tight">
+                {formatGHS(totalPaidRevenue || 0)}
+              </h2>
               <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-white text-[11px] font-extrabold mt-1">
-                <span>↑ 12.5%</span>
+                <span>{orders.length} Total Orders</span>
               </div>
             </div>
 
@@ -101,7 +156,7 @@ export default function AdminDashboardPage() {
                 <ShoppingBag className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-xl font-black text-white">124</p>
+                <p className="text-xl font-black text-white">{orders.length}</p>
                 <p className="text-[11px] text-gray-400 font-medium">Total Orders</p>
               </div>
             </Link>
@@ -114,8 +169,8 @@ export default function AdminDashboardPage() {
                 <Clock className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-xl font-black text-white">32</p>
-                <p className="text-[11px] text-gray-400 font-medium">Pending</p>
+                <p className="text-xl font-black text-white">{pendingOrdersCount}</p>
+                <p className="text-[11px] text-gray-400 font-medium">Pending Action</p>
               </div>
             </Link>
           </div>
@@ -125,7 +180,7 @@ export default function AdminDashboardPage() {
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <h3 className="text-xs font-extrabold text-gray-400 uppercase tracking-wider">
-              Top Products
+              Featured Catalog Items
             </h3>
             <Link href="/admin/products" className="text-xs text-orange-400 font-bold hover:underline">
               View All
@@ -133,64 +188,66 @@ export default function AdminDashboardPage() {
           </div>
 
           <div className="space-y-2.5">
-            <Link
-              href="/admin/products"
-              className="p-3 rounded-2xl bg-slate-950 border border-slate-800 hover:border-orange-500/40 flex items-center justify-between transition"
-            >
-              <div className="flex items-center gap-3">
-                <div className="relative w-12 h-12 rounded-xl bg-slate-900 overflow-hidden shrink-0">
-                  <Image
-                    src="https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&w=200&q=80"
-                    alt="iPhone 15 128GB"
-                    fill
-                    className="object-cover"
-                  />
+            {topProducts.map((p) => (
+              <Link
+                key={p.id}
+                href="/admin/products"
+                className="p-3 rounded-2xl bg-slate-950 border border-slate-800 hover:border-orange-500/40 flex items-center justify-between transition"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="relative w-12 h-12 rounded-xl bg-slate-900 overflow-hidden shrink-0">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={p.images?.[0] || "/placeholder.png"}
+                      alt={p.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-xs text-white line-clamp-1">{p.title}</h4>
+                    <p className="text-[11px] text-orange-400 font-bold">{formatGHS(p.base_price)}</p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="font-bold text-xs text-white">iPhone 15 128GB</h4>
-                  <p className="text-[11px] text-gray-400">245 sold</p>
-                </div>
-              </div>
-              <ChevronRight className="w-4 h-4 text-gray-500" />
-            </Link>
-
-            <Link
-              href="/admin/products"
-              className="p-3 rounded-2xl bg-slate-950 border border-slate-800 hover:border-orange-500/40 flex items-center justify-between transition"
-            >
-              <div className="flex items-center gap-3">
-                <div className="relative w-12 h-12 rounded-xl bg-slate-900 overflow-hidden shrink-0">
-                  <Image
-                    src="https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?auto=format&fit=crop&w=200&q=80"
-                    alt="Samsung Galaxy A55"
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                <div>
-                  <h4 className="font-bold text-xs text-white">Samsung Galaxy A55</h4>
-                  <p className="text-[11px] text-gray-400">180 sold</p>
-                </div>
-              </div>
-              <ChevronRight className="w-4 h-4 text-gray-500" />
-            </Link>
+                <ChevronRight className="w-4 h-4 text-gray-500" />
+              </Link>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Top Header */}
+      {/* ==================================================================== */}
+      {/* DESKTOP HEADER & LIVE SYNC STATUS */}
+      {/* ==================================================================== */}
       <div className="hidden md:flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-white">Operations Dashboard</h1>
+          <div className="flex items-center gap-2">
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              Supabase Database Connected
+            </span>
+            <span className="text-xs text-gray-400 font-mono">
+              Synced: {lastRefreshed.toLocaleTimeString()}
+            </span>
+          </div>
+          <h1 className="text-2xl font-black text-white mt-1">Live Operations Dashboard</h1>
           <p className="text-xs text-gray-400 mt-1">
-            Real-time business performance for Aki Enterprise (Ghana)
+            Real-time business performance, revenue, orders &amp; inventory for Aki Enterprise (Ghana).
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
+          <button
+            onClick={fetchDashboardData}
+            disabled={isLoading}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-gray-200 border border-slate-700 font-semibold text-xs transition"
+            title="Refresh live metrics from database"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 text-orange-400 ${isLoading ? "animate-spin" : ""}`} />
+            <span>Refresh</span>
+          </button>
           <Link
             href="/admin/products"
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-semibold text-xs shadow-md transition"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#F26A00] to-[#FF8A24] hover:from-[#d95e00] text-white font-bold text-xs shadow-md transition"
           >
             <Plus className="w-4 h-4" />
             <span>Add Product</span>
@@ -200,24 +257,26 @@ export default function AdminDashboardPage() {
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-gray-200 border border-slate-700 font-semibold text-xs transition"
           >
             <Layers className="w-4 h-4 text-orange-400" />
-            <span>Quick Stock-In</span>
+            <span>Inventory</span>
           </Link>
         </div>
       </div>
 
-      {/* 4 Summary Cards */}
+      {/* ==================================================================== */}
+      {/* 4 SUMMARY STAT CARDS */}
+      {/* ==================================================================== */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Gross Sales */}
         <div className="p-5 rounded-2xl bg-slate-950 border border-slate-800">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-gray-400 font-semibold uppercase">Total Sales (M-T-D)</span>
+            <span className="text-xs text-gray-400 font-semibold uppercase">Total Sales Revenue</span>
             <div className="p-2 rounded-lg bg-orange-500/10 text-orange-400">
               <DollarSign className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-2xl font-black text-white mt-3">{formatGHS(143550)}</p>
+          <p className="text-2xl font-black text-white mt-3">{formatGHS(totalPaidRevenue)}</p>
           <span className="text-[11px] text-emerald-400 font-medium flex items-center gap-1 mt-1">
-            <ArrowUpRight className="w-3.5 h-3.5" /> +18.4% from last month
+            <CheckCircle2 className="w-3.5 h-3.5" /> From paid checkout transactions
           </span>
         </div>
 
@@ -229,9 +288,9 @@ export default function AdminDashboardPage() {
               <ShoppingBag className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-2xl font-black text-white mt-3">14 Active</p>
+          <p className="text-2xl font-black text-white mt-3">{orders.length} Total</p>
           <span className="text-[11px] text-gray-400 mt-1 block">
-            4 for shop pickup • 10 dispatched
+            {pendingOrdersCount} pending • {inTransitCount} in fulfillment
           </span>
         </div>
 
@@ -243,75 +302,102 @@ export default function AdminDashboardPage() {
               <AlertTriangle className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-2xl font-black text-amber-400 mt-3">{lowStockVariants.length} Items</p>
+          <p className="text-2xl font-black text-amber-400 mt-3">{lowStockVariants.length} SKUs</p>
           <span className="text-[11px] text-gray-400 mt-1 block">
-            Needs restock in shop showcase
+            Stock level &le; 5 units remaining
           </span>
         </div>
 
-        {/* QR Scan Performance */}
+        {/* Catalog Inventory Count */}
         <div className="p-5 rounded-2xl bg-slate-950 border border-slate-800">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-gray-400 font-semibold uppercase">In-Store QR Scans</span>
+            <span className="text-xs text-gray-400 font-semibold uppercase">Live Catalog SKUs</span>
             <div className="p-2 rounded-lg bg-purple-500/10 text-purple-400">
-              <QrCode className="w-4 h-4" />
+              <Package className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-2xl font-black text-white mt-3">{totalQRScans} Scans</p>
+          <p className="text-2xl font-black text-white mt-3">{allVariants.length} Variants</p>
           <span className="text-[11px] text-purple-400 font-medium mt-1 block">
-            {totalQROrders} attributed orders ({formatGHS(totalQRRevenue)})
+            Across {products.length} product lines
           </span>
         </div>
       </div>
 
-      {/* Two Column Section: Recent Orders & Low Stock Table */}
+      {/* ==================================================================== */}
+      {/* TWO COLUMN SECTION: RECENT ORDERS & LOW STOCK TABLE */}
+      {/* ==================================================================== */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Recent Orders */}
+        {/* Live Recent Orders */}
         <div className="lg:col-span-7 bg-slate-950 p-6 rounded-2xl border border-slate-800 space-y-4">
           <div className="flex items-center justify-between border-b border-slate-800 pb-3">
             <h3 className="font-bold text-sm text-white flex items-center gap-2">
               <ShoppingBag className="w-4 h-4 text-orange-500" />
-              <span>Recent Orders</span>
+              <span>Live Store Orders ({orders.length})</span>
             </h3>
             <Link
               href="/admin/orders"
-              className="text-xs text-orange-400 hover:text-orange-300 font-semibold"
+              className="text-xs text-orange-400 hover:text-orange-300 font-semibold flex items-center gap-1"
             >
-              View All Orders →
+              <span>Manage All</span>
+              <ExternalLink className="w-3.5 h-3.5" />
             </Link>
           </div>
 
-          <div className="divide-y divide-slate-800/80">
-            {mockRecentOrders.map((ord) => (
-              <div key={ord.id} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono font-bold text-orange-400">{ord.id}</span>
-                    <span className="text-gray-300 font-medium">{ord.customer}</span>
-                  </div>
-                  <p className="text-gray-400 text-[11px] mt-0.5">{ord.items}</p>
-                  <p className="text-gray-500 text-[10px]">{ord.fulfillment}</p>
-                </div>
+          {recentOrders.length === 0 ? (
+            <div className="py-12 text-center text-gray-500 text-xs">
+              <ShoppingBag className="w-8 h-8 mx-auto mb-2 opacity-40 text-orange-500" />
+              <p className="font-semibold text-gray-400">No customer orders recorded yet.</p>
+              <p className="text-[11px] mt-1 text-gray-500">
+                Orders made on the storefront will appear here live.
+              </p>
+            </div>
+          ) : (
+            <div className="divide-y divide-slate-800/80">
+              {recentOrders.map((ord) => {
+                const itemsSummary = ord.items && ord.items.length > 0
+                  ? ord.items.map((i) => `${i.product_title} (${i.quantity}x)`).join(", ")
+                  : "Order Items";
 
-                <div className="flex sm:flex-col items-center sm:items-end justify-between gap-1">
-                  <span className="font-extrabold text-white text-sm">
-                    {formatGHS(ord.amount)}
-                  </span>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-amber-500/15 text-amber-300 border border-amber-500/30">
-                    {ord.status.replace(/_/g, " ")}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
+                return (
+                  <div key={ord.id} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono font-bold text-orange-400">{ord.order_number}</span>
+                        <span className="text-gray-300 font-medium">{ord.customer_name}</span>
+                        <span className="text-gray-500 font-mono text-[10px]">{ord.customer_phone}</span>
+                      </div>
+                      <p className="text-gray-400 text-[11px] mt-0.5 line-clamp-1">{itemsSummary}</p>
+                      <p className="text-gray-500 text-[10px] capitalize">
+                        {ord.fulfillment_type.replace(/_/g, " ")} • {ord.payment_method.replace(/_/g, " ")}
+                      </p>
+                    </div>
+
+                    <div className="flex sm:flex-col items-center sm:items-end justify-between gap-1 shrink-0">
+                      <span className="font-extrabold text-white text-sm">
+                        {formatGHS(ord.total_amount)}
+                      </span>
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${ord.payment_status === "paid"
+                            ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
+                            : "bg-amber-500/15 text-amber-300 border border-amber-500/30"
+                          }`}
+                      >
+                        {ord.order_status.replace(/_/g, " ")}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
-        {/* Low Stock Alerts */}
+        {/* Live Low Stock Watchlist */}
         <div className="lg:col-span-5 bg-slate-950 p-6 rounded-2xl border border-slate-800 space-y-4">
           <div className="flex items-center justify-between border-b border-slate-800 pb-3">
             <h3 className="font-bold text-sm text-white flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 text-amber-500" />
-              <span>Low Stock Watchlist</span>
+              <span>Low Stock Alerts ({lowStockVariants.length})</span>
             </h3>
             <Link
               href="/admin/inventory"
@@ -321,28 +407,48 @@ export default function AdminDashboardPage() {
             </Link>
           </div>
 
-          <div className="space-y-3">
-            {lowStockVariants.map((v) => (
-              <div
-                key={v.id}
-                className="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between text-xs"
-              >
-                <div>
-                  <h4 className="font-bold text-white line-clamp-1">{v.productTitle}</h4>
-                  <div className="flex items-center gap-2 mt-0.5 text-gray-400 text-[11px]">
-                    <span className="font-mono text-orange-400">{v.sku}</span>
-                    <span>• {v.storage || v.color}</span>
+          {lowStockVariants.length === 0 ? (
+            <div className="py-12 text-center text-gray-500 text-xs">
+              <CheckCircle2 className="w-8 h-8 mx-auto mb-2 text-emerald-500/60" />
+              <p className="font-semibold text-gray-400">All inventory items healthy!</p>
+              <p className="text-[11px] mt-1 text-gray-500">No SKUs below 5 units threshold.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {lowStockVariants.slice(0, 6).map((v) => (
+                <div
+                  key={v.id}
+                  className="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between text-xs"
+                >
+                  <div className="flex items-center gap-3">
+                    {v.productImage && (
+                      <div className="relative w-9 h-9 rounded-lg bg-slate-950 overflow-hidden shrink-0 border border-slate-800">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={v.productImage}
+                          alt={v.productTitle}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                    <div>
+                      <h4 className="font-bold text-white line-clamp-1">{v.productTitle}</h4>
+                      <div className="flex items-center gap-2 mt-0.5 text-gray-400 text-[11px]">
+                        <span className="font-mono text-orange-400">{v.sku}</span>
+                        <span>• {v.storage || v.color}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="text-right shrink-0">
+                    <span className="px-2 py-0.5 rounded bg-red-500/20 text-red-400 font-bold text-xs border border-red-500/30">
+                      {v.stock_quantity} left
+                    </span>
                   </div>
                 </div>
-
-                <div className="text-right">
-                  <span className="px-2 py-0.5 rounded bg-red-500/20 text-red-400 font-bold text-xs border border-red-500/30">
-                    {v.stock_quantity} left
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

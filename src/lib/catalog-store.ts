@@ -112,13 +112,64 @@ export function updateProduct(id: string, updates: Partial<Product>): Product[] 
   const current = getStoredProducts();
   const updated = current.map((p) => (p.id === id ? { ...p, ...updates } : p));
   saveStoredProducts(updated);
+
+  // Background sync to Supabase
+  if (isSupabaseConfigured && supabase) {
+    try {
+      const dbUpdates: Record<string, any> = {};
+      if (updates.title) dbUpdates.title = updates.title;
+      if (updates.slug) dbUpdates.slug = updates.slug;
+      if (updates.description) dbUpdates.description = updates.description;
+      if (updates.base_price !== undefined) dbUpdates.base_price = updates.base_price;
+      if (updates.images) dbUpdates.images = updates.images;
+      if (updates.features) dbUpdates.features = updates.features;
+      if (updates.specs) dbUpdates.specs = updates.specs;
+      if (updates.featured !== undefined) dbUpdates.featured = updates.featured;
+      if (updates.best_seller !== undefined) dbUpdates.best_seller = updates.best_seller;
+      if (updates.category_id) dbUpdates.category_id = updates.category_id;
+      if (updates.brand_id) dbUpdates.brand_id = updates.brand_id;
+
+      if (Object.keys(dbUpdates).length > 0) {
+        supabase
+          .from("products")
+          .update(dbUpdates)
+          .or(`id.eq.${id},slug.eq.${updates.slug || id}`)
+          .then((res: any) => {
+            if (res?.error) console.warn("Supabase product update warning:", res.error.message);
+          });
+      }
+    } catch (err) {
+      console.warn("Background product update notice:", err);
+    }
+  }
+
   return updated;
 }
 
 export function deleteProduct(id: string): Product[] {
   const current = getStoredProducts();
+  const prodToDelete = current.find((p) => p.id === id);
   const updated = current.filter((p) => p.id !== id);
   saveStoredProducts(updated);
+
+  // Background sync to Supabase
+  if (isSupabaseConfigured && supabase) {
+    try {
+      const matchCriteria = prodToDelete?.slug
+        ? `id.eq.${id},slug.eq.${prodToDelete.slug}`
+        : `id.eq.${id}`;
+      supabase
+        .from("products")
+        .delete()
+        .or(matchCriteria)
+        .then((res: any) => {
+          if (res?.error) console.warn("Supabase product delete warning:", res.error.message);
+        });
+    } catch (err) {
+      console.warn("Background product delete notice:", err);
+    }
+  }
+
   return updated;
 }
 
@@ -210,8 +261,27 @@ export function updateCategory(id: string, updates: Partial<Category>): Category
 
 export function deleteCategory(id: string): Category[] {
   const current = getStoredCategories();
+  const catToDelete = current.find((c) => c.id === id);
   const updated = current.filter((c) => c.id !== id);
   saveStoredCategories(updated);
+
+  if (isSupabaseConfigured && supabase) {
+    try {
+      const matchCriteria = catToDelete?.slug
+        ? `id.eq.${id},slug.eq.${catToDelete.slug}`
+        : `id.eq.${id}`;
+      supabase
+        .from("categories")
+        .delete()
+        .or(matchCriteria)
+        .then((res: any) => {
+          if (res?.error) console.warn("Supabase category delete warning:", res.error.message);
+        });
+    } catch (err) {
+      console.warn("Background category delete notice:", err);
+    }
+  }
+
   return updated;
 }
 
@@ -298,7 +368,26 @@ export function updateBrand(id: string, updates: Partial<Brand>): Brand[] {
 
 export function deleteBrand(id: string): Brand[] {
   const current = getStoredBrands();
+  const brandToDelete = current.find((b) => b.id === id);
   const updated = current.filter((b) => b.id !== id);
   saveStoredBrands(updated);
+
+  if (isSupabaseConfigured && supabase) {
+    try {
+      const matchCriteria = brandToDelete?.slug
+        ? `id.eq.${id},slug.eq.${brandToDelete.slug}`
+        : `id.eq.${id}`;
+      supabase
+        .from("brands")
+        .delete()
+        .or(matchCriteria)
+        .then((res: any) => {
+          if (res?.error) console.warn("Supabase brand delete warning:", res.error.message);
+        });
+    } catch (err) {
+      console.warn("Background brand delete notice:", err);
+    }
+  }
+
   return updated;
 }

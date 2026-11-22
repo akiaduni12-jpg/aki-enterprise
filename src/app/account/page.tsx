@@ -96,7 +96,7 @@ function CustomerAccountContent() {
     showToast("Profile & delivery preferences saved for fast checkout!");
   };
 
-  const handleSearchOrder = (e: React.FormEvent) => {
+  const handleSearchOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!orderSearchQuery.trim()) return;
 
@@ -104,10 +104,41 @@ function CustomerAccountContent() {
     if (found) {
       setSearchedOrder(found);
       showToast("Order found!");
-    } else {
-      setSearchedOrder(null);
-      showToast("No order found with that ID or Phone number.");
+      return;
     }
+
+    // Try database API lookup if not in local store
+    try {
+      const res = await fetch(`/api/orders/${encodeURIComponent(orderSearchQuery.trim())}`);
+      const data = await res.json();
+      if (res.ok && data.success && data.order) {
+        setSearchedOrder({
+          order_number: data.order.order_number,
+          order_status: data.order.order_status,
+          created_at: data.order.created_at,
+          customer: {
+            full_name: data.order.customer_name,
+            phone: data.order.customer_phone,
+            email: data.order.customer_email,
+            delivery_address: data.order.delivery_address,
+            city: data.order.delivery_city,
+          },
+          items: data.order.items || [],
+          total_amount: data.order.total_amount,
+          payment_status: data.order.payment_status,
+          payment_method: data.order.payment_method,
+          fulfillment_type: data.order.fulfillment_type,
+          paystack_reference: data.order.paystack_reference,
+        });
+        showToast("Live order found in database!");
+        return;
+      }
+    } catch (err) {
+      console.warn("Database order lookup error:", err);
+    }
+
+    setSearchedOrder(null);
+    showToast("No order found with that ID or Phone number.");
   };
 
   const handleRemoveFavorite = (productId: string) => {
