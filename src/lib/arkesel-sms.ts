@@ -24,7 +24,7 @@ export interface SMSLogEntry {
 }
 
 export const DEFAULT_SMS_CONFIG: SMSConfig = {
-  apiKey: process.env.ARKESEL_SMS_API_KEY || "Z3VHUWVaUkJSS1RVRUppamRqRnQ",
+  apiKey: process.env.ARKESEL_SMS_API_KEY || "",
   senderId: process.env.ARKESEL_SENDER_ID || "AKI SHOP",
   adminPhone: process.env.ARKESEL_ADMIN_PHONE || "0551243372",
   notifyCustomerOnOrder: true,
