@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import { INITIAL_QR_CAMPAIGNS } from "@/lib/mock-data";
 import { QRCampaign } from "@/types/ecommerce";
 import { formatGHS } from "@/lib/utils";
@@ -287,11 +288,15 @@ export default function AdminQRPage() {
               id="printable-qr-card"
               className="bg-white text-slate-950 p-6 sm:p-8 rounded-3xl border-4 border-slate-900 flex flex-col items-center text-center shadow-inner"
             >
-              {/* Brand Header */}
-              <div className="flex items-center gap-1.5 mb-1">
-                <span className="text-2xl font-black tracking-tight text-slate-950">
-                  AKI <span className="text-[#F26A00]">ENTERPRISE</span>
-                </span>
+              {/* Brand Header with Real Store Logo */}
+              <div className="relative w-48 h-12 mb-2">
+                <Image
+                  src="/icons/logo-store.webp"
+                  alt="Aki Enterprise"
+                  fill
+                  className="object-contain"
+                  priority
+                />
               </div>
               <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">
                 Official Retail Store • Ghana

@@ -395,6 +395,20 @@ export function ProductDetailClient({
                 >
                   {selectedVariant.stock_quantity > 0 ? "Add to Cart" : "Currently Out of Stock"}
                 </button>
+
+                {/* Desktop Wishlist Favorite Button */}
+                <button
+                  onClick={() => toggleWishlist(product.id)}
+                  className={`p-3 rounded-xl border transition-all duration-200 active:scale-90 flex items-center justify-center cursor-pointer ${
+                    isLiked
+                      ? "border-red-200 bg-red-50 text-red-500"
+                      : "border-gray-200 hover:border-gray-300 text-gray-400 hover:text-red-500 bg-white"
+                  }`}
+                  title={isLiked ? "Remove from Wishlist" : "Save to Wishlist"}
+                  aria-label="Wishlist"
+                >
+                  <Heart className={`w-5 h-5 ${isLiked ? "fill-red-500 text-red-500" : ""}`} />
+                </button>
               </div>
 
               {/* WhatsApp direct buy/ask button */}

@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { getStoreSettings, StoreSettings, DEFAULT_STORE_SETTINGS } from "@/lib/settings-store";
 import { PaymentBadge } from "@/components/ui/payment-badge";
 import { SocialIcon } from "@/components/ui/social-icon";
@@ -91,8 +92,14 @@ export function Footer() {
 
             {/* Right: Brand Lockup */}
             <div className="hidden xl:flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-[#F26A00]/15 border border-[#F26A00]/30 flex items-center justify-center text-[#FF8A24] font-black text-xs">
-                AKI
+              <div className="relative w-9 h-9 rounded-xl overflow-hidden shadow-sm shrink-0">
+                <Image
+                  src="/icons/logo-icon.webp"
+                  alt="Aki Enterprise"
+                  fill
+                  sizes="36px"
+                  className="object-cover"
+                />
               </div>
               <div>
                 <div className="text-sm font-black text-white tracking-tight">
@@ -120,9 +127,15 @@ export function Footer() {
             {/* Column 1: Brand Info & Contact (4 Cols) */}
             <div className="lg:col-span-4 space-y-5">
               <div className="space-y-2">
-                <Link href="/" className="inline-flex items-center gap-2">
-                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#F26A00] to-[#FF8A24] flex items-center justify-center text-white font-black text-base shadow-md shadow-orange-600/30">
-                    A
+                <Link href="/" className="inline-flex items-center gap-2.5">
+                  <div className="relative w-9 h-9 rounded-xl overflow-hidden shadow-md shadow-orange-600/30 shrink-0">
+                    <Image
+                      src="/icons/logo-icon.webp"
+                      alt="Aki Enterprise"
+                      fill
+                      sizes="36px"
+                      className="object-cover"
+                    />
                   </div>
                   <div>
                     <span className="text-xl font-black tracking-tight text-white font-sans">

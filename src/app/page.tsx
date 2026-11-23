@@ -83,14 +83,20 @@ export default function HomePage() {
     return () => window.removeEventListener("banners_updated", loadBanners);
   }, []);
 
-  // Initialize liked items from customer store
+  // Initialize and synchronize liked items from customer store
   useEffect(() => {
-    const ids = getWishlistIds();
-    const map: Record<string, boolean> = {};
-    ids.forEach((id) => {
-      map[id] = true;
-    });
-    setLikedItems(map);
+    const syncWishlist = () => {
+      const ids = getWishlistIds();
+      const map: Record<string, boolean> = {};
+      ids.forEach((id) => {
+        map[id] = true;
+      });
+      setLikedItems(map);
+    };
+
+    syncWishlist();
+    window.addEventListener("wishlist_updated", syncWishlist);
+    return () => window.removeEventListener("wishlist_updated", syncWishlist);
   }, []);
 
   const toggleLike = (id: string, productId?: string) => {
@@ -465,8 +471,8 @@ export default function HomePage() {
                       {prod.badge}
                     </span>
                     <button
-                      onClick={() => toggleLike(prod.id)}
-                      className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-white/90 backdrop-blur-xs flex items-center justify-center text-gray-400 hover:text-red-500 shadow-xs"
+                      onClick={() => toggleLike(prod.id, (prod as any).productRef?.id)}
+                      className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-white/90 backdrop-blur-xs flex items-center justify-center text-gray-400 hover:text-red-500 shadow-xs active:scale-75 transition"
                     >
                       <Heart className={`w-3 h-3 ${isLiked ? "fill-red-500 text-red-500" : ""}`} />
                     </button>
@@ -619,8 +625,8 @@ export default function HomePage() {
                     </span>
 
                     <button
-                      onClick={() => toggleLike(prod.id)}
-                      className="p-1 text-gray-400 hover:text-red-500 transition"
+                      onClick={() => toggleLike(prod.id, (prod as any).productRef?.id)}
+                      className="p-1 text-gray-400 hover:text-red-500 transition active:scale-75"
                       aria-label="Wishlist"
                     >
                       <Heart
@@ -818,8 +824,8 @@ export default function HomePage() {
                     </div>
 
                     <button
-                      onClick={() => toggleLike(prod.id)}
-                      className="p-1 text-gray-400 hover:text-red-500 transition"
+                      onClick={() => toggleLike(prod.id, (prod as any).productRef?.id)}
+                      className="p-1 text-gray-400 hover:text-red-500 transition active:scale-75"
                       aria-label="Wishlist"
                     >
                       <Heart
@@ -1002,8 +1008,8 @@ export default function HomePage() {
                       {prod.category_name.split(" ")[0]}
                     </span>
                     <button
-                      onClick={() => toggleLike(prod.id)}
-                      className="p-1 text-gray-400 hover:text-red-500 transition"
+                      onClick={() => toggleLike(prod.id, (prod as any).productRef?.id)}
+                      className="p-1 text-gray-400 hover:text-red-500 transition active:scale-75"
                       aria-label="Wishlist"
                     >
                       <Heart

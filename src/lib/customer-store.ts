@@ -63,7 +63,7 @@ export function isItemInWishlist(productId: string): boolean {
 export function getWishlistProducts(): Product[] {
   const ids = getWishlistIds();
   const all = getStoredProducts();
-  return all.filter((p) => ids.includes(p.id));
+  return all.filter((p) => ids.includes(p.id) || ids.includes(p.slug));
 }
 
 // ============================================================================

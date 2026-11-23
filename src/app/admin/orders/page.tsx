@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import { formatGHS } from "@/lib/utils";
 import { OrderStatus } from "@/types/ecommerce";
 import { getCustomerOrders, recordCustomerOrder } from "@/lib/customer-store";
@@ -564,13 +565,23 @@ export default function AdminOrdersPage() {
           <div id="printable-invoice" className="relative w-full max-w-xl bg-slate-950 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-6 z-10 max-h-[90vh] overflow-y-auto shadow-2xl">
             {/* Modal Header */}
             <div className="flex items-center justify-between pb-4 border-b border-slate-800">
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
-                  Order Details
-                </span>
-                <h3 className="text-lg font-black text-white font-mono">
-                  {selectedOrder.orderNumber}
-                </h3>
+              <div className="flex items-center gap-3">
+                <div className="relative w-36 h-9 shrink-0">
+                  <Image
+                    src="/icons/logo-store.webp"
+                    alt="Aki Enterprise"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+                <div className="border-l border-slate-800 pl-3">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">
+                    Official Receipt
+                  </span>
+                  <h3 className="text-sm font-black text-white font-mono">
+                    {selectedOrder.orderNumber}
+                  </h3>
+                </div>
               </div>
               <button
                 onClick={() => setSelectedOrder(null)}

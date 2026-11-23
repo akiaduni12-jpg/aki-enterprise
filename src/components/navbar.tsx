@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { useCart } from "@/context/cart-context";
 import { CATEGORIES } from "@/lib/mock-data";
@@ -152,10 +153,17 @@ export function Navbar() {
       {/* 2. MAIN HEADER (Logo, Search Bar, Account, Wishlist, Cart) */}
       <div className="max-w-7xl mx-auto px-4 py-3.5 sm:px-6">
         <div className="flex items-center justify-between gap-4 lg:gap-8">
-          {/* Logo with Orange Shopping Bag (Screen 1 Mobile & Desktop Match) */}
+          {/* Logo with Real Brand Icon (Screen 1 Mobile & Desktop Match) */}
           <Link href="/" className="flex items-center gap-2.5 shrink-0 group">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-br from-[#F26A00] to-[#FF8A24] text-white flex items-center justify-center shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform duration-300">
-              <ShoppingBag className="w-5 h-5 fill-white/20" />
+            <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-2xl overflow-hidden shadow-md shadow-orange-500/25 group-hover:scale-105 transition-transform duration-300 shrink-0">
+              <Image
+                src="/icons/logo-icon.webp"
+                alt="Aki Enterprise"
+                fill
+                sizes="40px"
+                className="object-cover"
+                priority
+              />
             </div>
             <div className="flex flex-col">
               <div className="flex items-center gap-1.5 leading-none">

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import { Download, X, Smartphone, Check } from "lucide-react";
 
 export function PWAInstallPrompt() {
@@ -79,8 +80,14 @@ export function PWAInstallPrompt() {
     <div className="fixed bottom-20 left-4 right-4 sm:left-auto sm:right-6 sm:bottom-6 sm:max-w-sm z-50 bg-[#171717] text-white p-4 rounded-3xl shadow-2xl border border-orange-500/40 animate-in fade-in slide-in-from-bottom-5">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#F26A00] to-[#FF8A24] flex items-center justify-center text-white shrink-0 shadow-md">
-            <Smartphone className="w-5 h-5" />
+          <div className="relative w-10 h-10 rounded-2xl overflow-hidden shrink-0 shadow-md">
+            <Image
+              src="/icons/logo-icon.webp"
+              alt="Aki Enterprise"
+              fill
+              className="object-cover"
+              sizes="40px"
+            />
           </div>
           <div>
             <div className="flex items-center gap-1.5">

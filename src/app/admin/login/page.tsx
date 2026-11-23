@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { saveAdminSession } from "@/lib/admin-auth";
 import {
@@ -91,9 +92,15 @@ export default function AdminLoginPage() {
 
       {/* Top Header */}
       <div className="max-w-6xl mx-auto w-full flex items-center justify-between py-2 relative z-10">
-        <Link href="/" className="flex items-center gap-2">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#F26A00] to-[#FF8A24] flex items-center justify-center text-white font-black text-sm shadow-lg shadow-orange-600/30">
-            A
+        <Link href="/" className="flex items-center gap-2.5">
+          <div className="relative w-9 h-9 rounded-xl overflow-hidden shadow-lg shadow-orange-600/30 shrink-0">
+            <Image
+              src="/icons/logo-icon.webp"
+              alt="Aki Enterprise"
+              fill
+              sizes="36px"
+              className="object-cover"
+            />
           </div>
           <div>
             <span className="text-base font-black tracking-tight text-white font-sans">

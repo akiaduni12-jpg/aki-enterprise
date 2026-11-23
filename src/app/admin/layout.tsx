@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
@@ -125,11 +126,22 @@ export default function AdminLayout({
           <div className="relative w-72 max-w-[80vw] bg-slate-950 border-r border-slate-800 p-5 flex flex-col justify-between z-10">
             <div className="space-y-6">
               <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-                <div>
-                  <span className="text-base font-black text-white">
-                    AKI <span className="text-orange-500">ENTERPRISE</span>
-                  </span>
-                  <p className="text-[10px] text-gray-400">Admin Control Center</p>
+                <div className="flex items-center gap-2">
+                  <div className="relative w-8 h-8 rounded-lg overflow-hidden shrink-0">
+                    <Image
+                      src="/icons/logo-icon.webp"
+                      alt="Aki Enterprise"
+                      fill
+                      sizes="32px"
+                      className="object-cover"
+                    />
+                  </div>
+                  <div>
+                    <span className="text-base font-black text-white">
+                      AKI <span className="text-orange-500">ENTERPRISE</span>
+                    </span>
+                    <p className="text-[10px] text-gray-400">Admin Control Center</p>
+                  </div>
                 </div>
                 <button
                   onClick={() => setIsMobileDrawerOpen(false)}
@@ -186,16 +198,27 @@ export default function AdminLayout({
       <aside className="hidden md:flex w-64 bg-slate-950 border-r border-slate-800 p-4 flex-col justify-between shrink-0">
         <div className="space-y-6">
           {/* Logo & Portal Badge */}
-          <div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-lg font-black tracking-tight text-white font-sans">
-                AKI <span className="text-orange-500">ENTERPRISE</span>
-              </span>
-              <span className="bg-orange-500/20 text-orange-400 text-[10px] font-bold px-1.5 py-0.5 rounded uppercase">
-                Admin
-              </span>
+          <div className="flex items-center gap-2.5">
+            <div className="relative w-9 h-9 rounded-xl overflow-hidden shadow-md shadow-orange-500/20 shrink-0">
+              <Image
+                src="/icons/logo-icon.webp"
+                alt="Aki Enterprise"
+                fill
+                sizes="36px"
+                className="object-cover"
+              />
             </div>
-            <p className="text-[11px] text-gray-400 mt-0.5">Management & Operations Portal</p>
+            <div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-base font-black tracking-tight text-white font-sans">
+                  AKI <span className="text-orange-500">ENTERPRISE</span>
+                </span>
+                <span className="bg-orange-500/20 text-orange-400 text-[10px] font-bold px-1.5 py-0.5 rounded uppercase">
+                  Admin
+                </span>
+              </div>
+              <p className="text-[10px] text-gray-400 mt-0.5">Management &amp; Operations Portal</p>
+            </div>
           </div>
 
           {/* Navigation Links */}

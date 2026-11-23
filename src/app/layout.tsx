@@ -29,8 +29,8 @@ export const metadata: Metadata = {
     title: "Aki Enterprise",
   },
   icons: {
-    icon: "/icons/icon.svg",
-    apple: "/icons/icon-192.png",
+    icon: "/icons/logo-icon.webp",
+    apple: "/icons/logo-icon.webp",
   },
 };
 

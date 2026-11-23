@@ -33,9 +33,17 @@ export function CartDrawer() {
       <div className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col z-10 animate-in slide-in-from-right duration-400 ease-[cubic-bezier(0.16,1,0.3,1)]">
         {/* Header */}
         <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-slate-900 text-white">
-          <div className="flex items-center gap-2">
-            <ShoppingBag className="w-5 h-5 text-orange-500" />
-            <h2 className="font-semibold text-lg">Your Aki Enterprise Cart ({itemCount})</h2>
+          <div className="flex items-center gap-2.5">
+            <div className="relative w-7 h-7 rounded-lg overflow-hidden shadow-sm shrink-0">
+              <Image
+                src="/icons/logo-icon.webp"
+                alt="Aki Enterprise"
+                fill
+                sizes="28px"
+                className="object-cover"
+              />
+            </div>
+            <h2 className="font-semibold text-base sm:text-lg">Your Aki Enterprise Cart ({itemCount})</h2>
           </div>
           <button
             onClick={() => setIsCartOpen(false)}
