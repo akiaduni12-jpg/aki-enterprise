@@ -490,8 +490,8 @@ export default function HomePage() {
                     </h3>
                   </Link>
 
-                  <div className="flex items-baseline gap-1 mt-1">
-                    <span className="font-extrabold text-xs sm:text-sm text-[#F26A00]">
+                  <div className="flex flex-col mt-1">
+                    <span className="font-extrabold text-xs sm:text-sm text-[#F26A00] leading-tight">
                       {formatGHS(prod.price)}
                     </span>
                     {prod.originalPrice && (
@@ -672,8 +672,8 @@ export default function HomePage() {
                     </div>
 
                     {/* Pricing */}
-                    <div className="flex items-baseline gap-1.5 pt-1">
-                      <span className="font-extrabold text-sm text-[#F26A00]">
+                    <div className="flex flex-col pt-1">
+                      <span className="font-extrabold text-sm text-[#F26A00] leading-tight">
                         {formatGHS(prod.price)}
                       </span>
                       {prod.originalPrice && (
@@ -889,8 +889,8 @@ export default function HomePage() {
                 <div className="pt-4 mt-4 border-t border-gray-100 flex items-center justify-between gap-2">
                   <div>
                     <span className="text-[10px] text-gray-400 block font-medium">Starting at</span>
-                    <div className="flex items-baseline gap-1.5">
-                      <span className="font-black text-base text-[#F26A00]">
+                    <div className="flex flex-col">
+                      <span className="font-black text-base text-[#F26A00] leading-tight">
                         {formatGHS(primaryVariant.price)}
                       </span>
                       {primaryVariant.original_price && (

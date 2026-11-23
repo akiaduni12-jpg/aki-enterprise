@@ -847,19 +847,23 @@ function CustomerAccountContent() {
                       className="bg-white rounded-3xl border border-gray-100 p-4 flex flex-col justify-between hover:border-orange-200 hover:shadow-lg transition group"
                     >
                       <div>
-                        <div className="relative aspect-4/3 rounded-2xl overflow-hidden bg-gray-50 mb-3">
-                          <Image
-                            src={prod.images[0] || "/placeholder.png"}
-                            alt={prod.title}
-                            fill
-                            className="object-cover group-hover:scale-105 transition-transform"
-                          />
-                          <span className={`absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-bold ${conditionBadge.className}`}>
-                            {conditionBadge.label}
-                          </span>
-                        </div>
+                        <Link href={`/product/${prod.slug}`} className="block group/link">
+                          <div className="relative aspect-4/3 rounded-2xl overflow-hidden bg-gray-50 mb-3 cursor-pointer">
+                            <Image
+                              src={prod.images[0] || "/placeholder.png"}
+                              alt={prod.title}
+                              fill
+                              className="object-cover group-hover/link:scale-105 transition-transform"
+                            />
+                            <span className={`absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-bold ${conditionBadge.className}`}>
+                              {conditionBadge.label}
+                            </span>
+                          </div>
 
-                        <h4 className="font-bold text-slate-900 text-sm line-clamp-1">{prod.title}</h4>
+                          <h4 className="font-bold text-slate-900 text-sm line-clamp-1 group-hover/link:text-[#F26A00] transition">
+                            {prod.title}
+                          </h4>
+                        </Link>
                         <p className="text-[11px] text-gray-500 mt-0.5">{prod.category_name}</p>
 
                         <div className="mt-2 text-sm font-black text-[#F26A00]">

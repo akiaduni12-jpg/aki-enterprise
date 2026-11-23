@@ -155,17 +155,17 @@ export function ProductCard({ product }: ProductCardProps) {
 
           <div className="flex items-center justify-between">
             <div>
-              <div className="flex items-baseline gap-2">
-                <span className="font-extrabold text-lg text-slate-900">
+              <div className="flex flex-col">
+                <span className="font-extrabold text-base sm:text-lg text-slate-900 leading-tight">
                   {formatGHS(defaultVariant ? defaultVariant.price : product.base_price)}
                 </span>
                 {defaultVariant?.original_price && (
-                  <span className="text-xs text-gray-400 line-through">
+                  <span className="text-xs text-gray-400 line-through -mt-0.5">
                     {formatGHS(defaultVariant.original_price)}
                   </span>
                 )}
               </div>
-              <span className="text-[10px] text-emerald-600 font-semibold">
+              <span className="text-[10px] text-emerald-600 font-semibold block mt-0.5">
                 {defaultVariant?.stock_quantity ? `${defaultVariant.stock_quantity} available` : "Out of stock"}
               </span>
             </div>

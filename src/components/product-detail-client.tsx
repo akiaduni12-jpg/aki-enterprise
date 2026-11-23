@@ -256,15 +256,17 @@ export function ProductDetailClient({
             {/* Price Box with Discount Badge (Screen 4 Match) */}
             <div className="p-4 rounded-2xl bg-orange-50/40 border border-orange-100 space-y-2">
               <div className="flex items-center gap-3">
-                <span className="text-2xl sm:text-3xl font-black text-[#F26A00]">
-                  {formatGHS(selectedVariant.price)}
-                </span>
-                {selectedVariant.original_price && (
-                  <span className="text-xs text-gray-400 line-through font-medium">
-                    {formatGHS(selectedVariant.original_price)}
+                <div className="flex flex-col">
+                  <span className="text-2xl sm:text-3xl font-black text-[#F26A00] leading-tight">
+                    {formatGHS(selectedVariant.price)}
                   </span>
-                )}
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-400 text-slate-950 shadow-2xs">
+                  {selectedVariant.original_price && (
+                    <span className="text-xs text-gray-400 line-through font-medium">
+                      {formatGHS(selectedVariant.original_price)}
+                    </span>
+                  )}
+                </div>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-400 text-slate-950 shadow-2xs self-start mt-1">
                   {selectedVariant.original_price
                     ? `-${Math.round(((selectedVariant.original_price - selectedVariant.price) / selectedVariant.original_price) * 100)}%`
                     : "-13%"}

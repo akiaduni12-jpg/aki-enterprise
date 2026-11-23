@@ -121,7 +121,7 @@ export function Footer() {
         <div className="absolute bottom-0 left-10 w-80 h-80 bg-[#FF8A24]/5 rounded-full blur-[100px] pointer-events-none" />
 
         {/* Foreground Content */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 pt-12 pb-12 pointer-events-auto">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 pt-12 pb-24 md:pb-12 pointer-events-auto">
           {/* Main 4-Column Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 pb-12 border-b border-white/10">
             {/* Column 1: Brand Info & Contact (4 Cols) */}
@@ -275,12 +275,6 @@ export function Footer() {
                     <span>About Aki Enterprise</span>
                   </Link>
                 </li>
-                <li>
-                  <Link href="/admin/dashboard" className="hover:text-[#FF8A24] transition flex items-center gap-1.5 text-orange-400/90 font-medium">
-                    <ArrowRight className="w-3 h-3 text-[#F26A00]" />
-                    <span>Staff Portal</span>
-                  </Link>
-                </li>
               </ul>
             </div>
 
@@ -347,6 +341,10 @@ export function Footer() {
               <span>•</span>
               <Link href="/policies/privacy" className="hover:text-gray-300 transition">
                 Privacy Notice
+              </Link>
+              <span>•</span>
+              <Link href="/admin/login" className="hover:text-orange-400 transition text-gray-500">
+                Staff Login
               </Link>
             </div>
           </div>

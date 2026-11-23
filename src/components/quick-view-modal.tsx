@@ -180,16 +180,18 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
               </h2>
 
               {/* Price */}
-              <div className="flex items-baseline gap-3">
-                <span className="text-2xl sm:text-3xl font-extrabold text-slate-900">
-                  {formatGHS(selectedVariant.price)}
-                </span>
-                {selectedVariant.original_price && (
-                  <span className="text-sm text-gray-400 line-through">
-                    {formatGHS(selectedVariant.original_price)}
+              <div className="flex items-center gap-3">
+                <div className="flex flex-col">
+                  <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
+                    {formatGHS(selectedVariant.price)}
                   </span>
-                )}
-                <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                  {selectedVariant.original_price && (
+                    <span className="text-sm text-gray-400 line-through">
+                      {formatGHS(selectedVariant.original_price)}
+                    </span>
+                  )}
+                </div>
+                <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full self-start mt-1">
                   {selectedVariant.stock_quantity > 0 ? "In Stock" : "Out of Stock"}
                 </span>
               </div>
