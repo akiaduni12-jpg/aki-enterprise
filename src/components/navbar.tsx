@@ -484,7 +484,7 @@ export function Navbar() {
                 Deals
               </Link>
               <Link
-                href="/policies/contact"
+                href="/contact"
                 className="hover:text-[#F26A00] transition"
               >
                 Contact

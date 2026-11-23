@@ -264,6 +264,12 @@ export function Footer() {
                   </Link>
                 </li>
                 <li>
+                  <Link href="/contact" className="hover:text-[#FF8A24] transition flex items-center gap-1.5">
+                    <Phone className="w-3 h-3 text-[#F26A00]" />
+                    <span>Contact Customer Care</span>
+                  </Link>
+                </li>
+                <li>
                   <Link href="/about" className="hover:text-[#FF8A24] transition flex items-center gap-1.5">
                     <ArrowRight className="w-3 h-3 text-[#F26A00]" />
                     <span>About Aki Enterprise</span>
