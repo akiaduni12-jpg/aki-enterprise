@@ -25,11 +25,16 @@ import {
   DollarSign,
   Info,
   ExternalLink,
+  Copy,
+  Check,
+  Download,
+  Rss,
 } from "lucide-react";
 
 export default function AdminSettingsPage() {
   const [settings, setSettings] = useState<StoreSettings>(DEFAULT_STORE_SETTINGS);
   const [activeTab, setActiveTab] = useState<"general" | "policies" | "google">("general");
+  const [copiedFeed, setCopiedFeed] = useState(false);
   const [activePolicy, setActivePolicy] = useState<
     | "aboutUs"
     | "returnRefundPolicy"
@@ -566,6 +571,102 @@ export default function AdminSettingsPage() {
                 }
                 className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs focus:outline-hidden focus:border-[#F26A00]"
               />
+            </div>
+          </div>
+
+          {/* Section 2: Live Google Merchant Center Product Feed */}
+          <div className="p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-5">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="p-1.5 rounded-lg bg-orange-500/10 text-[#F26A00]">
+                    <Rss className="w-4 h-4" />
+                  </span>
+                  <h2 className="text-sm font-black text-white">Live Google Merchant Product Feed</h2>
+                </div>
+                <p className="text-xs text-gray-400 mt-1">
+                  Automatic XML/TSV catalog feed with live inventory, Ghana Cedis (GHS) pricing, and product variants.
+                </p>
+              </div>
+
+              <span className="px-2.5 py-1 rounded-full text-[10px] font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                RSS 2.0 / XML Valid
+              </span>
+            </div>
+
+            {/* Feed URL Box */}
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-gray-300 block">
+                Primary Scheduled Fetch URL (Submit to Google Merchant Center)
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  readOnly
+                  value={
+                    typeof window !== "undefined"
+                      ? `${window.location.origin}/feed/google-merchant.xml`
+                      : "https://akienterprise.com/feed/google-merchant.xml"
+                  }
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-orange-400 font-mono text-xs select-all focus:outline-hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const url = typeof window !== "undefined"
+                      ? `${window.location.origin}/feed/google-merchant.xml`
+                      : "https://akienterprise.com/feed/google-merchant.xml";
+                    navigator.clipboard.writeText(url);
+                    setCopiedFeed(true);
+                    setTimeout(() => setCopiedFeed(false), 2500);
+                  }}
+                  className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs transition active:scale-95"
+                >
+                  {copiedFeed ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-white" />
+                      <span>Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5" />
+                      <span>Copy Feed URL</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Download & Direct View Actions */}
+            <div className="pt-2 flex flex-wrap items-center gap-3">
+              <a
+                href="/feed/google-merchant.xml"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-850 border border-slate-800 text-gray-200 hover:text-white text-xs font-bold transition"
+              >
+                <ExternalLink className="w-3.5 h-3.5 text-[#F26A00]" />
+                <span>Open Live XML Feed</span>
+              </a>
+
+              <a
+                href="/api/feed/google?format=tsv"
+                download="google-merchant-feed.tsv"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-850 border border-slate-800 text-gray-200 hover:text-white text-xs font-bold transition"
+              >
+                <Download className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Download Spreadsheet Feed (.tsv)</span>
+              </a>
+            </div>
+
+            {/* Quick 3-Step Setup Instructions */}
+            <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800/80 space-y-2 text-xs text-gray-300">
+              <span className="font-bold text-white block">How to connect in Google Merchant Center:</span>
+              <ol className="list-decimal list-inside space-y-1 text-gray-400">
+                <li>Log in to <span className="text-white font-medium">Google Merchant Center</span> and navigate to <span className="text-white font-medium">Products &gt; Feeds</span>.</li>
+                <li>Click <span className="text-white font-medium">Add products (+)</span> and select your target country (<span className="text-white font-medium">Ghana</span>) and language (<span className="text-white font-medium">English</span>).</li>
+                <li>Choose <span className="text-white font-medium">Scheduled Fetch</span>, paste the Feed URL copied above, and set the fetch frequency to <span className="text-white font-medium">Daily</span>.</li>
+              </ol>
             </div>
           </div>
         </div>
