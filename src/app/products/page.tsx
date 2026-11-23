@@ -1,6 +1,7 @@
 import React, { Suspense } from "react";
 import { getProducts, getCategories, getBrands } from "@/lib/db-service";
 import { ProductCard } from "@/components/product-card";
+import { CatalogGrid } from "@/components/catalog-grid";
 import Link from "next/link";
 import { Filter, ChevronLeft, Search, X } from "lucide-react";
 
@@ -319,26 +320,15 @@ async function ProductsList({ searchParams }: ProductsPageProps) {
 
         {/* Product Grid (Screen 3: 2 columns on mobile, 3 on desktop) */}
         <main className="lg:col-span-3">
-          {filtered.length === 0 ? (
-            <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center">
-              <h3 className="text-lg font-bold text-gray-900">No products match your filters</h3>
-              <p className="text-xs text-gray-500 mt-1 mb-4">
-                Try selecting a different category or clearing your search term.
-              </p>
-              <Link
-                href="/products"
-                className="px-4 py-2 bg-orange-600 text-white rounded-lg text-xs font-semibold hover:bg-orange-700 transition"
-              >
-                View Full Catalog
-              </Link>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-5">
-              {filtered.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          )}
+          <CatalogGrid
+            initialProducts={filtered}
+            category={category}
+            brand={brand}
+            condition={condition}
+            search={search}
+            featured={featured}
+            best_seller={best_seller}
+          />
         </main>
       </div>
     </div>

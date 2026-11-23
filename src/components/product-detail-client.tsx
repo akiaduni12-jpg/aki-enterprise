@@ -9,6 +9,7 @@ import { useCart } from "@/context/cart-context";
 import { ProductReviews } from "@/components/product-reviews";
 import { ProductCard } from "@/components/product-card";
 import { toggleWishlist, isItemInWishlist } from "@/lib/customer-store";
+import { getStoredProducts } from "@/lib/catalog-store";
 import {
   ShieldCheck,
   Truck,
@@ -33,6 +34,7 @@ export function ProductDetailClient({
   product: Product;
   relatedProducts?: Product[];
 }) {
+  const [currentProduct, setCurrentProduct] = useState<Product>(product);
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant>(
     product.variants[0]
   );
@@ -44,6 +46,23 @@ export function ProductDetailClient({
 
   const conditionBadge = getConditionBadge(selectedVariant.condition);
   const [isLiked, setIsLiked] = useState(false);
+
+  // Sync latest product images & details from catalog store
+  React.useEffect(() => {
+    const syncCurrentProduct = () => {
+      const stored = getStoredProducts();
+      const match = stored.find((p) => p.id === product.id || p.slug === product.slug);
+      if (match) {
+        setCurrentProduct(match);
+        if (match.images && match.images.length > 0 && !match.images.includes(selectedImage)) {
+          setSelectedImage(match.images[0]);
+        }
+      }
+    };
+    syncCurrentProduct();
+    window.addEventListener("catalog_updated", syncCurrentProduct);
+    return () => window.removeEventListener("catalog_updated", syncCurrentProduct);
+  }, [product.id, product.slug, selectedImage]);
 
   // Available unique storages for this product
   const availableStorages = Array.from(
@@ -193,9 +212,9 @@ export function ProductDetailClient({
           </div>
 
           {/* Thumbnails */}
-          {product.images.length > 1 && (
+          {currentProduct.images.length > 1 && (
             <div className="flex gap-3">
-              {product.images.map((img, i) => (
+              {currentProduct.images.map((img, i) => (
                 <button
                   key={i}
                   onClick={() => setSelectedImage(img)}
