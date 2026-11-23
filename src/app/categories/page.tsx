@@ -153,6 +153,7 @@ export default function CategoriesPage() {
               src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=300&q=80"
               alt="Headphones banner"
               fill
+              sizes="(max-width: 640px) 112px, 140px"
               className="object-contain drop-shadow-xl"
             />
           </div>
@@ -168,7 +169,7 @@ export default function CategoriesPage() {
             >
               {/* Image Frame */}
               <div className="relative w-24 h-24 rounded-2xl bg-gray-50 overflow-hidden mb-2 group-hover:scale-105 transition-transform">
-                <Image src={cat.image} alt={cat.name} fill className="object-cover" />
+                <Image src={cat.image} alt={cat.name} fill sizes="96px" className="object-cover" />
               </div>
 
               {/* Title & Count */}

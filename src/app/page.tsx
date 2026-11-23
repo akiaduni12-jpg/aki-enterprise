@@ -127,7 +127,7 @@ export default function HomePage() {
       name: "Power Banks",
       slug: "power-banks-chargers",
       count: "Anker & PD",
-      image: "https://images.unsplash.com/photo-1609592807963-394ff0073289?auto=format&fit=crop&w=300&q=80",
+      image: "https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?auto=format&fit=crop&w=300&q=80",
     },
     {
       name: "Audio & Earbuds",
@@ -179,7 +179,7 @@ export default function HomePage() {
       reviews: "2.5k",
       price: 16499,
       originalPrice: 19499,
-      image: "https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&w=500&q=80",
+      image: "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=500&q=80",
       productRef: PRODUCTS[0],
     },
     {
@@ -204,7 +204,7 @@ export default function HomePage() {
       reviews: "982",
       price: 599,
       originalPrice: 749,
-      image: "https://images.unsplash.com/photo-1609592807963-394ff0073289?auto=format&fit=crop&w=500&q=80",
+      image: "https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?auto=format&fit=crop&w=500&q=80",
       productRef: PRODUCTS[3],
     },
     {
@@ -396,6 +396,7 @@ export default function HomePage() {
               alt={currentBanner.title}
               fill
               className="object-cover transition-transform duration-500 group-hover:scale-105"
+              sizes="100vw"
               priority
             />
             {/* Subtle floating explore pill */}
@@ -437,6 +438,7 @@ export default function HomePage() {
                 alt={currentBanner.title}
                 fill
                 className="object-contain drop-shadow-2xl"
+                sizes="(max-width: 640px) 140px, 200px"
                 priority
               />
             </div>
@@ -457,6 +459,7 @@ export default function HomePage() {
                 alt={currentBanner.title}
                 fill
                 className="object-cover transition-transform duration-700 group-hover:scale-[1.02]"
+                sizes="(max-width: 1280px) 100vw, 1280px"
                 priority
               />
             </Link>
@@ -468,6 +471,7 @@ export default function HomePage() {
                 alt={currentBanner.title}
                 fill
                 className="object-cover transition-transform duration-1000 group-hover:scale-105"
+                sizes="(max-width: 1280px) 100vw, 1280px"
                 priority
               />
 
@@ -631,6 +635,7 @@ export default function HomePage() {
                   src={cat.image}
                   alt={cat.name}
                   fill
+                  sizes="(max-width: 640px) 48px, 64px"
                   className="object-cover"
                 />
               </div>
@@ -680,6 +685,7 @@ export default function HomePage() {
                       src={prod.image}
                       alt={prod.title}
                       fill
+                      sizes="(max-width: 640px) 160px, (max-width: 1024px) 25vw, 20vw"
                       className="object-cover"
                     />
                     <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded text-[9px] font-black bg-orange-500 text-white shadow-xs">
@@ -860,6 +866,7 @@ export default function HomePage() {
                       src={prod.image}
                       alt={prod.title}
                       fill
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   </Link>
@@ -940,6 +947,7 @@ export default function HomePage() {
                     src={promoBanner.image_url}
                     alt={promoBanner.title}
                     fill
+                    sizes="(max-width: 768px) 100vw, 400px"
                     className="object-contain drop-shadow-2xl"
                   />
                 </div>
@@ -1057,6 +1065,7 @@ export default function HomePage() {
                       src={prod.images[0]}
                       alt={prod.title}
                       fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   </Link>
@@ -1239,6 +1248,7 @@ export default function HomePage() {
                       src={prod.images[0]}
                       alt={prod.title}
                       fill
+                      sizes="(max-width: 640px) 50vw, 25vw"
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   </Link>
@@ -1305,6 +1315,7 @@ export default function HomePage() {
                     src={prod.images[0]}
                     alt={prod.title}
                     fill
+                    sizes="96px"
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 </Link>

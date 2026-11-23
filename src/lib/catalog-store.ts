@@ -22,7 +22,38 @@ export function getStoredProducts(): Product[] {
       return PRODUCTS;
     }
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : PRODUCTS;
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      // Auto-heal any legacy expired image URLs in client localStorage
+      let healed = false;
+      const sanitized = parsed.map((p) => {
+        let changed = false;
+        const newImages = (p.images || []).map((img: string) => {
+          if (img.includes("photo-1695048133142-1a20484d2569")) {
+            changed = true;
+            return "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=800&q=80";
+          }
+          if (img.includes("photo-1695048132924-f72c342ebdc1")) {
+            changed = true;
+            return "https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?auto=format&fit=crop&w=800&q=80";
+          }
+          if (img.includes("photo-1609592807963-394ff0073289")) {
+            changed = true;
+            return "https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?auto=format&fit=crop&w=800&q=80";
+          }
+          return img;
+        });
+        if (changed) {
+          healed = true;
+          return { ...p, images: newImages };
+        }
+        return p;
+      });
+      if (healed) {
+        localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(sanitized));
+      }
+      return sanitized;
+    }
+    return PRODUCTS;
   } catch (err) {
     console.error("Error reading stored products:", err);
     return PRODUCTS;
@@ -189,7 +220,24 @@ export function getStoredCategories(): Category[] {
       return CATEGORIES;
     }
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : CATEGORIES;
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      let healed = false;
+      const sanitized = parsed.map((c) => {
+        if (c.image_url && c.image_url.includes("photo-1609592807963-394ff0073289")) {
+          healed = true;
+          return {
+            ...c,
+            image_url: "https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?auto=format&fit=crop&w=600&q=80",
+          };
+        }
+        return c;
+      });
+      if (healed) {
+        localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(sanitized));
+      }
+      return sanitized;
+    }
+    return CATEGORIES;
   } catch (err) {
     console.error("Error reading stored categories:", err);
     return CATEGORIES;

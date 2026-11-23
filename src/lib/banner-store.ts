@@ -17,7 +17,31 @@ export function getStoredBanners(): HeroBanner[] {
       return INITIAL_HERO_BANNERS;
     }
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : INITIAL_HERO_BANNERS;
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      let healed = false;
+      const sanitized = parsed.map((b) => {
+        if (b.image_url && b.image_url.includes("photo-1695048133142-1a20484d2569")) {
+          healed = true;
+          return {
+            ...b,
+            image_url: "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=1920&q=80",
+          };
+        }
+        if (b.image_url && b.image_url.includes("photo-1609592807963-394ff0073289")) {
+          healed = true;
+          return {
+            ...b,
+            image_url: "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=1920&q=80",
+          };
+        }
+        return b;
+      });
+      if (healed) {
+        localStorage.setItem(BANNERS_STORAGE_KEY, JSON.stringify(sanitized));
+      }
+      return sanitized;
+    }
+    return INITIAL_HERO_BANNERS;
   } catch (error) {
     console.error("Error reading stored banners:", error);
     return INITIAL_HERO_BANNERS;

@@ -174,6 +174,7 @@ export function ProductDetailClient({
               src={selectedImage}
               alt={product.title}
               fill
+              sizes="(max-width: 1024px) 100vw, 60vw"
               className="object-cover"
               priority
             />
@@ -202,7 +203,7 @@ export function ProductDetailClient({
                     selectedImage === img ? "border-orange-600 shadow-md" : "border-gray-200 opacity-70 hover:opacity-100"
                   }`}
                 >
-                  <Image src={img} alt={`View ${i + 1}`} fill className="object-cover" />
+                  <Image src={img} alt={`View ${i + 1}`} fill sizes="80px" className="object-cover" />
                 </button>
               ))}
             </div>

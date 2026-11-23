@@ -66,6 +66,7 @@ export function CartDrawer() {
                       src={item.product.images[0] || "/placeholder.png"}
                       alt={item.product.title}
                       fill
+                      sizes="80px"
                       className="object-cover"
                     />
                   </div>

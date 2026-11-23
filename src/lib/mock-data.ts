@@ -15,7 +15,7 @@ export const CATEGORIES: Category[] = [
     slug: "power-banks-chargers",
     description: "Fast-charging power banks, original PD adapters and braided cables.",
     icon: "Zap",
-    image_url: "https://images.unsplash.com/photo-1609592807963-394ff0073289?auto=format&fit=crop&w=600&q=80",
+    image_url: "https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?auto=format&fit=crop&w=600&q=80",
   },
   {
     id: "cat-3",
@@ -77,8 +77,8 @@ export const PRODUCTS: Product[] = [
       Network: "5G / 4G LTE / Dual eSIM or Physical SIM + eSIM",
     },
     images: [
-      "https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1695048132924-f72c342ebdc1?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?auto=format&fit=crop&w=800&q=80",
     ],
     base_price: 13500.0,
     featured: true,
@@ -297,7 +297,7 @@ export const PRODUCTS: Product[] = [
       Warranty: "12 Months Anker Official Warranty",
     },
     images: [
-      "https://images.unsplash.com/photo-1609592807963-394ff0073289?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?auto=format&fit=crop&w=800&q=80",
     ],
     base_price: 650.0,
     featured: true,
