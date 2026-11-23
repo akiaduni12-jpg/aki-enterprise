@@ -10,6 +10,30 @@ const BRANDS_STORAGE_KEY = "techhub_custom_brands";
 // 1. PRODUCTS MANAGEMENT
 // ============================================================================
 
+let isSyncingCatalog = false;
+
+export async function syncCatalogFromCloud(): Promise<Product[]> {
+  if (typeof window === "undefined" || isSyncingCatalog) {
+    return getStoredProducts();
+  }
+  isSyncingCatalog = true;
+
+  try {
+    const res = await fetch("/api/products");
+    const data = await res.json();
+    if (data.success && Array.isArray(data.products) && data.products.length > 0) {
+      localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(data.products));
+      window.dispatchEvent(new Event("catalog_updated"));
+      return data.products;
+    }
+  } catch (err) {
+    console.warn("Could not sync catalog from cloud:", err);
+  } finally {
+    isSyncingCatalog = false;
+  }
+  return getStoredProducts();
+}
+
 export function getStoredProducts(): Product[] {
   if (typeof window === "undefined") {
     return PRODUCTS;
@@ -19,8 +43,14 @@ export function getStoredProducts(): Product[] {
     const raw = localStorage.getItem(PRODUCTS_STORAGE_KEY);
     if (!raw) {
       localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(PRODUCTS));
+      // Background sync from cloud API so mobile pulls live products
+      syncCatalogFromCloud();
       return PRODUCTS;
     }
+
+    // Trigger cloud sync to catch updates from other devices (e.g. admin on desktop)
+    syncCatalogFromCloud();
+
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed) && parsed.length > 0) {
       // Auto-heal any legacy expired image URLs in client localStorage
@@ -92,48 +122,13 @@ export async function addProduct(
   const updated = [product, ...current];
   saveStoredProducts(updated);
 
-  // Sync to Supabase in background if configured
-  if (isSupabaseConfigured && supabase) {
-    try {
-      const { data: insertedProduct, error: pError } = await supabase
-        .from("products")
-        .insert({
-          title: product.title,
-          slug: product.slug,
-          description: product.description,
-          base_price: product.base_price,
-          images: product.images,
-          features: product.features,
-          specs: product.specs,
-          featured: product.featured || false,
-          best_seller: product.best_seller || false,
-          new_arrival: product.new_arrival || false,
-          is_active: true,
-        })
-        .select()
-        .single();
-
-      if (!pError && insertedProduct && product.variants?.length > 0) {
-        await supabase.from("product_variants").insert(
-          product.variants.map((v) => ({
-            product_id: insertedProduct.id,
-            sku: v.sku || `${product.slug}-${Date.now()}`,
-            condition: v.condition || "brand_new",
-            storage: v.storage,
-            ram: v.ram,
-            color: v.color || "Default",
-            color_hex: v.color_hex || "#171717",
-            battery_health: v.battery_health,
-            warranty_months: v.warranty_months || 12,
-            price: v.price || product.base_price,
-            original_price: v.original_price,
-            stock_quantity: v.stock_quantity ?? 5,
-          }))
-        );
-      }
-    } catch (err) {
-      console.warn("Background Supabase sync notice:", err);
-    }
+  // Sync to Cloud via Backend API
+  if (typeof window !== "undefined") {
+    fetch("/api/products", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(product),
+    }).catch((err) => console.warn("Cloud product sync notice:", err));
   }
 
   return product;
@@ -141,37 +136,21 @@ export async function addProduct(
 
 export function updateProduct(id: string, updates: Partial<Product>): Product[] {
   const current = getStoredProducts();
+  const target = current.find((p) => p.id === id);
   const updated = current.map((p) => (p.id === id ? { ...p, ...updates } : p));
   saveStoredProducts(updated);
 
-  // Background sync to Supabase
-  if (isSupabaseConfigured && supabase) {
-    try {
-      const dbUpdates: Record<string, any> = {};
-      if (updates.title) dbUpdates.title = updates.title;
-      if (updates.slug) dbUpdates.slug = updates.slug;
-      if (updates.description) dbUpdates.description = updates.description;
-      if (updates.base_price !== undefined) dbUpdates.base_price = updates.base_price;
-      if (updates.images) dbUpdates.images = updates.images;
-      if (updates.features) dbUpdates.features = updates.features;
-      if (updates.specs) dbUpdates.specs = updates.specs;
-      if (updates.featured !== undefined) dbUpdates.featured = updates.featured;
-      if (updates.best_seller !== undefined) dbUpdates.best_seller = updates.best_seller;
-      if (updates.category_id) dbUpdates.category_id = updates.category_id;
-      if (updates.brand_id) dbUpdates.brand_id = updates.brand_id;
-
-      if (Object.keys(dbUpdates).length > 0) {
-        supabase
-          .from("products")
-          .update(dbUpdates)
-          .or(`id.eq.${id},slug.eq.${updates.slug || id}`)
-          .then((res: any) => {
-            if (res?.error) console.warn("Supabase product update warning:", res.error.message);
-          });
-      }
-    } catch (err) {
-      console.warn("Background product update notice:", err);
-    }
+  // Sync to Cloud via Backend API
+  if (typeof window !== "undefined") {
+    fetch("/api/products", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id,
+        slug: updates.slug || target?.slug || id,
+        updates,
+      }),
+    }).catch((err) => console.warn("Cloud product update notice:", err));
   }
 
   return updated;
@@ -183,22 +162,12 @@ export function deleteProduct(id: string): Product[] {
   const updated = current.filter((p) => p.id !== id);
   saveStoredProducts(updated);
 
-  // Background sync to Supabase
-  if (isSupabaseConfigured && supabase) {
-    try {
-      const matchCriteria = prodToDelete?.slug
-        ? `id.eq.${id},slug.eq.${prodToDelete.slug}`
-        : `id.eq.${id}`;
-      supabase
-        .from("products")
-        .delete()
-        .or(matchCriteria)
-        .then((res: any) => {
-          if (res?.error) console.warn("Supabase product delete warning:", res.error.message);
-        });
-    } catch (err) {
-      console.warn("Background product delete notice:", err);
-    }
+  // Sync to Cloud via Backend API
+  if (typeof window !== "undefined") {
+    const slug = prodToDelete?.slug || "";
+    fetch(`/api/products?id=${encodeURIComponent(id)}&slug=${encodeURIComponent(slug)}`, {
+      method: "DELETE",
+    }).catch((err) => console.warn("Cloud product delete notice:", err));
   }
 
   return updated;
