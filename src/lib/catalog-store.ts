@@ -1,6 +1,5 @@
 import { Product, Category, Brand, ProductVariant } from "@/types/ecommerce";
 import { PRODUCTS, CATEGORIES, BRANDS } from "./mock-data";
-import { supabase, isSupabaseConfigured } from "./supabase";
 
 const PRODUCTS_STORAGE_KEY = "techhub_custom_products";
 const CATEGORIES_STORAGE_KEY = "techhub_custom_categories";
@@ -11,6 +10,7 @@ const BRANDS_STORAGE_KEY = "techhub_custom_brands";
 // ============================================================================
 
 let isSyncingCatalog = false;
+let hasInitializedProductSync = false;
 
 export async function syncCatalogFromCloud(): Promise<Product[]> {
   if (typeof window === "undefined" || isSyncingCatalog) {
@@ -22,8 +22,12 @@ export async function syncCatalogFromCloud(): Promise<Product[]> {
     const res = await fetch("/api/products");
     const data = await res.json();
     if (data.success && Array.isArray(data.products) && data.products.length > 0) {
-      localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(data.products));
-      window.dispatchEvent(new Event("catalog_updated"));
+      const currentRaw = localStorage.getItem(PRODUCTS_STORAGE_KEY);
+      const newRaw = JSON.stringify(data.products);
+      if (currentRaw !== newRaw) {
+        localStorage.setItem(PRODUCTS_STORAGE_KEY, newRaw);
+        window.dispatchEvent(new Event("catalog_updated"));
+      }
       return data.products;
     }
   } catch (err) {
@@ -43,45 +47,21 @@ export function getStoredProducts(): Product[] {
     const raw = localStorage.getItem(PRODUCTS_STORAGE_KEY);
     if (!raw) {
       localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(PRODUCTS));
-      // Background sync from cloud API so mobile pulls live products
-      syncCatalogFromCloud();
+      if (!hasInitializedProductSync) {
+        hasInitializedProductSync = true;
+        setTimeout(() => syncCatalogFromCloud(), 50);
+      }
       return PRODUCTS;
     }
 
-    // Trigger cloud sync to catch updates from other devices (e.g. admin on desktop)
-    syncCatalogFromCloud();
+    if (!hasInitializedProductSync) {
+      hasInitializedProductSync = true;
+      setTimeout(() => syncCatalogFromCloud(), 100);
+    }
 
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed) && parsed.length > 0) {
-      // Auto-heal any legacy expired image URLs in client localStorage
-      let healed = false;
-      const sanitized = parsed.map((p) => {
-        let changed = false;
-        const newImages = (p.images || []).map((img: string) => {
-          if (img.includes("photo-1695048133142-1a20484d2569")) {
-            changed = true;
-            return "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=800&q=80";
-          }
-          if (img.includes("photo-1695048132924-f72c342ebdc1")) {
-            changed = true;
-            return "https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?auto=format&fit=crop&w=800&q=80";
-          }
-          if (img.includes("photo-1609592807963-394ff0073289")) {
-            changed = true;
-            return "https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?auto=format&fit=crop&w=800&q=80";
-          }
-          return img;
-        });
-        if (changed) {
-          healed = true;
-          return { ...p, images: newImages };
-        }
-        return p;
-      });
-      if (healed) {
-        localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(sanitized));
-      }
-      return sanitized;
+      return parsed;
     }
     return PRODUCTS;
   } catch (err) {
@@ -148,7 +128,13 @@ export function updateProduct(id: string, updates: Partial<Product>): Product[] 
       body: JSON.stringify({
         id,
         slug: updates.slug || target?.slug || id,
-        updates,
+        updates: {
+          ...updates,
+          category_id: updates.category_id || target?.category_id,
+          category_slug: updates.category_slug || target?.category_slug,
+          brand_id: updates.brand_id || target?.brand_id,
+          brand_name: updates.brand_name || target?.brand_name,
+        },
       }),
     }).catch((err) => console.warn("Cloud product update notice:", err));
   }
@@ -178,6 +164,7 @@ export function deleteProduct(id: string): Product[] {
 // ============================================================================
 
 let isSyncingCategories = false;
+let hasInitializedCategorySync = false;
 
 export async function syncCategoriesFromCloud(): Promise<Category[]> {
   if (typeof window === "undefined" || isSyncingCategories) {
@@ -189,8 +176,12 @@ export async function syncCategoriesFromCloud(): Promise<Category[]> {
     const res = await fetch("/api/categories");
     const data = await res.json();
     if (data.success && Array.isArray(data.categories) && data.categories.length > 0) {
-      localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(data.categories));
-      window.dispatchEvent(new Event("catalog_updated"));
+      const currentRaw = localStorage.getItem(CATEGORIES_STORAGE_KEY);
+      const newRaw = JSON.stringify(data.categories);
+      if (currentRaw !== newRaw) {
+        localStorage.setItem(CATEGORIES_STORAGE_KEY, newRaw);
+        window.dispatchEvent(new Event("catalog_updated"));
+      }
       return data.categories;
     }
   } catch (err) {
@@ -210,30 +201,21 @@ export function getStoredCategories(): Category[] {
     const raw = localStorage.getItem(CATEGORIES_STORAGE_KEY);
     if (!raw) {
       localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(CATEGORIES));
-      syncCategoriesFromCloud();
+      if (!hasInitializedCategorySync) {
+        hasInitializedCategorySync = true;
+        setTimeout(() => syncCategoriesFromCloud(), 50);
+      }
       return CATEGORIES;
     }
 
-    // Trigger background sync to ensure updates from other devices reflect
-    syncCategoriesFromCloud();
+    if (!hasInitializedCategorySync) {
+      hasInitializedCategorySync = true;
+      setTimeout(() => syncCategoriesFromCloud(), 150);
+    }
 
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed) && parsed.length > 0) {
-      let healed = false;
-      const sanitized = parsed.map((c) => {
-        if (c.image_url && c.image_url.includes("photo-1609592807963-394ff0073289")) {
-          healed = true;
-          return {
-            ...c,
-            image_url: "https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?auto=format&fit=crop&w=600&q=80",
-          };
-        }
-        return c;
-      });
-      if (healed) {
-        localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(sanitized));
-      }
-      return sanitized;
+      return parsed;
     }
     return CATEGORIES;
   } catch (err) {
@@ -337,6 +319,7 @@ export function deleteCategory(id: string): Category[] {
 // ============================================================================
 
 let isSyncingBrands = false;
+let hasInitializedBrandSync = false;
 
 export async function syncBrandsFromCloud(): Promise<Brand[]> {
   if (typeof window === "undefined" || isSyncingBrands) {
@@ -348,8 +331,12 @@ export async function syncBrandsFromCloud(): Promise<Brand[]> {
     const res = await fetch("/api/brands");
     const data = await res.json();
     if (data.success && Array.isArray(data.brands) && data.brands.length > 0) {
-      localStorage.setItem(BRANDS_STORAGE_KEY, JSON.stringify(data.brands));
-      window.dispatchEvent(new Event("catalog_updated"));
+      const currentRaw = localStorage.getItem(BRANDS_STORAGE_KEY);
+      const newRaw = JSON.stringify(data.brands);
+      if (currentRaw !== newRaw) {
+        localStorage.setItem(BRANDS_STORAGE_KEY, newRaw);
+        window.dispatchEvent(new Event("catalog_updated"));
+      }
       return data.brands;
     }
   } catch (err) {
@@ -369,12 +356,17 @@ export function getStoredBrands(): Brand[] {
     const raw = localStorage.getItem(BRANDS_STORAGE_KEY);
     if (!raw) {
       localStorage.setItem(BRANDS_STORAGE_KEY, JSON.stringify(BRANDS));
-      syncBrandsFromCloud();
+      if (!hasInitializedBrandSync) {
+        hasInitializedBrandSync = true;
+        setTimeout(() => syncBrandsFromCloud(), 50);
+      }
       return BRANDS;
     }
 
-    // Trigger background sync
-    syncBrandsFromCloud();
+    if (!hasInitializedBrandSync) {
+      hasInitializedBrandSync = true;
+      setTimeout(() => syncBrandsFromCloud(), 200);
+    }
 
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) && parsed.length > 0 ? parsed : BRANDS;

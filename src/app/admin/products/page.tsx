@@ -313,7 +313,9 @@ export default function AdminCatalogPage() {
         slug: generatedSlug,
         category_slug: pCategorySlug,
         category_name: categoryName,
+        category_id: selectedCategory?.id,
         brand_name: brandName,
+        brand_id: selectedBrand?.id,
         description: pDescription,
         base_price: Number(pBasePrice),
         images: pImages.length > 0 ? pImages : ["/placeholder.png"],
@@ -355,8 +357,13 @@ export default function AdminCatalogPage() {
     setEditingProductId(prod.id);
     setPTitle(prod.title);
     setPSlug(prod.slug);
-    setPCategorySlug(prod.category_slug);
-    setPBrandName(prod.brand_name);
+
+    const matchedCategory = categories.find(
+      (c) => c.slug === prod.category_slug || c.id === prod.category_id || c.name === prod.category_name
+    );
+    setPCategorySlug(matchedCategory?.slug || prod.category_slug || "smartphones");
+
+    setPBrandName(prod.brand_name || "Apple");
     setPDescription(prod.description);
     setPBasePrice(prod.base_price);
     setPImages(prod.images || []);

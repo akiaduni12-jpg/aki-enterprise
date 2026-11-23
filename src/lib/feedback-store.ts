@@ -151,6 +151,7 @@ export const INITIAL_STORE_TESTIMONIALS: StoreTestimonial[] = [
 // ============================================================================
 
 let isSyncingFeedback = false;
+let hasInitializedFeedbackSync = false;
 
 export async function syncFeedbackFromCloud(): Promise<{
   reviews: ProductReview[];
@@ -168,13 +169,26 @@ export async function syncFeedbackFromCloud(): Promise<{
     const res = await fetch("/api/feedback");
     const data = await res.json();
     if (data.success) {
+      let changed = false;
       if (Array.isArray(data.reviews) && data.reviews.length > 0) {
-        localStorage.setItem(REVIEWS_STORAGE_KEY, JSON.stringify(data.reviews));
+        const curRev = localStorage.getItem(REVIEWS_STORAGE_KEY);
+        const newRev = JSON.stringify(data.reviews);
+        if (curRev !== newRev) {
+          localStorage.setItem(REVIEWS_STORAGE_KEY, newRev);
+          changed = true;
+        }
       }
       if (Array.isArray(data.testimonials) && data.testimonials.length > 0) {
-        localStorage.setItem(TESTIMONIALS_STORAGE_KEY, JSON.stringify(data.testimonials));
+        const curTest = localStorage.getItem(TESTIMONIALS_STORAGE_KEY);
+        const newTest = JSON.stringify(data.testimonials);
+        if (curTest !== newTest) {
+          localStorage.setItem(TESTIMONIALS_STORAGE_KEY, newTest);
+          changed = true;
+        }
       }
-      window.dispatchEvent(new Event("feedback_updated"));
+      if (changed) {
+        window.dispatchEvent(new Event("feedback_updated"));
+      }
       return {
         reviews: data.reviews || getStoredProductReviews(),
         testimonials: data.testimonials || getStoredTestimonials(),
@@ -198,11 +212,18 @@ export function getStoredProductReviews(): ProductReview[] {
     const raw = localStorage.getItem(REVIEWS_STORAGE_KEY);
     if (!raw) {
       localStorage.setItem(REVIEWS_STORAGE_KEY, JSON.stringify(INITIAL_PRODUCT_REVIEWS));
-      syncFeedbackFromCloud();
+      if (!hasInitializedFeedbackSync) {
+        hasInitializedFeedbackSync = true;
+        setTimeout(() => syncFeedbackFromCloud(), 100);
+      }
       return INITIAL_PRODUCT_REVIEWS;
     }
-    // Background sync from cloud
-    syncFeedbackFromCloud();
+
+    if (!hasInitializedFeedbackSync) {
+      hasInitializedFeedbackSync = true;
+      setTimeout(() => syncFeedbackFromCloud(), 200);
+    }
+
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed : INITIAL_PRODUCT_REVIEWS;
   } catch {
@@ -301,11 +322,18 @@ export function getStoredTestimonials(): StoreTestimonial[] {
     const raw = localStorage.getItem(TESTIMONIALS_STORAGE_KEY);
     if (!raw) {
       localStorage.setItem(TESTIMONIALS_STORAGE_KEY, JSON.stringify(INITIAL_STORE_TESTIMONIALS));
-      syncFeedbackFromCloud();
+      if (!hasInitializedFeedbackSync) {
+        hasInitializedFeedbackSync = true;
+        setTimeout(() => syncFeedbackFromCloud(), 100);
+      }
       return INITIAL_STORE_TESTIMONIALS;
     }
-    // Background sync from cloud
-    syncFeedbackFromCloud();
+
+    if (!hasInitializedFeedbackSync) {
+      hasInitializedFeedbackSync = true;
+      setTimeout(() => syncFeedbackFromCloud(), 200);
+    }
+
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed : INITIAL_STORE_TESTIMONIALS;
   } catch {

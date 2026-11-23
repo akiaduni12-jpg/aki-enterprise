@@ -14,7 +14,9 @@ export async function GET() {
       .from("products")
       .select(`
         *,
-        product_variants (*)
+        product_variants (*),
+        categories (id, name, slug),
+        brands (id, name, slug)
       `)
       .eq("is_active", true)
       .order("created_at", { ascending: false });
@@ -28,10 +30,10 @@ export async function GET() {
       title: p.title,
       slug: p.slug,
       brand_id: p.brand_id,
-      brand_name: p.brand_name || "Aki Enterprise",
+      brand_name: p.brands?.name || p.brand_name || "Aki Enterprise",
       category_id: p.category_id,
-      category_slug: p.category_slug || "smartphones",
-      category_name: p.category_name || "Smartphones",
+      category_slug: p.categories?.slug || p.category_slug || "smartphones",
+      category_name: p.categories?.name || p.category_name || "Smartphones",
       description: p.description || "",
       features: p.features || [],
       specs: p.specs || {},
@@ -159,15 +161,65 @@ export async function PUT(req: NextRequest) {
     if (updates.featured !== undefined) dbUpdates.featured = updates.featured;
     if (updates.best_seller !== undefined) dbUpdates.best_seller = updates.best_seller;
     if (updates.new_arrival !== undefined) dbUpdates.new_arrival = updates.new_arrival;
-    if (updates.category_id !== undefined) dbUpdates.category_id = updates.category_id;
-    if (updates.brand_id !== undefined) dbUpdates.brand_id = updates.brand_id;
+
+    // Resolve category_id accurately (UUID check or lookup by slug)
+    if (updates.category_id && updates.category_id.length > 25) {
+      dbUpdates.category_id = updates.category_id;
+    } else if (updates.category_slug) {
+      const { data: catData } = await client
+        .from("categories")
+        .select("id")
+        .eq("slug", updates.category_slug)
+        .maybeSingle();
+      if (catData?.id) {
+        dbUpdates.category_id = catData.id;
+      }
+    }
+
+    // Resolve brand_id accurately (UUID check or lookup by name)
+    if (updates.brand_id && updates.brand_id.length > 25) {
+      dbUpdates.brand_id = updates.brand_id;
+    } else if (updates.brand_name) {
+      const { data: brData } = await client
+        .from("brands")
+        .select("id")
+        .eq("name", updates.brand_name)
+        .maybeSingle();
+      if (brData?.id) {
+        dbUpdates.brand_id = brData.id;
+      }
+    }
 
     // Match by slug first, then fallback to id
-    const matchQuery = slug ? client.from("products").update(dbUpdates).eq("slug", slug) : client.from("products").update(dbUpdates).eq("id", id);
+    const matchQuery = slug
+      ? client.from("products").update(dbUpdates).eq("slug", slug)
+      : client.from("products").update(dbUpdates).eq("id", id);
     const { data, error } = await matchQuery.select();
 
     if (error) {
       return NextResponse.json({ success: false, error: error.message }, { status: 400 });
+    }
+
+    // Upsert updated variants if provided
+    if (data && data.length > 0 && Array.isArray(updates.variants) && updates.variants.length > 0) {
+      const targetProductId = data[0].id;
+      const variantPayloads = updates.variants.map((v: any) => ({
+        product_id: targetProductId,
+        sku: v.sku || `${slug || targetProductId}-${Date.now()}`,
+        condition: v.condition || "brand_new",
+        storage: v.storage,
+        ram: v.ram,
+        color: v.color || "Default",
+        color_hex: v.color_hex || "#171717",
+        battery_health: v.battery_health,
+        warranty_months: Number(v.warranty_months) || 12,
+        price: Number(v.price) || Number(updates.base_price) || 0,
+        original_price: v.original_price ? Number(v.original_price) : null,
+        stock_quantity: Number(v.stock_quantity) || 5,
+        updated_at: new Date().toISOString(),
+      }));
+
+      await client.from("product_variants").upsert(variantPayloads, { onConflict: "sku" });
     }
 
     return NextResponse.json({ success: true, updated: data });

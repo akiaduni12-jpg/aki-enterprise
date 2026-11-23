@@ -3,6 +3,35 @@ import { INITIAL_HERO_BANNERS } from "./mock-data";
 
 const BANNERS_STORAGE_KEY = "techhub_hero_banners";
 
+let isSyncingBanners = false;
+let hasInitializedBannerSync = false;
+
+export async function syncBannersFromCloud(): Promise<HeroBanner[]> {
+  if (typeof window === "undefined" || isSyncingBanners) {
+    return getStoredBanners();
+  }
+  isSyncingBanners = true;
+
+  try {
+    const res = await fetch("/api/banners");
+    const data = await res.json();
+    if (data.success && Array.isArray(data.banners) && data.banners.length > 0) {
+      const currentRaw = localStorage.getItem(BANNERS_STORAGE_KEY);
+      const newRaw = JSON.stringify(data.banners);
+      if (currentRaw !== newRaw) {
+        localStorage.setItem(BANNERS_STORAGE_KEY, newRaw);
+        window.dispatchEvent(new Event("banners_updated"));
+      }
+      return data.banners;
+    }
+  } catch (err) {
+    console.warn("Could not sync banners from cloud:", err);
+  } finally {
+    isSyncingBanners = false;
+  }
+  return getStoredBanners();
+}
+
 export function getStoredBanners(): HeroBanner[] {
   if (typeof window === "undefined") {
     return INITIAL_HERO_BANNERS;
@@ -12,57 +41,27 @@ export function getStoredBanners(): HeroBanner[] {
     const raw = localStorage.getItem(BANNERS_STORAGE_KEY);
     if (!raw) {
       localStorage.setItem(BANNERS_STORAGE_KEY, JSON.stringify(INITIAL_HERO_BANNERS));
-      // Background sync from API
-      syncBannersFromCloud();
+      if (!hasInitializedBannerSync) {
+        hasInitializedBannerSync = true;
+        setTimeout(() => syncBannersFromCloud(), 100);
+      }
       return INITIAL_HERO_BANNERS;
     }
+
+    if (!hasInitializedBannerSync) {
+      hasInitializedBannerSync = true;
+      setTimeout(() => syncBannersFromCloud(), 200);
+    }
+
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed) && parsed.length > 0) {
-      let healed = false;
-      const sanitized = parsed.map((b) => {
-        if (b.image_url && b.image_url.includes("photo-1695048133142-1a20484d2569")) {
-          healed = true;
-          return {
-            ...b,
-            image_url: "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=1920&q=80",
-          };
-        }
-        if (b.image_url && b.image_url.includes("photo-1609592807963-394ff0073289")) {
-          healed = true;
-          return {
-            ...b,
-            image_url: "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=1920&q=80",
-          };
-        }
-        return b;
-      });
-      if (healed) {
-        localStorage.setItem(BANNERS_STORAGE_KEY, JSON.stringify(sanitized));
-      }
-      return sanitized;
+      return parsed;
     }
     return INITIAL_HERO_BANNERS;
   } catch (error) {
     console.error("Error reading stored banners:", error);
     return INITIAL_HERO_BANNERS;
   }
-}
-
-export async function syncBannersFromCloud(): Promise<HeroBanner[]> {
-  if (typeof window === "undefined") return INITIAL_HERO_BANNERS;
-
-  try {
-    const res = await fetch("/api/banners");
-    const data = await res.json();
-    if (data.success && Array.isArray(data.banners) && data.banners.length > 0) {
-      localStorage.setItem(BANNERS_STORAGE_KEY, JSON.stringify(data.banners));
-      window.dispatchEvent(new Event("banners_updated"));
-      return data.banners;
-    }
-  } catch (err) {
-    console.warn("Could not sync banners from cloud:", err);
-  }
-  return getStoredBanners();
 }
 
 export function saveStoredBanners(banners: HeroBanner[]): void {
