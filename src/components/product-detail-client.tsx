@@ -128,6 +128,9 @@ export function ProductDetailClient({
 
   const shareText = `Check out the ${product.title} (${selectedVariant.storage || ""} ${selectedVariant.color}) at Aki Enterprise for ${formatGHS(selectedVariant.price)}!`;
 
+  const whatsAppMessage = `Hello Aki Enterprise, I want to inquire about: *${currentProduct.title}* (${selectedVariant.storage || ""} ${selectedVariant.color || ""} - ${selectedVariant.condition === "uk_used" ? "UK Used Grade A" : "Brand New Sealed"}, Price: ${formatGHS(selectedVariant.price)}). Is this currently in stock for delivery? Link: https://aki-enterprise.vercel.app/product/${currentProduct.slug}`;
+  const whatsAppUrl = `https://wa.me/233551243372?text=${encodeURIComponent(whatsAppMessage)}`;
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-8 pb-24 md:pb-12">
       {/* Mobile Top App Bar (Screen 4 Layout Exact Match) */}
@@ -396,15 +399,13 @@ export function ProductDetailClient({
 
               {/* WhatsApp direct buy/ask button */}
               <a
-                href={`https://wa.me/233551243372?text=${encodeURIComponent(
-                  `Hello Aki Enterprise, I want to inquire/order: ${product.title} (${selectedVariant.storage || ""} ${selectedVariant.color} - ${selectedVariant.condition}) for ${formatGHS(selectedVariant.price)}`
-                )}`}
+                href={whatsAppUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs shadow-xs transition"
+                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition"
               >
                 <MessageCircle className="w-4 h-4" />
-                <span>Order / Inquire on WhatsApp</span>
+                <span>Chat on WhatsApp (0551243372)</span>
               </a>
             </div>
 
@@ -504,12 +505,23 @@ export function ProductDetailClient({
         </section>
       )}
 
-      {/* Mobile Fixed Bottom Sticky Action Bar (Exact Screen 4 Layout) */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-gray-100 p-3 px-4 shadow-[0_-4px_25px_rgba(0,0,0,0.08)] flex items-center gap-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+      {/* Mobile Fixed Bottom Sticky Action Bar */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-gray-100 p-2.5 px-3.5 shadow-[0_-4px_25px_rgba(0,0,0,0.08)] flex items-center gap-2 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+        <a
+          href={whatsAppUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="p-3 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100 flex items-center justify-center shrink-0 transition shadow-xs"
+          title="Chat on WhatsApp"
+          aria-label="Chat with Aki Enterprise on WhatsApp"
+        >
+          <MessageCircle className="w-5 h-5 text-emerald-600" />
+        </a>
+
         <button
           onClick={handleAddToCart}
           disabled={selectedVariant.stock_quantity === 0}
-          className="flex-1 py-3 px-4 rounded-full bg-[#F26A00] hover:bg-[#d95e00] text-white font-black text-xs shadow-md shadow-orange-600/30 flex items-center justify-center gap-1.5 transition active:scale-95 disabled:opacity-50"
+          className="flex-1 py-3 px-3 rounded-full bg-[#F26A00] hover:bg-[#d95e00] text-white font-black text-xs shadow-md shadow-orange-600/30 flex items-center justify-center gap-1.5 transition active:scale-95 disabled:opacity-50"
         >
           <ShoppingBag className="w-4 h-4" />
           <span>Add to Cart</span>
@@ -518,7 +530,7 @@ export function ProductDetailClient({
         <button
           onClick={handleBuyNow}
           disabled={selectedVariant.stock_quantity === 0}
-          className="flex-1 py-3 px-4 rounded-full bg-[#171717] hover:bg-black text-white font-black text-xs shadow-md transition active:scale-95 disabled:opacity-50"
+          className="flex-1 py-3 px-3 rounded-full bg-[#171717] hover:bg-black text-white font-black text-xs shadow-md transition active:scale-95 disabled:opacity-50"
         >
           Buy Now
         </button>

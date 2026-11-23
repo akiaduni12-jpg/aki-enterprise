@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { PRODUCTS, INITIAL_HERO_BANNERS } from "@/lib/mock-data";
 import { HeroBanner, Product, Category, Brand } from "@/types/ecommerce";
-import { getStoredBanners } from "@/lib/banner-store";
+import { getStoredBanners, trackBannerClick } from "@/lib/banner-store";
 import { getStoredProducts, getStoredCategories, getStoredBrands } from "@/lib/catalog-store";
 import { formatGHS } from "@/lib/utils";
 import { useCart } from "@/context/cart-context";
@@ -40,6 +40,8 @@ export default function HomePage() {
   const { addToCart } = useCart();
   const [activeSlide, setActiveSlide] = useState(0);
   const [banners, setBanners] = useState<HeroBanner[]>(INITIAL_HERO_BANNERS);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+  const [touchEndX, setTouchEndX] = useState<number | null>(null);
   const [allProducts, setAllProducts] = useState<Product[]>(PRODUCTS);
   const [allCategories, setAllCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
@@ -384,66 +386,108 @@ export default function HomePage() {
       {/* 1. HERO SECTION: DEDICATED MOBILE HERO + 16:9 DESKTOP SLIDER */}
       {/* ============================================================== */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-3 sm:pt-5">
-        {/* Mobile Showcase Hero */}
-        {currentBanner.hide_text_overlay ? (
-          /* Clean Mobile Graphic Banner (No Text Overlay) */
-          <Link
-            href={currentBanner.cta_link || "/products"}
-            className="sm:hidden relative h-48 rounded-3xl overflow-hidden block shadow-xl border border-white/10 group cursor-pointer"
-          >
-            <Image
-              src={currentBanner.image_url}
-              alt={currentBanner.title}
-              fill
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
-              sizes="100vw"
-              priority
-            />
-            {/* Subtle floating explore pill */}
-            <div className="absolute bottom-3 right-3 z-10 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/75 backdrop-blur-md text-white text-[10px] font-bold border border-white/20 shadow-lg">
-              <span>Explore</span>
-              <ArrowRight className="w-3 h-3 text-[#FF8A24]" />
-            </div>
-          </Link>
-        ) : (
-          /* Mobile Hero Card with Text Overlay */
-          <div className="sm:hidden relative h-44 rounded-3xl overflow-hidden bg-[#141414] border border-white/10 p-5 flex items-center justify-between shadow-xl">
-            {/* Glowing Orange Curved Edge on Right */}
-            <div className="absolute -right-10 -top-10 w-48 h-48 rounded-full bg-gradient-to-br from-[#F26A00] to-[#FF8A24] opacity-75 blur-2xl pointer-events-none" />
-            <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-transparent to-[#141414] z-10 pointer-events-none" />
-
-            {/* Left Hero Text & CTA */}
-            <div className="relative z-20 max-w-[170px] space-y-1.5">
-              <h2 className="text-xl font-black text-white leading-tight tracking-tight drop-shadow-sm">
-                {currentBanner.title}
-              </h2>
-              <p className="text-xs font-semibold text-gray-300">
-                {currentBanner.badge || "Up to 20% OFF"}
-              </p>
-              <div className="pt-1">
-                <Link
-                  href={currentBanner.cta_link || "/products?category=smartphones"}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-gradient-to-r from-[#F26A00] to-[#FF8A24] text-white text-xs font-black shadow-md shadow-orange-600/40 active:scale-95 transition"
-                >
-                  <span>{currentBanner.cta_text || "Shop Now"}</span>
-                  <ArrowRight className="w-3 h-3" />
-                </Link>
-              </div>
-            </div>
-
-            {/* Right Hero Image */}
-            <div className="relative z-10 w-32 h-36 shrink-0">
+        {/* Mobile Showcase Hero with Touch-Swipe & Indicators */}
+        <div
+          className="sm:hidden select-none"
+          onTouchStart={(e) => {
+            setTouchEndX(null);
+            setTouchStartX(e.targetTouches[0].clientX);
+          }}
+          onTouchMove={(e) => {
+            setTouchEndX(e.targetTouches[0].clientX);
+          }}
+          onTouchEnd={() => {
+            if (!touchStartX || !touchEndX) return;
+            const distance = touchStartX - touchEndX;
+            if (distance > 40) {
+              // Swiped left -> next
+              setActiveSlide((prev) => (prev + 1) % banners.length);
+            } else if (distance < -40) {
+              // Swiped right -> prev
+              setActiveSlide((prev) => (prev - 1 + banners.length) % banners.length);
+            }
+          }}
+        >
+          {currentBanner.hide_text_overlay ? (
+            /* Clean Mobile Graphic Banner (No Text Overlay) */
+            <Link
+              href={currentBanner.cta_link || "/products"}
+              onClick={() => trackBannerClick(currentBanner.id)}
+              className="relative h-48 rounded-3xl overflow-hidden block shadow-xl border border-white/10 group cursor-pointer transition-transform duration-300 active:scale-[0.99]"
+            >
               <Image
-                src={currentBanner.image_url}
+                src={currentBanner.mobile_image_url || currentBanner.image_url}
                 alt={currentBanner.title}
                 fill
-                className="object-contain drop-shadow-2xl"
-                sizes="(max-width: 640px) 140px, 200px"
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                sizes="100vw"
                 priority
               />
+              {/* Subtle floating explore pill */}
+              <div className="absolute bottom-3 right-3 z-10 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/75 backdrop-blur-md text-white text-[10px] font-bold border border-white/20 shadow-lg">
+                <span>Explore</span>
+                <ArrowRight className="w-3 h-3 text-[#FF8A24]" />
+              </div>
+            </Link>
+          ) : (
+            /* Mobile Hero Card with Text Overlay */
+            <div className="relative h-44 rounded-3xl overflow-hidden bg-[#141414] border border-white/10 p-5 flex items-center justify-between shadow-xl">
+              {/* Glowing Orange Curved Edge on Right */}
+              <div className="absolute -right-10 -top-10 w-48 h-48 rounded-full bg-gradient-to-br from-[#F26A00] to-[#FF8A24] opacity-75 blur-2xl pointer-events-none" />
+              <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-transparent to-[#141414] z-10 pointer-events-none" />
+
+              {/* Left Hero Text & CTA */}
+              <div className="relative z-20 max-w-[170px] space-y-1.5">
+                <h2 className="text-xl font-black text-white leading-tight tracking-tight drop-shadow-sm">
+                  {currentBanner.title}
+                </h2>
+                <p className="text-xs font-semibold text-gray-300">
+                  {currentBanner.badge || "Up to 20% OFF"}
+                </p>
+                <div className="pt-1">
+                  <Link
+                    href={currentBanner.cta_link || "/products?category=smartphones"}
+                    onClick={() => trackBannerClick(currentBanner.id)}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-gradient-to-r from-[#F26A00] to-[#FF8A24] text-white text-xs font-black shadow-md shadow-orange-600/40 active:scale-95 transition"
+                  >
+                    <span>{currentBanner.cta_text || "Shop Now"}</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </Link>
+                </div>
+              </div>
+
+              {/* Right Hero Image */}
+              <div className="relative z-10 w-32 h-36 shrink-0">
+                <Image
+                  src={currentBanner.mobile_image_url || currentBanner.image_url}
+                  alt={currentBanner.title}
+                  fill
+                  className="object-contain drop-shadow-2xl"
+                  sizes="(max-width: 640px) 140px, 200px"
+                  priority
+                />
+              </div>
             </div>
-          </div>
-        )}
+          )}
+
+          {/* Mobile Swipe Indicators & Pagination Dots */}
+          {banners.length > 1 && (
+            <div className="flex items-center justify-center gap-1.5 pt-2.5">
+              {banners.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setActiveSlide(idx)}
+                  className={`transition-all duration-300 rounded-full ${
+                    idx === activeSlide
+                      ? "w-6 h-1.5 bg-[#F26A00]"
+                      : "w-1.5 h-1.5 bg-gray-300 hover:bg-gray-400"
+                  }`}
+                  aria-label={`Slide ${idx + 1}`}
+                />
+              ))}
+            </div>
+          )}
+        </div>
 
         {/* Desktop 16:9 Widescreen Showcase Slider */}
         <div className="hidden sm:block relative w-full aspect-[21/9] lg:aspect-[16/9] min-h-[460px] max-h-[640px] rounded-3xl overflow-hidden shadow-2xl bg-[#171717] group">
@@ -451,6 +495,7 @@ export default function HomePage() {
             /* Clean Banner Mode: Entire Image is a Clickable Link */
             <Link
               href={currentBanner.cta_link || "/products"}
+              onClick={() => trackBannerClick(currentBanner.id)}
               className="absolute inset-0 block cursor-pointer z-0"
               title={`View ${currentBanner.title}`}
             >
@@ -532,6 +577,7 @@ export default function HomePage() {
                 <div className="flex flex-wrap items-center gap-3 pt-2">
                   <Link
                     href={currentBanner.cta_link}
+                    onClick={() => trackBannerClick(currentBanner.id)}
                     className="px-7 py-3.5 rounded-full bg-gradient-to-r from-[#F26A00] to-[#FF8A24] hover:from-[#d95e00] hover:to-[#F26A00] text-white font-black text-xs sm:text-sm shadow-xl shadow-orange-600/40 flex items-center gap-2 transition active:scale-95"
                   >
                     <span>{currentBanner.cta_text}</span>
@@ -541,6 +587,7 @@ export default function HomePage() {
                   {currentBanner.secondary_cta_text && (
                     <Link
                       href={currentBanner.secondary_cta_link || "/products"}
+                      onClick={() => trackBannerClick(currentBanner.id)}
                       className="px-6 py-3.5 rounded-full bg-white/15 hover:bg-white/25 backdrop-blur-md text-white border border-white/25 font-bold text-xs sm:text-sm transition"
                     >
                       {currentBanner.secondary_cta_text}

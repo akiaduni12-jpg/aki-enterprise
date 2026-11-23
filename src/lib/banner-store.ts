@@ -145,3 +145,21 @@ export function deleteBanner(id: string): HeroBanner[] {
 
   return updated;
 }
+
+export function trackBannerClick(id: string): void {
+  if (typeof window === "undefined" || !id) return;
+
+  const current = getStoredBanners();
+  const updated = current.map((b) =>
+    b.id === id ? { ...b, clicks_count: (b.clicks_count || 0) + 1 } : b
+  );
+  try {
+    localStorage.setItem(BANNERS_STORAGE_KEY, JSON.stringify(updated));
+  } catch {}
+
+  fetch("/api/banners", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id, action: "click" }),
+  }).catch(() => {});
+}

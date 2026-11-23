@@ -33,6 +33,7 @@ import {
   Edit3,
   Loader2,
   Cloud,
+  MousePointerClick,
 } from "lucide-react";
 
 const SAMPLE_16_9_PRESETS = [
@@ -80,11 +81,13 @@ export default function AdminBannersPage() {
   const [secondaryCtaText, setSecondaryCtaText] = useState("Explore Deals");
   const [secondaryCtaLink, setSecondaryCtaLink] = useState("/products?featured=true");
   const [imageUrl, setImageUrl] = useState(SAMPLE_16_9_PRESETS[0].url);
+  const [mobileImageUrl, setMobileImageUrl] = useState("");
   const [accentColor, setAccentColor] = useState("#F26A00");
   const [displayOrder, setDisplayOrder] = useState(1);
   const [isActive, setIsActive] = useState(true);
   const [hideTextOverlay, setHideTextOverlay] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isUploadingMobile, setIsUploadingMobile] = useState(false);
 
   useEffect(() => {
     setBanners(getStoredBanners());
@@ -143,6 +146,40 @@ export default function AdminBannersPage() {
     }
   };
 
+  const handleMobileFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingMobile(true);
+    showNotification("Uploading mobile banner to CDN...");
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("folder", "aki_enterprise/banners_mobile");
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error("Upload failed");
+      const data = await res.json();
+      setMobileImageUrl(data.url);
+      showNotification("Mobile banner uploaded successfully!");
+    } catch (err: any) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setMobileImageUrl(reader.result as string);
+        showNotification("Mobile banner image loaded!");
+      };
+      reader.readAsDataURL(file);
+    } finally {
+      setIsUploadingMobile(false);
+      e.target.value = "";
+    }
+  };
+
   const handleToggle = (id: string) => {
     const updated = toggleBannerStatus(id);
     setBanners(updated);
@@ -167,6 +204,7 @@ export default function AdminBannersPage() {
     setSecondaryCtaText("Explore Deals");
     setSecondaryCtaLink("/products?featured=true");
     setImageUrl(SAMPLE_16_9_PRESETS[0].url);
+    setMobileImageUrl("");
     setAccentColor("#F26A00");
     setDisplayOrder(banners.length + 1);
     setIsActive(true);
@@ -184,6 +222,7 @@ export default function AdminBannersPage() {
     setSecondaryCtaText(b.secondary_cta_text || "");
     setSecondaryCtaLink(b.secondary_cta_link || "");
     setImageUrl(b.image_url);
+    setMobileImageUrl(b.mobile_image_url || "");
     setAccentColor(b.accent_color || "#F26A00");
     setDisplayOrder(b.display_order);
     setIsActive(b.is_active);
@@ -208,6 +247,7 @@ export default function AdminBannersPage() {
         secondary_cta_text: secondaryCtaText,
         secondary_cta_link: secondaryCtaLink,
         image_url: imageUrl,
+        mobile_image_url: mobileImageUrl.trim() || undefined,
         accent_color: accentColor,
         display_order: Number(displayOrder),
         is_active: isActive,
@@ -224,6 +264,7 @@ export default function AdminBannersPage() {
         secondary_cta_text: secondaryCtaText,
         secondary_cta_link: secondaryCtaLink,
         image_url: imageUrl,
+        mobile_image_url: mobileImageUrl.trim() || undefined,
         accent_color: accentColor,
         display_order: Number(displayOrder),
         is_active: isActive,
@@ -460,6 +501,7 @@ export default function AdminBannersPage() {
                 <th className="py-3 px-4">Banner Preview (16:9)</th>
                 <th className="py-3 px-4">Headline &amp; Badge</th>
                 <th className="py-3 px-4">CTA Routes</th>
+                <th className="py-3 px-4">Clicks / Taps</th>
                 <th className="py-3 px-4">Public Status</th>
                 <th className="py-3 px-4 text-right">Actions</th>
               </tr>
@@ -489,7 +531,7 @@ export default function AdminBannersPage() {
 
                   {/* Title & Badge */}
                   <td className="py-3 px-4 max-w-xs">
-                    <div className="flex items-center gap-2 mb-1">
+                    <div className="flex flex-wrap items-center gap-1.5 mb-1">
                       <span className="text-[10px] font-bold text-[#FF8A24] uppercase tracking-wider">
                         {b.badge}
                       </span>
@@ -500,6 +542,11 @@ export default function AdminBannersPage() {
                       ) : (
                         <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-500/15 text-blue-400 border border-blue-500/30">
                           Text Overlay
+                        </span>
+                      )}
+                      {b.mobile_image_url && (
+                        <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-purple-500/15 text-purple-300 border border-purple-500/30">
+                          Mobile Graphic
                         </span>
                       )}
                     </div>
@@ -513,6 +560,15 @@ export default function AdminBannersPage() {
                   <td className="py-3 px-4">
                     <span className="font-bold text-white">{b.cta_text}</span>
                     <span className="text-[10px] text-gray-500 block font-mono">{b.cta_link}</span>
+                  </td>
+
+                  {/* Clicks / Taps Metric */}
+                  <td className="py-3 px-4">
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-900 border border-slate-800 text-white font-bold">
+                      <MousePointerClick className="w-3.5 h-3.5 text-[#FF8A24]" />
+                      <span className="text-xs">{b.clicks_count || 0}</span>
+                      <span className="text-[10px] text-gray-500 font-normal">taps</span>
+                    </div>
                   </td>
 
                   {/* Status Toggle */}
@@ -671,6 +727,69 @@ export default function AdminBannersPage() {
                     ))}
                   </div>
                 </div>
+              </div>
+
+              {/* Mobile Banner Image (Optional) */}
+              <div className="p-4 rounded-2xl bg-slate-900 border border-slate-700/80 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-white block">Mobile Banner Graphic (Optional)</span>
+                      <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                        Smartphones Only
+                      </span>
+                    </div>
+                    <span className="text-[11px] text-gray-400 block mt-1 leading-relaxed">
+                      Upload an optional portrait or square graphic designed for small phone screens (e.g. 4:3 ratio with larger readable fonts). If left blank, phones will automatically display the 16:9 banner image above.
+                    </span>
+                  </div>
+                  {mobileImageUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setMobileImageUrl("")}
+                      className="text-xs text-rose-400 hover:text-rose-300 font-semibold cursor-pointer shrink-0"
+                    >
+                      Clear Mobile
+                    </button>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-center pt-1">
+                  <input
+                    type="text"
+                    placeholder="https://... or upload a phone graphic"
+                    value={mobileImageUrl}
+                    onChange={(e) => setMobileImageUrl(e.target.value)}
+                    className="sm:col-span-2 px-3 py-2 text-xs bg-slate-950 border border-slate-700 rounded-xl text-white font-mono"
+                  />
+
+                  <label className="flex items-center justify-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold cursor-pointer border border-slate-700 transition">
+                    {isUploadingMobile ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin text-orange-400" />
+                        <span>Uploading...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-3.5 h-3.5 text-orange-400" />
+                        <span>Upload Mobile</span>
+                      </>
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleMobileFileUpload}
+                      className="hidden"
+                      disabled={isUploadingMobile}
+                    />
+                  </label>
+                </div>
+
+                {mobileImageUrl && (
+                  <div className="relative w-28 h-20 rounded-xl overflow-hidden border border-slate-700 bg-slate-950">
+                    <Image src={mobileImageUrl} alt="Mobile banner preview" fill className="object-cover" />
+                  </div>
+                )}
               </div>
 
               {/* Clean Banner Toggle (No Text Overlay) */}
