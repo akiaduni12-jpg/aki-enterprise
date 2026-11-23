@@ -11,12 +11,13 @@ interface ProductsPageProps {
     condition?: string;
     search?: string;
     featured?: string;
+    best_seller?: string;
   }>;
 }
 
 async function ProductsList({ searchParams }: ProductsPageProps) {
   const resolvedParams = await searchParams;
-  const { category, brand, condition, search, featured } = resolvedParams;
+  const { category, brand, condition, search, featured, best_seller } = resolvedParams;
 
   const [allProducts, allCategories, allBrands] = await Promise.all([
     getProducts(),
@@ -42,6 +43,10 @@ async function ProductsList({ searchParams }: ProductsPageProps) {
 
   if (featured === "true") {
     filtered = filtered.filter((p) => p.featured);
+  }
+
+  if (best_seller === "true") {
+    filtered = filtered.filter((p) => p.best_seller);
   }
 
   if (search) {
@@ -89,9 +94,13 @@ async function ProductsList({ searchParams }: ProductsPageProps) {
           <h1 className="text-base font-black text-slate-900 tracking-tight truncate">
             {search
               ? `Results: "${search}"`
-              : currentCategory
-                ? currentCategory.name
-                : activeBrandName || "Smartphones"}
+              : best_seller === "true"
+                ? "Best Sellers"
+                : featured === "true"
+                  ? "Featured Deals"
+                  : currentCategory
+                    ? currentCategory.name
+                    : activeBrandName || "Smartphones"}
           </h1>
         </Link>
 
@@ -166,11 +175,15 @@ async function ProductsList({ searchParams }: ProductsPageProps) {
             <h1 className="text-2xl sm:text-3xl font-black text-slate-900">
               {search
                 ? `Search results for "${search}"`
-                : currentCategory
-                  ? currentCategory.name
-                  : activeBrandName
-                    ? `${activeBrandName} Devices`
-                    : "All Electronics & Gadgets"}
+                : best_seller === "true"
+                  ? "Best Selling Products"
+                  : featured === "true"
+                    ? "Featured Deals & Offers"
+                    : currentCategory
+                      ? currentCategory.name
+                      : activeBrandName
+                        ? `${activeBrandName} Devices`
+                        : "All Electronics & Gadgets"}
             </h1>
             <p className="text-xs sm:text-sm text-gray-500 mt-1">
               Showing {filtered.length} {filtered.length === 1 ? "product" : "products"} available for pickup &amp; delivery in Ghana

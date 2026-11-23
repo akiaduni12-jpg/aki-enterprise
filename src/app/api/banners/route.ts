@@ -48,6 +48,7 @@ export async function POST(request: NextRequest) {
         secondary_cta_link: bannerData.secondary_cta_link || null,
         display_order: bannerData.display_order || 1,
         is_active: bannerData.is_active !== false,
+        hide_text_overlay: bannerData.hide_text_overlay === true,
         updated_at: new Date().toISOString(),
       })
       .select()

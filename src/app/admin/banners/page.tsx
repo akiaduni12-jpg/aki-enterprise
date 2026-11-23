@@ -83,6 +83,7 @@ export default function AdminBannersPage() {
   const [accentColor, setAccentColor] = useState("#F26A00");
   const [displayOrder, setDisplayOrder] = useState(1);
   const [isActive, setIsActive] = useState(true);
+  const [hideTextOverlay, setHideTextOverlay] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
@@ -169,6 +170,7 @@ export default function AdminBannersPage() {
     setAccentColor("#F26A00");
     setDisplayOrder(banners.length + 1);
     setIsActive(true);
+    setHideTextOverlay(false);
     setIsModalOpen(true);
   };
 
@@ -185,6 +187,7 @@ export default function AdminBannersPage() {
     setAccentColor(b.accent_color || "#F26A00");
     setDisplayOrder(b.display_order);
     setIsActive(b.is_active);
+    setHideTextOverlay(b.hide_text_overlay || false);
     setIsModalOpen(true);
   };
 
@@ -208,6 +211,7 @@ export default function AdminBannersPage() {
         accent_color: accentColor,
         display_order: Number(displayOrder),
         is_active: isActive,
+        hide_text_overlay: hideTextOverlay,
       });
       showNotification("Hero Banner updated successfully!");
     } else {
@@ -223,6 +227,7 @@ export default function AdminBannersPage() {
         accent_color: accentColor,
         display_order: Number(displayOrder),
         is_active: isActive,
+        hide_text_overlay: hideTextOverlay,
       });
       showNotification("New 16:9 Hero Banner published to storefront!");
     }
@@ -345,62 +350,86 @@ export default function AdminBannersPage() {
                   priority
                 />
 
-                {/* Cinematic Gradient Scrim Overlay for Crystal-Clear Text Contrast */}
-                <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/55 to-black/20" />
-                <div
-                  className="absolute -top-24 -left-24 w-96 h-96 rounded-full blur-3xl opacity-30 pointer-events-none"
-                  style={{ backgroundColor: previewBanner.accent_color || "#F26A00" }}
-                />
-
-                {/* Overlay Text & Controls */}
-                <div className="absolute inset-0 p-6 sm:p-10 flex flex-col justify-between">
-                  {/* Top Badge */}
-                  <div className="flex items-center justify-between">
-                    <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-[#FF8A24] text-[10px] sm:text-xs font-black tracking-wide">
-                      <span className="w-2 h-2 rounded-full bg-[#FF8A24]" />
-                      <span>{previewBanner.badge}</span>
-                    </span>
-
-                    <span className="px-2.5 py-0.5 rounded-full bg-black/60 text-white/80 text-[10px] font-mono border border-white/10">
-                      16:9 High-Res Mode
-                    </span>
-                  </div>
-
-                  {/* Headline & Body */}
-                  <div className="max-w-lg space-y-2.5 sm:space-y-3">
-                    <h2 className="text-xl sm:text-3xl md:text-4xl font-black text-white tracking-tight leading-tight drop-shadow-md">
-                      {previewBanner.title}
-                    </h2>
-                    <p className="text-xs sm:text-sm text-gray-200 line-clamp-2 sm:line-clamp-3 leading-relaxed max-w-md drop-shadow-sm">
-                      {previewBanner.subtitle}
-                    </p>
-
-                    {/* CTA Buttons */}
-                    <div className="flex flex-wrap items-center gap-2.5 pt-2">
-                      <span className="px-5 py-2.5 rounded-full bg-gradient-to-r from-[#F26A00] to-[#FF8A24] text-white font-bold text-xs shadow-lg shadow-orange-600/40 flex items-center gap-1.5">
-                        <span>{previewBanner.cta_text}</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
+                {previewBanner.hide_text_overlay ? (
+                  /* Clean Graphic Banner Mode (No Scrim, No Text) */
+                  <div className="absolute inset-0 p-4 sm:p-6 flex flex-col justify-between pointer-events-none">
+                    <div className="flex items-center justify-between">
+                      <span className="px-3 py-1 rounded-full bg-black/75 backdrop-blur-md text-amber-300 border border-amber-500/40 text-[10px] sm:text-xs font-bold flex items-center gap-1.5 shadow-lg">
+                        <span className="w-2 h-2 rounded-full bg-amber-400" />
+                        <span>Clean Graphic Banner (No Text Overlay)</span>
                       </span>
-                      {previewBanner.secondary_cta_text && (
-                        <span className="px-4 py-2.5 rounded-full bg-white/15 backdrop-blur-md text-white border border-white/25 font-bold text-xs">
-                          {previewBanner.secondary_cta_text}
-                        </span>
-                      )}
+                      <span className="px-2.5 py-0.5 rounded-full bg-black/60 text-white/80 text-[10px] font-mono border border-white/10">
+                        Links to: {previewBanner.cta_link}
+                      </span>
                     </div>
-                  </div>
 
-                  {/* Bottom Pagination Simulator */}
-                  <div className="flex items-center justify-between pt-2">
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-7 h-1.5 rounded-full bg-[#F26A00]" />
-                      <span className="w-2 h-1.5 rounded-full bg-white/40" />
-                      <span className="w-2 h-1.5 rounded-full bg-white/40" />
+                    <div className="flex items-center justify-between bg-black/60 backdrop-blur-md px-3.5 py-2 rounded-xl border border-white/10 w-fit self-end">
+                      <span className="text-[10px] text-gray-200">
+                        Customers click anywhere on the banner to open <code className="text-[#FF8A24] font-mono">{previewBanner.cta_link}</code>
+                      </span>
                     </div>
-                    <span className="text-[10px] text-gray-300 font-mono">
-                      Aki Enterprise • 16:9 Showcase
-                    </span>
                   </div>
-                </div>
+                ) : (
+                  /* Standard Mode with Scrim & Text Overlay */
+                  <>
+                    {/* Cinematic Gradient Scrim Overlay for Crystal-Clear Text Contrast */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/55 to-black/20" />
+                    <div
+                      className="absolute -top-24 -left-24 w-96 h-96 rounded-full blur-3xl opacity-30 pointer-events-none"
+                      style={{ backgroundColor: previewBanner.accent_color || "#F26A00" }}
+                    />
+
+                    {/* Overlay Text & Controls */}
+                    <div className="absolute inset-0 p-6 sm:p-10 flex flex-col justify-between">
+                      {/* Top Badge */}
+                      <div className="flex items-center justify-between">
+                        <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-[#FF8A24] text-[10px] sm:text-xs font-black tracking-wide">
+                          <span className="w-2 h-2 rounded-full bg-[#FF8A24]" />
+                          <span>{previewBanner.badge}</span>
+                        </span>
+
+                        <span className="px-2.5 py-0.5 rounded-full bg-black/60 text-white/80 text-[10px] font-mono border border-white/10">
+                          16:9 High-Res Mode
+                        </span>
+                      </div>
+
+                      {/* Headline & Body */}
+                      <div className="max-w-lg space-y-2.5 sm:space-y-3">
+                        <h2 className="text-xl sm:text-3xl md:text-4xl font-black text-white tracking-tight leading-tight drop-shadow-md">
+                          {previewBanner.title}
+                        </h2>
+                        <p className="text-xs sm:text-sm text-gray-200 line-clamp-2 sm:line-clamp-3 leading-relaxed max-w-md drop-shadow-sm">
+                          {previewBanner.subtitle}
+                        </p>
+
+                        {/* CTA Buttons */}
+                        <div className="flex flex-wrap items-center gap-2.5 pt-2">
+                          <span className="px-5 py-2.5 rounded-full bg-gradient-to-r from-[#F26A00] to-[#FF8A24] text-white font-bold text-xs shadow-lg shadow-orange-600/40 flex items-center gap-1.5">
+                            <span>{previewBanner.cta_text}</span>
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </span>
+                          {previewBanner.secondary_cta_text && (
+                            <span className="px-4 py-2.5 rounded-full bg-white/15 backdrop-blur-md text-white border border-white/25 font-bold text-xs">
+                              {previewBanner.secondary_cta_text}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Bottom Pagination Simulator */}
+                      <div className="flex items-center justify-between pt-2">
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-7 h-1.5 rounded-full bg-[#F26A00]" />
+                          <span className="w-2 h-1.5 rounded-full bg-white/40" />
+                          <span className="w-2 h-1.5 rounded-full bg-white/40" />
+                        </div>
+                        <span className="text-[10px] text-gray-300 font-mono">
+                          Aki Enterprise • 16:9 Showcase
+                        </span>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -460,11 +489,24 @@ export default function AdminBannersPage() {
 
                   {/* Title & Badge */}
                   <td className="py-3 px-4 max-w-xs">
-                    <span className="text-[10px] font-bold text-[#FF8A24] uppercase tracking-wider block">
-                      {b.badge}
-                    </span>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-[10px] font-bold text-[#FF8A24] uppercase tracking-wider">
+                        {b.badge}
+                      </span>
+                      {b.hide_text_overlay ? (
+                        <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                          Clean (No Overlay)
+                        </span>
+                      ) : (
+                        <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-500/15 text-blue-400 border border-blue-500/30">
+                          Text Overlay
+                        </span>
+                      )}
+                    </div>
                     <p className="font-bold text-white line-clamp-1 text-sm">{b.title}</p>
-                    <p className="text-[11px] text-gray-400 line-clamp-1 mt-0.5">{b.subtitle}</p>
+                    <p className="text-[11px] text-gray-400 line-clamp-1 mt-0.5">
+                      {b.hide_text_overlay ? `Clean image banner linking to ${b.cta_link}` : b.subtitle}
+                    </p>
                   </td>
 
                   {/* CTA Details */}
@@ -631,16 +673,39 @@ export default function AdminBannersPage() {
                 </div>
               </div>
 
+              {/* Clean Banner Toggle (No Text Overlay) */}
+              <div className="p-4 rounded-2xl bg-slate-900 border border-slate-700/80 space-y-2">
+                <label className="flex items-start justify-between gap-4 cursor-pointer">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-white block">Post Banner Without Text Overlay</span>
+                      <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                        Graphic Banner Mode
+                      </span>
+                    </div>
+                    <span className="text-[11px] text-gray-400 block mt-1 leading-relaxed">
+                      Enable this if your image already has graphics, product photos, prices, or typography designed into it (e.g. Canva or Photoshop promotional banners). The website will display the pure banner image edge-to-edge without dark gradients, headlines, or HTML buttons. Clicking anywhere on the banner will open your Primary Destination Link.
+                    </span>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={hideTextOverlay}
+                    onChange={(e) => setHideTextOverlay(e.target.checked)}
+                    className="mt-1 w-5 h-5 rounded border-slate-600 text-orange-500 focus:ring-orange-500 cursor-pointer accent-[#F26A00]"
+                  />
+                </label>
+              </div>
+
               {/* Title & Badge */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs font-bold text-gray-300 block mb-1">
-                    Banner Headline *
+                    {hideTextOverlay ? "Banner Label / Alt Text (Internal) *" : "Banner Headline *"}
                   </label>
                   <input
                     type="text"
                     required
-                    placeholder="e.g. The Latest Technology. Better Prices."
+                    placeholder={hideTextOverlay ? "e.g. Mid-Season Promo Banner" : "e.g. The Latest Technology. Better Prices."}
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     className="w-full px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500"
@@ -649,14 +714,15 @@ export default function AdminBannersPage() {
 
                 <div>
                   <label className="text-xs font-bold text-gray-300 block mb-1">
-                    Top Pill Badge
+                    Top Pill Badge {hideTextOverlay && <span className="text-gray-500 font-normal">(Hidden in clean mode)</span>}
                   </label>
                   <input
                     type="text"
+                    disabled={hideTextOverlay}
                     placeholder="e.g. Premium Electronics • Aki Enterprise"
                     value={badge}
                     onChange={(e) => setBadge(e.target.value)}
-                    className="w-full px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500"
+                    className={`w-full px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500 ${hideTextOverlay ? "opacity-50 cursor-not-allowed" : ""}`}
                   />
                 </div>
               </div>
@@ -664,14 +730,15 @@ export default function AdminBannersPage() {
               {/* Subtitle */}
               <div>
                 <label className="text-xs font-bold text-gray-300 block mb-1">
-                  Subtitle Description
+                  Subtitle Description {hideTextOverlay && <span className="text-gray-500 font-normal">(Hidden in clean mode)</span>}
                 </label>
                 <textarea
                   rows={2}
+                  disabled={hideTextOverlay}
                   value={subtitle}
                   onChange={(e) => setSubtitle(e.target.value)}
                   placeholder="Supporting promotional text, guarantee details, or delivery highlights..."
-                  className="w-full px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500 resize-none"
+                  className={`w-full px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500 resize-none ${hideTextOverlay ? "opacity-50 cursor-not-allowed" : ""}`}
                 />
               </div>
 
@@ -679,44 +746,48 @@ export default function AdminBannersPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-gray-300 block">
-                    Primary CTA (Button Text &amp; URL)
+                    {hideTextOverlay ? "Destination URL (Where banner clicks take the customer) *" : "Primary CTA (Button Text & URL)"}
                   </label>
                   <div className="grid grid-cols-2 gap-2">
                     <input
                       type="text"
+                      disabled={hideTextOverlay}
                       placeholder="Shop Now"
                       value={ctaText}
                       onChange={(e) => setCtaText(e.target.value)}
-                      className="px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500"
+                      className={`px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500 ${hideTextOverlay ? "opacity-50 cursor-not-allowed" : ""}`}
                     />
                     <input
                       type="text"
+                      required
                       placeholder="/products?category=smartphones"
                       value={ctaLink}
                       onChange={(e) => setCtaLink(e.target.value)}
-                      className="px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500 font-mono"
+                      className={`px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500 font-mono ${hideTextOverlay ? "col-span-2" : ""}`}
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-gray-300 block">
-                    Secondary CTA (Optional)
+                    Secondary CTA {hideTextOverlay ? <span className="text-gray-500 font-normal">(Disabled in clean mode)</span> : "(Optional)"}
                   </label>
                   <div className="grid grid-cols-2 gap-2">
                     <input
                       type="text"
+                      disabled={hideTextOverlay}
                       placeholder="Explore Deals"
                       value={secondaryCtaText}
                       onChange={(e) => setSecondaryCtaText(e.target.value)}
-                      className="px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500"
+                      className={`px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500 ${hideTextOverlay ? "opacity-50 cursor-not-allowed" : ""}`}
                     />
                     <input
                       type="text"
+                      disabled={hideTextOverlay}
                       placeholder="/products?featured=true"
                       value={secondaryCtaLink}
                       onChange={(e) => setSecondaryCtaLink(e.target.value)}
-                      className="px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500 font-mono"
+                      className={`px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500 font-mono ${hideTextOverlay ? "opacity-50 cursor-not-allowed" : ""}`}
                     />
                   </div>
                 </div>

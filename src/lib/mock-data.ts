@@ -965,7 +965,7 @@ export const INITIAL_HERO_BANNERS: HeroBanner[] = [
     cta_link: "/products?category=smartphones",
     secondary_cta_text: "Explore Deals",
     secondary_cta_link: "/products?featured=true",
-    image_url: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=1920&q=80",
+    image_url: "/banners/aki-hero-flagship.jpg",
     accent_color: "#F26A00",
     display_order: 1,
     is_active: true,

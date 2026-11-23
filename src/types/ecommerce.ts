@@ -146,5 +146,6 @@ export interface HeroBanner {
   accent_color?: string; // e.g. "#F26A00", "#3B82F6", "#10B981"
   display_order: number;
   is_active: boolean;
+  hide_text_overlay?: boolean; // When true: renders clean banner image without dark gradient or HTML text
   created_at: string;
 }
