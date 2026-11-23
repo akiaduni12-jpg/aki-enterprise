@@ -501,7 +501,7 @@ export default function HomePage() {
 
           {/* Overlay Content */}
           <div className={`absolute inset-0 p-6 sm:p-12 lg:p-16 flex flex-col justify-between z-10 ${currentBanner.hide_text_overlay ? "pointer-events-none" : ""}`}>
-            {/* Top Row: Pill Badge & 16:9 Indicator */}
+            {/* Top Row: Pill Badge */}
             <div className="flex items-center justify-between">
               {!currentBanner.hide_text_overlay ? (
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-[#FF8A24] text-xs font-black tracking-wide shadow-lg pointer-events-auto">
@@ -511,11 +511,6 @@ export default function HomePage() {
               ) : (
                 <div />
               )}
-
-              <div className="flex items-center gap-2 text-[11px] font-mono text-white/90 bg-black/75 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20 shadow-lg pointer-events-auto">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span>Slide {String((activeSlide % banners.length) + 1).padStart(2, "0")} / {String(banners.length).padStart(2, "0")}</span>
-              </div>
             </div>
 
             {/* Middle: Headline, Subtitle & Action Buttons (Hidden when clean banner mode) */}
