@@ -7,7 +7,8 @@ import { Product } from "@/types/ecommerce";
 import { formatGHS, getConditionBadge } from "@/lib/utils";
 import { useCart } from "@/context/cart-context";
 import { toggleWishlist, isItemInWishlist } from "@/lib/customer-store";
-import { ShieldCheck, Plus, BatteryCharging, Heart, ShoppingBag, Check } from "lucide-react";
+import { ShieldCheck, Plus, BatteryCharging, Heart, ShoppingBag, Check, Eye } from "lucide-react";
+import { QuickViewModal } from "@/components/quick-view-modal";
 
 interface ProductCardProps {
   product: Product;
@@ -18,6 +19,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const [isLiked, setIsLiked] = React.useState(false);
   const [isHeartPopping, setIsHeartPopping] = React.useState(false);
   const [isJustAdded, setIsJustAdded] = React.useState(false);
+  const [isQuickViewOpen, setIsQuickViewOpen] = React.useState(false);
 
   React.useEffect(() => {
     setIsLiked(isItemInWishlist(product.id));
@@ -81,19 +83,37 @@ export function ProductCard({ product }: ProductCardProps) {
         </button>
       </div>
 
-      {/* Product Image */}
-      <Link
-        href={`/product/${product.slug}`}
-        className="relative w-full aspect-4/3 bg-gray-50 overflow-hidden"
-      >
-        <Image
-          src={product.images[0] || "/placeholder.png"}
-          alt={product.title}
-          fill
-          className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-        />
-      </Link>
+      {/* Product Image with Quick View Trigger */}
+      <div className="relative w-full aspect-4/3 bg-gray-50 overflow-hidden">
+        <Link
+          href={`/product/${product.slug}`}
+          className="absolute inset-0 block cursor-pointer"
+        >
+          <Image
+            src={product.images[0] || "/placeholder.png"}
+            alt={product.title}
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          />
+        </Link>
+
+        {/* Desktop Quick View Button on Hover */}
+        <div className="hidden sm:flex absolute inset-0 items-center justify-center pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsQuickViewOpen(true);
+            }}
+            className="pointer-events-auto px-3.5 py-1.5 rounded-full bg-black/80 hover:bg-black text-white text-xs font-bold backdrop-blur-md shadow-lg flex items-center gap-1.5 transform translate-y-2 group-hover:translate-y-0 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
+          >
+            <Eye className="w-3.5 h-3.5 text-[#FF8A24]" />
+            <span>Quick View</span>
+          </button>
+        </div>
+      </div>
 
       {/* Content */}
       <div className="p-4 flex-1 flex flex-col justify-between">
@@ -174,6 +194,13 @@ export function ProductCard({ product }: ProductCardProps) {
           </div>
         </div>
       </div>
+
+      {/* Desktop Quick View Modal */}
+      <QuickViewModal
+        product={product}
+        isOpen={isQuickViewOpen}
+        onClose={() => setIsQuickViewOpen(false)}
+      />
     </div>
   );
 }

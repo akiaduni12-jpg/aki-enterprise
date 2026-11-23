@@ -285,7 +285,7 @@ export function Navbar() {
 
             {/* Wishlist with Dynamic Notification Badge */}
             <Link
-              href="/account?tab=favorites"
+              href="/wishlist"
               className="relative hidden sm:flex items-center gap-1.5 text-xs font-semibold text-gray-700 hover:text-[#F26A00] transition"
             >
               <div className="relative w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600">

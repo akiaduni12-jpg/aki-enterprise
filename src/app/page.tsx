@@ -459,20 +459,26 @@ export default function HomePage() {
                 className="w-40 sm:w-auto shrink-0 bg-white rounded-2xl border border-gray-100 p-3 shadow-2xs hover:shadow-lg hover:border-orange-200 transition flex flex-col justify-between"
               >
                 <div>
-                  <div className="relative w-full aspect-square rounded-xl bg-gray-50 overflow-hidden mb-2">
-                    <Image
-                      src={prod.image}
-                      alt={prod.title}
-                      fill
-                      sizes="(max-width: 640px) 160px, (max-width: 1024px) 25vw, 20vw"
-                      className="object-cover"
-                    />
-                    <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded text-[9px] font-black bg-orange-500 text-white shadow-xs">
+                  <div className="relative w-full aspect-square rounded-xl bg-gray-50 overflow-hidden mb-2 group/img">
+                    <Link href={`/product/${prod.slug}`} className="absolute inset-0 block">
+                      <Image
+                        src={prod.image}
+                        alt={prod.title}
+                        fill
+                        sizes="(max-width: 640px) 160px, (max-width: 1024px) 25vw, 20vw"
+                        className="object-cover group-hover/img:scale-105 transition-transform duration-300"
+                      />
+                    </Link>
+                    <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded text-[9px] font-black bg-orange-500 text-white shadow-xs pointer-events-none">
                       {prod.badge}
                     </span>
                     <button
-                      onClick={() => toggleLike(prod.id, (prod as any).productRef?.id)}
-                      className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-white/90 backdrop-blur-xs flex items-center justify-center text-gray-400 hover:text-red-500 shadow-xs active:scale-75 transition"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        toggleLike(prod.id, (prod as any).productRef?.id);
+                      }}
+                      className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-white/90 backdrop-blur-xs flex items-center justify-center text-gray-400 hover:text-red-500 shadow-xs active:scale-75 transition z-10"
                     >
                       <Heart className={`w-3 h-3 ${isLiked ? "fill-red-500 text-red-500" : ""}`} />
                     </button>
