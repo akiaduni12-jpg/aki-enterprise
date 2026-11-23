@@ -401,9 +401,9 @@ export default function HomePage() {
             <Link
               key={idx}
               href={`/products?category=${cat.slug}`}
-              className="group p-2 sm:p-3 bg-white rounded-2xl border border-gray-100 hover:border-orange-200 hover:shadow-lg transition-all duration-300 flex flex-col items-center text-center"
+              className="group p-2 sm:p-3 bg-white rounded-2xl border border-gray-100 hover:border-orange-300 hover:shadow-lg hover:ring-2 hover:ring-orange-500/20 active:scale-95 transition-all duration-300 flex flex-col items-center text-center"
             >
-              <div className="relative w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gray-50 overflow-hidden mb-1.5 sm:mb-2 group-hover:scale-105 transition-transform duration-300">
+              <div className="relative w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gray-50 overflow-hidden mb-1.5 sm:mb-2 group-hover:scale-110 group-hover:shadow-md transition-all duration-300">
                 <Image
                   src={cat.image}
                   alt={cat.name}

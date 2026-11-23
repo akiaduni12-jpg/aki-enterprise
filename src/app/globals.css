@@ -47,7 +47,7 @@ body {
   background: #94a3b8;
 }
 
-/* Abstract Geometric Animation Tokens for TechHub */
+/* Abstract Geometric Animation Tokens for Aki Enterprise */
 @keyframes slow-rotate {
   from {
     transform: rotate(0deg);
@@ -64,6 +64,57 @@ body {
   to {
     width: 100%;
   }
+}
+
+@keyframes heart-pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.38); }
+  75% { transform: scale(0.92); }
+  100% { transform: scale(1); }
+}
+
+@keyframes badge-pop {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.35); }
+  75% { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+
+@keyframes button-sheen {
+  0% { transform: translateX(-120%); }
+  30%, 100% { transform: translateX(250%); }
+}
+
+@keyframes qr-laser-scan {
+  0% { top: 2%; opacity: 0.75; }
+  50% { top: 96%; opacity: 1; }
+  100% { top: 2%; opacity: 0.75; }
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.18); opacity: 0; }
+  100% { transform: scale(0.95); opacity: 0; }
+}
+
+.animate-heart-pop {
+  animation: heart-pop 0.45s cubic-bezier(0.17, 0.89, 0.32, 1.49);
+}
+
+.animate-badge-pop {
+  animation: badge-pop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.49);
+}
+
+.animate-button-sheen {
+  animation: button-sheen 4.2s ease-in-out infinite;
+}
+
+.animate-qr-laser {
+  animation: qr-laser-scan 2.6s ease-in-out infinite;
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 2.4s cubic-bezier(0.24, 0, 0.38, 1) infinite;
 }
 
 

@@ -15,6 +15,18 @@ import {
 export function MobileNavBar() {
   const pathname = usePathname();
   const { itemCount } = useCart();
+  const [badgeBounce, setBadgeBounce] = React.useState(false);
+  const prevCountRef = React.useRef(itemCount);
+
+  // Bounce cart badge whenever new items are added
+  React.useEffect(() => {
+    if (itemCount > prevCountRef.current) {
+      setBadgeBounce(true);
+      const timer = setTimeout(() => setBadgeBounce(false), 500);
+      return () => clearTimeout(timer);
+    }
+    prevCountRef.current = itemCount;
+  }, [itemCount]);
 
   // Hide on admin routes
   if (pathname?.startsWith("/admin")) {
@@ -33,11 +45,11 @@ export function MobileNavBar() {
         {/* 1. Home */}
         <Link
           href="/"
-          className="flex flex-col items-center justify-center gap-0.5 text-center py-1 group"
+          className="flex flex-col items-center justify-center gap-0.5 text-center py-1 group active:scale-90 transition-transform duration-150"
         >
           <Home
-            className={`w-5 h-5 transition-colors ${
-              isHomeActive ? "text-[#F26A00]" : "text-gray-400 group-hover:text-gray-600"
+            className={`w-5 h-5 transition-all duration-300 ${
+              isHomeActive ? "text-[#F26A00] scale-110" : "text-gray-400 group-hover:text-gray-600"
             }`}
           />
           <span
@@ -47,16 +59,19 @@ export function MobileNavBar() {
           >
             Home
           </span>
+          {isHomeActive && (
+            <span className="w-1.5 h-1 rounded-full bg-[#F26A00] animate-in zoom-in-50 duration-200 mt-[-2px]" />
+          )}
         </Link>
 
         {/* 2. Categories */}
         <Link
           href="/categories"
-          className="flex flex-col items-center justify-center gap-0.5 text-center py-1 group"
+          className="flex flex-col items-center justify-center gap-0.5 text-center py-1 group active:scale-90 transition-transform duration-150"
         >
           <LayoutGrid
-            className={`w-5 h-5 transition-colors ${
-              isCategoryActive ? "text-[#F26A00]" : "text-gray-400 group-hover:text-gray-600"
+            className={`w-5 h-5 transition-all duration-300 ${
+              isCategoryActive ? "text-[#F26A00] scale-110" : "text-gray-400 group-hover:text-gray-600"
             }`}
           />
           <span
@@ -66,6 +81,9 @@ export function MobileNavBar() {
           >
             Category
           </span>
+          {isCategoryActive && (
+            <span className="w-1.5 h-1 rounded-full bg-[#F26A00] animate-in zoom-in-50 duration-200 mt-[-2px]" />
+          )}
         </Link>
 
         {/* 3. CENTER HERO BUTTON: Explore / Catalog */}
@@ -95,17 +113,21 @@ export function MobileNavBar() {
         {/* 4. Cart */}
         <Link
           href="/cart"
-          className="flex flex-col items-center justify-center gap-0.5 text-center relative group py-1"
+          className="flex flex-col items-center justify-center gap-0.5 text-center relative group py-1 active:scale-90 transition-transform duration-150"
           aria-label="Open Shopping Cart"
         >
           <div className="relative">
             <ShoppingBag
-              className={`w-5 h-5 transition-colors ${
-                isCartActive ? "text-[#F26A00]" : "text-gray-400 group-hover:text-gray-600"
+              className={`w-5 h-5 transition-all duration-300 ${
+                isCartActive ? "text-[#F26A00] scale-110" : "text-gray-400 group-hover:text-gray-600"
               }`}
             />
             {itemCount > 0 && (
-              <span className="absolute -top-1.5 -right-2 min-w-4 h-4 px-1 rounded-full bg-[#F26A00] text-white text-[9px] font-black flex items-center justify-center shadow-xs">
+              <span
+                className={`absolute -top-1.5 -right-2 min-w-4 h-4 px-1 rounded-full bg-[#F26A00] text-white text-[9px] font-black flex items-center justify-center shadow-xs transition-transform ${
+                  badgeBounce ? "animate-badge-pop" : ""
+                }`}
+              >
                 {itemCount}
               </span>
             )}
@@ -117,16 +139,19 @@ export function MobileNavBar() {
           >
             Cart
           </span>
+          {isCartActive && (
+            <span className="w-1.5 h-1 rounded-full bg-[#F26A00] animate-in zoom-in-50 duration-200 mt-[-2px]" />
+          )}
         </Link>
 
         {/* 5. Account */}
         <Link
           href="/account"
-          className="flex flex-col items-center justify-center gap-0.5 text-center py-1 group"
+          className="flex flex-col items-center justify-center gap-0.5 text-center py-1 group active:scale-90 transition-transform duration-150"
         >
           <User
-            className={`w-5 h-5 transition-colors ${
-              isAccountActive ? "text-[#F26A00]" : "text-gray-400 group-hover:text-gray-600"
+            className={`w-5 h-5 transition-all duration-300 ${
+              isAccountActive ? "text-[#F26A00] scale-110" : "text-gray-400 group-hover:text-gray-600"
             }`}
           />
           <span
@@ -136,6 +161,9 @@ export function MobileNavBar() {
           >
             Account
           </span>
+          {isAccountActive && (
+            <span className="w-1.5 h-1 rounded-full bg-[#F26A00] animate-in zoom-in-50 duration-200 mt-[-2px]" />
+          )}
         </Link>
       </div>
     </nav>

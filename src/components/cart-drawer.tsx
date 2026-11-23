@@ -9,6 +9,15 @@ import { X, Plus, Minus, Trash2, ShoppingBag, ArrowRight } from "lucide-react";
 
 export function CartDrawer() {
   const { cart, removeFromCart, updateQuantity, isCartOpen, setIsCartOpen, subtotal, itemCount } = useCart();
+  const [removingId, setRemovingId] = React.useState<string | null>(null);
+
+  const handleSmoothRemove = (variantId: string) => {
+    setRemovingId(variantId);
+    setTimeout(() => {
+      removeFromCart(variantId);
+      setRemovingId(null);
+    }, 250);
+  };
 
   if (!isCartOpen) return null;
 
@@ -21,7 +30,7 @@ export function CartDrawer() {
       />
 
       {/* Drawer */}
-      <div className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col z-10 animate-in slide-in-from-right duration-300">
+      <div className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col z-10 animate-in slide-in-from-right duration-400 ease-[cubic-bezier(0.16,1,0.3,1)]">
         {/* Header */}
         <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-slate-900 text-white">
           <div className="flex items-center gap-2">
@@ -56,10 +65,16 @@ export function CartDrawer() {
           ) : (
             cart.map((item) => {
               const conditionBadge = getConditionBadge(item.selected_variant.condition);
+              const isRemoving = removingId === item.variant_id;
+
               return (
                 <div
                   key={item.variant_id}
-                  className="flex gap-3 p-3 rounded-xl border border-gray-100 bg-gray-50/50 hover:bg-white hover:shadow-xs transition"
+                  className={`flex gap-3 p-3 rounded-xl border border-gray-100 bg-gray-50/50 hover:bg-white hover:shadow-xs transition-all duration-250 ${
+                    isRemoving
+                      ? "opacity-0 translate-x-6 scale-95 pointer-events-none"
+                      : "opacity-100 translate-x-0 scale-100"
+                  }`}
                 >
                   <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-gray-100 shrink-0">
                     <Image
@@ -119,8 +134,8 @@ export function CartDrawer() {
                       </div>
 
                       <button
-                        onClick={() => removeFromCart(item.variant_id)}
-                        className="text-gray-400 hover:text-red-500 transition p-1"
+                        onClick={() => handleSmoothRemove(item.variant_id)}
+                        className="text-gray-400 hover:text-red-500 transition-colors p-1 active:scale-75"
                         title="Remove item"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -146,10 +161,12 @@ export function CartDrawer() {
             <Link
               href="/checkout"
               onClick={() => setIsCartOpen(false)}
-              className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-orange-600 text-white font-semibold shadow-md hover:bg-orange-700 active:scale-[0.99] transition"
+              className="relative overflow-hidden w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gradient-to-r from-[#F26A00] to-[#FF8A24] text-white font-black text-sm shadow-lg shadow-orange-600/30 hover:brightness-105 active:scale-[0.98] transition group"
             >
+              {/* Subtle Periodic Button Sheen Light Sweep */}
+              <div className="absolute inset-0 w-1/3 bg-gradient-to-r from-transparent via-white/25 to-transparent skew-x-[-20deg] animate-button-sheen pointer-events-none" />
               <span>Proceed to Checkout</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </Link>
           </div>
         )}

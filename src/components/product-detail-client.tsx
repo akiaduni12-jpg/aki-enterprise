@@ -402,9 +402,10 @@ export function ProductDetailClient({
                 href={whatsAppUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition"
+                className="relative overflow-hidden w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition active:scale-[0.98] group"
               >
-                <MessageCircle className="w-4 h-4" />
+                <div className="absolute inset-0 w-1/3 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-20deg] animate-button-sheen pointer-events-none" />
+                <MessageCircle className="w-4 h-4 transition-transform group-hover:scale-110" />
                 <span>Chat on WhatsApp (0551243372)</span>
               </a>
             </div>
@@ -506,16 +507,17 @@ export function ProductDetailClient({
       )}
 
       {/* Mobile Fixed Bottom Sticky Action Bar */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-gray-100 p-2.5 px-3.5 shadow-[0_-4px_25px_rgba(0,0,0,0.08)] flex items-center gap-2 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-gray-100 p-2.5 px-3.5 shadow-[0_-4px_25px_rgba(0,0,0,0.08)] flex items-center gap-2 pb-[calc(0.75rem+env(safe-area-inset-bottom))] animate-in slide-in-from-bottom-4 duration-300">
         <a
           href={whatsAppUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="p-3 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100 flex items-center justify-center shrink-0 transition shadow-xs"
+          className="relative p-3 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100 flex items-center justify-center shrink-0 transition shadow-xs active:scale-90"
           title="Chat on WhatsApp"
           aria-label="Chat with Aki Enterprise on WhatsApp"
         >
-          <MessageCircle className="w-5 h-5 text-emerald-600" />
+          <span className="absolute inset-0 rounded-full bg-emerald-400/30 animate-pulse-ring pointer-events-none" />
+          <MessageCircle className="w-5 h-5 text-emerald-600 relative z-10" />
         </a>
 
         <button

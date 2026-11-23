@@ -104,9 +104,12 @@ export function AuthenticQR({
   return (
     <div className={`flex flex-col items-center gap-3 ${className}`}>
       <div
-        className="bg-white p-2.5 rounded-2xl border-2 border-slate-900 shadow-md flex items-center justify-center shrink-0 overflow-hidden"
+        className="relative bg-white p-2.5 rounded-2xl border-2 border-slate-900 shadow-md flex items-center justify-center shrink-0 overflow-hidden group"
         style={{ width: size, height: size }}
       >
+        {/* Animated Laser Scanning Beam */}
+        <div className="absolute left-2 right-2 h-0.5 bg-gradient-to-r from-transparent via-[#FF8A24] to-transparent shadow-[0_0_8px_#F26A00] animate-qr-laser z-10 pointer-events-none" />
+
         {qrDataUrl ? (
           <img
             src={qrDataUrl}

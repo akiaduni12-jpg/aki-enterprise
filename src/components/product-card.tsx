@@ -7,7 +7,7 @@ import { Product } from "@/types/ecommerce";
 import { formatGHS, getConditionBadge } from "@/lib/utils";
 import { useCart } from "@/context/cart-context";
 import { toggleWishlist, isItemInWishlist } from "@/lib/customer-store";
-import { ShieldCheck, Plus, BatteryCharging, Heart, ShoppingBag } from "lucide-react";
+import { ShieldCheck, Plus, BatteryCharging, Heart, ShoppingBag, Check } from "lucide-react";
 
 interface ProductCardProps {
   product: Product;
@@ -16,6 +16,8 @@ interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCart();
   const [isLiked, setIsLiked] = React.useState(false);
+  const [isHeartPopping, setIsHeartPopping] = React.useState(false);
+  const [isJustAdded, setIsJustAdded] = React.useState(false);
 
   React.useEffect(() => {
     setIsLiked(isItemInWishlist(product.id));
@@ -27,7 +29,16 @@ export function ProductCard({ product }: ProductCardProps) {
   const handleToggleLike = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    setIsHeartPopping(true);
     toggleWishlist(product.id);
+    setTimeout(() => setIsHeartPopping(false), 500);
+  };
+
+  const handleQuickAdd = () => {
+    if (!defaultVariant) return;
+    addToCart(product, defaultVariant);
+    setIsJustAdded(true);
+    setTimeout(() => setIsJustAdded(false), 1200);
   };
 
   // Use first variant by default
@@ -57,11 +68,13 @@ export function ProductCard({ product }: ProductCardProps) {
         {/* Wishlist Heart Button */}
         <button
           onClick={handleToggleLike}
-          className="w-7 h-7 rounded-full bg-white/90 backdrop-blur-md shadow-xs flex items-center justify-center text-gray-400 hover:text-red-500 transition pointer-events-auto active:scale-90"
+          className={`w-7 h-7 rounded-full bg-white/90 backdrop-blur-md shadow-xs flex items-center justify-center text-gray-400 hover:text-red-500 transition-all duration-200 pointer-events-auto active:scale-90 hover:scale-110 ${
+            isHeartPopping ? "animate-heart-pop" : ""
+          }`}
           aria-label="Save to wishlist"
         >
           <Heart
-            className={`w-3.5 h-3.5 ${
+            className={`w-3.5 h-3.5 transition-colors duration-200 ${
               isLiked ? "fill-red-500 text-red-500" : ""
             }`}
           />
@@ -138,12 +151,25 @@ export function ProductCard({ product }: ProductCardProps) {
             </div>
 
             <button
-              onClick={() => defaultVariant && addToCart(product, defaultVariant)}
-              className="px-3.5 py-1.5 rounded-xl bg-[#F26A00] hover:bg-[#d95e00] text-white font-bold text-xs shadow-xs active:scale-95 transition flex items-center gap-1 shrink-0"
+              onClick={handleQuickAdd}
+              className={`px-3.5 py-1.5 rounded-xl font-bold text-xs shadow-xs active:scale-90 transition-all duration-300 flex items-center gap-1 shrink-0 ${
+                isJustAdded
+                  ? "bg-emerald-600 text-white scale-105"
+                  : "bg-[#F26A00] hover:bg-[#d95e00] text-white"
+              }`}
               aria-label="Add to cart"
             >
-              <span>Add</span>
-              <Plus className="w-3.5 h-3.5" />
+              {isJustAdded ? (
+                <>
+                  <span>Added</span>
+                  <Check className="w-3.5 h-3.5 animate-in zoom-in-50 duration-200" />
+                </>
+              ) : (
+                <>
+                  <span>Add</span>
+                  <Plus className="w-3.5 h-3.5" />
+                </>
+              )}
             </button>
           </div>
         </div>
