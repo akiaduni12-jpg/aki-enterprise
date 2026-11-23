@@ -1,74 +1,65 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import {
-  ArrowLeft,
-  Search,
-  ArrowRight,
-  ShoppingBag,
-  X,
-} from "lucide-react";
+import { ArrowLeft, Search, ArrowRight, X } from "lucide-react";
+import { getStoredCategories, getStoredProducts } from "@/lib/catalog-store";
+import { Category, Product } from "@/types/ecommerce";
 
-const CATEGORIES_LIST = [
-  {
-    name: "Mobile Phones",
-    slug: "smartphones",
-    count: "18+ Models",
-    image: "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    name: "Power Banks",
-    slug: "power-banks-chargers",
-    count: "Anker & PD",
-    image: "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    name: "Audio & Earbuds",
-    slug: "audio-earbuds",
-    count: "ANC & Hi-Fi",
-    image: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    name: "Chargers & Cables",
-    slug: "power-banks-chargers",
-    count: "Fast GaN Tech",
-    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    name: "Smart Watches",
-    slug: "smartwatches",
-    count: "Apple & WearOS",
-    image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    name: "Accessories",
-    slug: "power-banks-chargers",
-    count: "Cases & Glass",
-    image: "https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    name: "Computers & Laptops",
-    slug: "computer-accessories",
-    count: "RAM & SSDs",
-    image: "https://images.unsplash.com/photo-1588702547919-26089e690ecc?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    name: "Other Gadgets",
-    slug: "audio-earbuds",
-    count: "Speakers & Hubs",
-    image: "https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&w=400&q=80",
-  },
-];
+const DEFAULT_CATEGORY_IMAGES: Record<string, string> = {
+  smartphones:
+    "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=400&q=80",
+  "power-banks-chargers":
+    "https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?auto=format&fit=crop&w=400&q=80",
+  "audio-earbuds":
+    "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=400&q=80",
+  smartwatches:
+    "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=400&q=80",
+  "computer-accessories":
+    "https://images.unsplash.com/photo-1588702547919-26089e690ecc?auto=format&fit=crop&w=400&q=80",
+};
 
 export default function CategoriesPage() {
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [showSearch, setShowSearch] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
 
-  const filteredCategories = CATEGORIES_LIST.filter((c) =>
+  useEffect(() => {
+    const loadData = () => {
+      setCategories(getStoredCategories());
+      setProducts(getStoredProducts());
+    };
+
+    loadData();
+    window.addEventListener("catalog_updated", loadData);
+    return () => window.removeEventListener("catalog_updated", loadData);
+  }, []);
+
+  const getProductCountForCategory = (cat: Category) => {
+    const count = products.filter(
+      (p) => p.category_id === cat.id || p.category_id === cat.slug
+    ).length;
+    return count > 0 ? `${count} ${count === 1 ? "Product" : "Products"}` : "Original Gear";
+  };
+
+  const getCategoryImageUrl = (cat: Category) => {
+    if (cat.image_url) {
+      if (cat.image_url.includes("photo-1609592807963-394ff0073289")) {
+        return "https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?auto=format&fit=crop&w=400&q=80";
+      }
+      return cat.image_url;
+    }
+    return (
+      DEFAULT_CATEGORY_IMAGES[cat.slug] ||
+      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=400&q=80"
+    );
+  };
+
+  const filteredCategories = categories.filter((c) =>
     c.name.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -99,7 +90,7 @@ export default function CategoriesPage() {
             className="p-1.5 rounded-full hover:bg-gray-100 text-slate-800 transition cursor-pointer"
             aria-label="Search categories and products"
           >
-            {showSearch ? <X className="w-5 h-5 text-gray-500" /> : <Search className="w-5 h-5" />}
+            {showSearch ? <X className="w-5 h-5 text-gray-500" /> : <Search className="w-5 h-5 text-slate-800" />}
           </button>
         </div>
 
@@ -129,7 +120,7 @@ export default function CategoriesPage() {
       </div>
 
       <div className="max-w-md mx-auto px-4 pt-4 space-y-4">
-        {/* Top Promotional Banner: "Explore Our Categories" (Screen 2 Mockup Match) */}
+        {/* Top Promotional Banner: "Explore Our Categories" */}
         <div className="relative rounded-3xl bg-gradient-to-r from-[#FF8A24] via-[#F26A00] to-[#EA580C] text-white p-5 overflow-hidden shadow-lg flex items-center justify-between">
           <div className="relative z-10 max-w-[190px] space-y-1.5">
             <h2 className="text-xl font-black leading-tight text-white tracking-tight">
@@ -140,10 +131,13 @@ export default function CategoriesPage() {
               Find genuine electronics, original accessories &amp; daily deals.
             </p>
             <div className="pt-1">
-              <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-white text-[#F26A00] px-2.5 py-0.5 rounded-full shadow-xs">
+              <Link
+                href="/products"
+                className="inline-flex items-center gap-1 text-[10px] font-bold bg-white text-[#F26A00] px-2.5 py-0.5 rounded-full shadow-xs hover:bg-orange-50 transition"
+              >
                 <span>Shop All</span>
                 <ArrowRight className="w-2.5 h-2.5" />
-              </span>
+              </Link>
             </div>
           </div>
 
@@ -159,24 +153,32 @@ export default function CategoriesPage() {
           </div>
         </div>
 
-        {/* 2-Column Categories Grid (Exact Screen 2 layout) */}
+        {/* 2-Column Dynamic Categories Grid */}
         <div className="grid grid-cols-2 gap-3 pt-1">
-          {filteredCategories.map((cat, idx) => (
+          {filteredCategories.map((cat) => (
             <Link
-              key={idx}
+              key={cat.id}
               href={`/products?category=${cat.slug}`}
               className="bg-white rounded-2xl border border-gray-100 p-3 shadow-2xs hover:shadow-md hover:border-orange-200 transition flex flex-col items-center text-center group"
             >
               {/* Image Frame */}
               <div className="relative w-24 h-24 rounded-2xl bg-gray-50 overflow-hidden mb-2 group-hover:scale-105 transition-transform">
-                <Image src={cat.image} alt={cat.name} fill sizes="96px" className="object-cover" />
+                <Image
+                  src={getCategoryImageUrl(cat)}
+                  alt={cat.name}
+                  fill
+                  sizes="96px"
+                  className="object-cover"
+                />
               </div>
 
-              {/* Title & Count */}
+              {/* Title & Dynamic Count */}
               <h3 className="font-bold text-xs text-slate-900 group-hover:text-[#F26A00] transition line-clamp-1">
                 {cat.name}
               </h3>
-              <span className="text-[10px] text-gray-400 mt-0.5 font-medium">{cat.count}</span>
+              <span className="text-[10px] text-gray-400 mt-0.5 font-medium">
+                {getProductCountForCategory(cat)}
+              </span>
             </Link>
           ))}
         </div>

@@ -177,6 +177,30 @@ export function deleteProduct(id: string): Product[] {
 // 2. CATEGORIES MANAGEMENT
 // ============================================================================
 
+let isSyncingCategories = false;
+
+export async function syncCategoriesFromCloud(): Promise<Category[]> {
+  if (typeof window === "undefined" || isSyncingCategories) {
+    return getStoredCategories();
+  }
+  isSyncingCategories = true;
+
+  try {
+    const res = await fetch("/api/categories");
+    const data = await res.json();
+    if (data.success && Array.isArray(data.categories) && data.categories.length > 0) {
+      localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(data.categories));
+      window.dispatchEvent(new Event("catalog_updated"));
+      return data.categories;
+    }
+  } catch (err) {
+    console.warn("Could not sync categories from cloud:", err);
+  } finally {
+    isSyncingCategories = false;
+  }
+  return getStoredCategories();
+}
+
 export function getStoredCategories(): Category[] {
   if (typeof window === "undefined") {
     return CATEGORIES;
@@ -186,8 +210,13 @@ export function getStoredCategories(): Category[] {
     const raw = localStorage.getItem(CATEGORIES_STORAGE_KEY);
     if (!raw) {
       localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(CATEGORIES));
+      syncCategoriesFromCloud();
       return CATEGORIES;
     }
+
+    // Trigger background sync to ensure updates from other devices reflect
+    syncCategoriesFromCloud();
+
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed) && parsed.length > 0) {
       let healed = false;
@@ -252,18 +281,13 @@ export async function addCategory(categoryData: {
   const updated = [...current, newCategory];
   saveStoredCategories(updated);
 
-  if (isSupabaseConfigured && supabase) {
-    try {
-      await supabase.from("categories").insert({
-        name: newCategory.name,
-        slug: newCategory.slug,
-        description: newCategory.description,
-        icon: newCategory.icon,
-        image_url: newCategory.image_url,
-      });
-    } catch (err) {
-      console.warn("Background category sync notice:", err);
-    }
+  // Sync to Cloud via Backend API
+  if (typeof window !== "undefined") {
+    fetch("/api/categories", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newCategory),
+    }).catch((err) => console.warn("Cloud category sync notice:", err));
   }
 
   return newCategory;
@@ -275,26 +299,17 @@ export function updateCategory(id: string, updates: Partial<Category>): Category
   const updated = current.map((c) => (c.id === id ? { ...c, ...updates } : c));
   saveStoredCategories(updated);
 
-  if (isSupabaseConfigured && supabase) {
-    try {
-      const dbUpdates: Record<string, any> = {};
-      if (updates.name) dbUpdates.name = updates.name;
-      if (updates.slug) dbUpdates.slug = updates.slug;
-      if (updates.description !== undefined) dbUpdates.description = updates.description;
-      if (updates.icon) dbUpdates.icon = updates.icon;
-      if (updates.image_url) dbUpdates.image_url = updates.image_url;
-
-      const matchCriteria = cat?.slug ? `id.eq.${id},slug.eq.${cat.slug}` : `id.eq.${id}`;
-      supabase
-        .from("categories")
-        .update(dbUpdates)
-        .or(matchCriteria)
-        .then((res: any) => {
-          if (res?.error) console.warn("Supabase category update warning:", res.error.message);
-        });
-    } catch (err) {
-      console.warn("Background category update notice:", err);
-    }
+  // Sync to Cloud via Backend API
+  if (typeof window !== "undefined") {
+    fetch("/api/categories", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id,
+        slug: updates.slug || cat?.slug || id,
+        updates,
+      }),
+    }).catch((err) => console.warn("Cloud category update notice:", err));
   }
 
   return updated;
@@ -306,21 +321,12 @@ export function deleteCategory(id: string): Category[] {
   const updated = current.filter((c) => c.id !== id);
   saveStoredCategories(updated);
 
-  if (isSupabaseConfigured && supabase) {
-    try {
-      const matchCriteria = catToDelete?.slug
-        ? `id.eq.${id},slug.eq.${catToDelete.slug}`
-        : `id.eq.${id}`;
-      supabase
-        .from("categories")
-        .delete()
-        .or(matchCriteria)
-        .then((res: any) => {
-          if (res?.error) console.warn("Supabase category delete warning:", res.error.message);
-        });
-    } catch (err) {
-      console.warn("Background category delete notice:", err);
-    }
+  // Sync to Cloud via Backend API
+  if (typeof window !== "undefined") {
+    const slug = catToDelete?.slug || "";
+    fetch(`/api/categories?id=${encodeURIComponent(id)}&slug=${encodeURIComponent(slug)}`, {
+      method: "DELETE",
+    }).catch((err) => console.warn("Cloud category delete notice:", err));
   }
 
   return updated;
@@ -329,6 +335,30 @@ export function deleteCategory(id: string): Category[] {
 // ============================================================================
 // 3. BRANDS MANAGEMENT
 // ============================================================================
+
+let isSyncingBrands = false;
+
+export async function syncBrandsFromCloud(): Promise<Brand[]> {
+  if (typeof window === "undefined" || isSyncingBrands) {
+    return getStoredBrands();
+  }
+  isSyncingBrands = true;
+
+  try {
+    const res = await fetch("/api/brands");
+    const data = await res.json();
+    if (data.success && Array.isArray(data.brands) && data.brands.length > 0) {
+      localStorage.setItem(BRANDS_STORAGE_KEY, JSON.stringify(data.brands));
+      window.dispatchEvent(new Event("catalog_updated"));
+      return data.brands;
+    }
+  } catch (err) {
+    console.warn("Could not sync brands from cloud:", err);
+  } finally {
+    isSyncingBrands = false;
+  }
+  return getStoredBrands();
+}
 
 export function getStoredBrands(): Brand[] {
   if (typeof window === "undefined") {
@@ -339,8 +369,13 @@ export function getStoredBrands(): Brand[] {
     const raw = localStorage.getItem(BRANDS_STORAGE_KEY);
     if (!raw) {
       localStorage.setItem(BRANDS_STORAGE_KEY, JSON.stringify(BRANDS));
+      syncBrandsFromCloud();
       return BRANDS;
     }
+
+    // Trigger background sync
+    syncBrandsFromCloud();
+
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) && parsed.length > 0 ? parsed : BRANDS;
   } catch (err) {
@@ -385,16 +420,13 @@ export async function addBrand(brandData: {
   const updated = [...current, newBrand];
   saveStoredBrands(updated);
 
-  if (isSupabaseConfigured && supabase) {
-    try {
-      await supabase.from("brands").insert({
-        name: newBrand.name,
-        slug: newBrand.slug,
-        logo_url: newBrand.logo_url,
-      });
-    } catch (err) {
-      console.warn("Background brand sync notice:", err);
-    }
+  // Sync to Cloud via Backend API
+  if (typeof window !== "undefined") {
+    fetch("/api/brands", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newBrand),
+    }).catch((err) => console.warn("Cloud brand sync notice:", err));
   }
 
   return newBrand;
@@ -406,24 +438,17 @@ export function updateBrand(id: string, updates: Partial<Brand>): Brand[] {
   const updated = current.map((b) => (b.id === id ? { ...b, ...updates } : b));
   saveStoredBrands(updated);
 
-  if (isSupabaseConfigured && supabase) {
-    try {
-      const dbUpdates: Record<string, any> = {};
-      if (updates.name) dbUpdates.name = updates.name;
-      if (updates.slug) dbUpdates.slug = updates.slug;
-      if (updates.logo_url) dbUpdates.logo_url = updates.logo_url;
-
-      const matchCriteria = brand?.slug ? `id.eq.${id},slug.eq.${brand.slug}` : `id.eq.${id}`;
-      supabase
-        .from("brands")
-        .update(dbUpdates)
-        .or(matchCriteria)
-        .then((res: any) => {
-          if (res?.error) console.warn("Supabase brand update warning:", res.error.message);
-        });
-    } catch (err) {
-      console.warn("Background brand update notice:", err);
-    }
+  // Sync to Cloud via Backend API
+  if (typeof window !== "undefined") {
+    fetch("/api/brands", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id,
+        slug: updates.slug || brand?.slug || id,
+        updates,
+      }),
+    }).catch((err) => console.warn("Cloud brand update notice:", err));
   }
 
   return updated;
@@ -435,21 +460,12 @@ export function deleteBrand(id: string): Brand[] {
   const updated = current.filter((b) => b.id !== id);
   saveStoredBrands(updated);
 
-  if (isSupabaseConfigured && supabase) {
-    try {
-      const matchCriteria = brandToDelete?.slug
-        ? `id.eq.${id},slug.eq.${brandToDelete.slug}`
-        : `id.eq.${id}`;
-      supabase
-        .from("brands")
-        .delete()
-        .or(matchCriteria)
-        .then((res: any) => {
-          if (res?.error) console.warn("Supabase brand delete warning:", res.error.message);
-        });
-    } catch (err) {
-      console.warn("Background brand delete notice:", err);
-    }
+  // Sync to Cloud via Backend API
+  if (typeof window !== "undefined") {
+    const slug = brandToDelete?.slug || "";
+    fetch(`/api/brands?id=${encodeURIComponent(id)}&slug=${encodeURIComponent(slug)}`, {
+      method: "DELETE",
+    }).catch((err) => console.warn("Cloud brand delete notice:", err));
   }
 
   return updated;

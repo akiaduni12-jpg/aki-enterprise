@@ -147,8 +147,50 @@ export const INITIAL_STORE_TESTIMONIALS: StoreTestimonial[] = [
 ];
 
 // ============================================================================
-// 1. PRODUCT REVIEWS FUNCTIONS
+// 1. CLOUD SYNC & REVIEWS FUNCTIONS
 // ============================================================================
+
+let isSyncingFeedback = false;
+
+export async function syncFeedbackFromCloud(): Promise<{
+  reviews: ProductReview[];
+  testimonials: StoreTestimonial[];
+}> {
+  if (typeof window === "undefined" || isSyncingFeedback) {
+    return {
+      reviews: getStoredProductReviews(),
+      testimonials: getStoredTestimonials(),
+    };
+  }
+  isSyncingFeedback = true;
+
+  try {
+    const res = await fetch("/api/feedback");
+    const data = await res.json();
+    if (data.success) {
+      if (Array.isArray(data.reviews) && data.reviews.length > 0) {
+        localStorage.setItem(REVIEWS_STORAGE_KEY, JSON.stringify(data.reviews));
+      }
+      if (Array.isArray(data.testimonials) && data.testimonials.length > 0) {
+        localStorage.setItem(TESTIMONIALS_STORAGE_KEY, JSON.stringify(data.testimonials));
+      }
+      window.dispatchEvent(new Event("feedback_updated"));
+      return {
+        reviews: data.reviews || getStoredProductReviews(),
+        testimonials: data.testimonials || getStoredTestimonials(),
+      };
+    }
+  } catch (err) {
+    console.warn("Could not sync feedback from cloud:", err);
+  } finally {
+    isSyncingFeedback = false;
+  }
+
+  return {
+    reviews: getStoredProductReviews(),
+    testimonials: getStoredTestimonials(),
+  };
+}
 
 export function getStoredProductReviews(): ProductReview[] {
   if (typeof window === "undefined") return INITIAL_PRODUCT_REVIEWS;
@@ -156,8 +198,11 @@ export function getStoredProductReviews(): ProductReview[] {
     const raw = localStorage.getItem(REVIEWS_STORAGE_KEY);
     if (!raw) {
       localStorage.setItem(REVIEWS_STORAGE_KEY, JSON.stringify(INITIAL_PRODUCT_REVIEWS));
+      syncFeedbackFromCloud();
       return INITIAL_PRODUCT_REVIEWS;
     }
+    // Background sync from cloud
+    syncFeedbackFromCloud();
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed : INITIAL_PRODUCT_REVIEWS;
   } catch {
@@ -236,6 +281,13 @@ export function deleteProductReview(id: string): ProductReview[] {
   const current = getStoredProductReviews();
   const updated = current.filter((r) => r.id !== id);
   saveStoredProductReviews(updated);
+
+  if (typeof window !== "undefined") {
+    fetch(`/api/feedback?type=review&id=${encodeURIComponent(id)}`, {
+      method: "DELETE",
+    }).catch((e) => console.warn("Review delete sync notice:", e));
+  }
+
   return updated;
 }
 
@@ -249,8 +301,11 @@ export function getStoredTestimonials(): StoreTestimonial[] {
     const raw = localStorage.getItem(TESTIMONIALS_STORAGE_KEY);
     if (!raw) {
       localStorage.setItem(TESTIMONIALS_STORAGE_KEY, JSON.stringify(INITIAL_STORE_TESTIMONIALS));
+      syncFeedbackFromCloud();
       return INITIAL_STORE_TESTIMONIALS;
     }
+    // Background sync from cloud
+    syncFeedbackFromCloud();
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed : INITIAL_STORE_TESTIMONIALS;
   } catch {
@@ -335,5 +390,12 @@ export function deleteTestimonial(id: string): StoreTestimonial[] {
   const current = getStoredTestimonials();
   const updated = current.filter((t) => t.id !== id);
   saveStoredTestimonials(updated);
+
+  if (typeof window !== "undefined") {
+    fetch(`/api/feedback?type=testimonial&id=${encodeURIComponent(id)}`, {
+      method: "DELETE",
+    }).catch((e) => console.warn("Testimonial delete sync notice:", e));
+  }
+
   return updated;
 }
