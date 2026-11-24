@@ -246,7 +246,7 @@ export default function AdminCatalogPage() {
     const selectedCategory = categories.find((c) => c.slug === pCategorySlug) || categories[0];
     const categoryName = selectedCategory?.name || "Smartphones";
     const selectedBrand = brands.find((b) => b.name === pBrandName) || brands[0];
-    const brandName = selectedBrand?.name || "Aki Enterprise";
+    const brandName = selectedBrand?.name || "AKI ADUNI VENTURES";
 
     const generatedSlug =
       pSlug.trim() ||
@@ -264,8 +264,8 @@ export default function AdminCatalogPage() {
       : [
           `Original ${brandName} certified unit`,
           `${pCondition === "uk_used" ? "Grade A UK-Used" : "Brand New Factory Sealed"}`,
-          `${pWarrantyMonths} Months Aki Enterprise Store Warranty`,
-          `Battery Health: ${pCondition === "uk_used" ? pBatteryHealth : "100% Factory"}`,
+          `${pWarrantyMonths} Months AKI ADUNI VENTURES Store Warranty`,
+          `Battery Health: ${pBatteryHealth.trim() ? pBatteryHealth.trim() : (pCondition === "uk_used" ? "90%+" : "100%")}`,
         ];
 
     // Build specs record
@@ -299,7 +299,7 @@ export default function AdminCatalogPage() {
         ram: pRam,
         color: pColor,
         color_hex: pColorHex,
-        battery_health: pCondition === "uk_used" ? pBatteryHealth : "100%",
+        battery_health: pBatteryHealth.trim() ? pBatteryHealth.trim() : (pCondition === "uk_used" ? "90%+" : "100%"),
         warranty_months: pWarrantyMonths,
         price: stepPrice,
         original_price: stepOriginal,
