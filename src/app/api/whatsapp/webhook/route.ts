@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { addWhatsAppMessage } from "@/lib/whatsapp-store";
 
 // Verify Tokens accepted from Meta Developer Dashboard
 const VALID_VERIFY_TOKENS = [
@@ -60,7 +61,16 @@ export async function POST(req: NextRequest) {
 
         console.log(`[WhatsApp Webhook] Incoming message from ${from} (${messageType}): ${text || "[non-text]"}`);
 
-        // You can save customer inquiries, forward to admin, or trigger auto-replies here
+        // Persist message to local store for real-time mobile sync
+        addWhatsAppMessage({
+          id: message.id,
+          from,
+          to: value.metadata?.display_phone_number || "233541855969",
+          direction: "incoming",
+          type: messageType,
+          text: text || "",
+          timestamp: message.timestamp ? Number(message.timestamp) * 1000 : Date.now(),
+        });
       }
 
       // Handle Message Delivery Status Updates (sent, delivered, read, failed)
