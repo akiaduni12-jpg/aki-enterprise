@@ -7,6 +7,7 @@ import { Footer } from "@/components/footer";
 import { CartDrawer } from "@/components/cart-drawer";
 import { MobileNavBar } from "@/components/mobile-nav";
 import { PWAInstallPrompt } from "@/components/pwa-install-prompt";
+import { MobileAppLauncher } from "@/components/mobile-app-launcher";
 
 export function StoreLayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -25,6 +26,7 @@ export function StoreLayoutWrapper({ children }: { children: React.ReactNode }) 
       <CartDrawer />
       <Footer />
       <MobileNavBar />
+      <MobileAppLauncher />
       <PWAInstallPrompt />
     </>
   );

@@ -82,8 +82,8 @@ export function PWAInstallPrompt() {
         <div className="flex items-center gap-3">
           <div className="relative w-10 h-10 rounded-2xl overflow-hidden shrink-0 shadow-md">
             <Image
-              src="/icons/logo-icon.webp"
-              alt="Aki Enterprise"
+              src="/icons/icon-192.png"
+              alt="AKI ADUNI VENTURES"
               fill
               className="object-cover"
               sizes="40px"
@@ -92,7 +92,7 @@ export function PWAInstallPrompt() {
           <div>
             <div className="flex items-center gap-1.5">
               <h4 className="text-xs font-black tracking-tight text-white">
-                Install Aki Enterprise App
+                Install AKI ADUNI VENTURES App
               </h4>
               <span className="px-1.5 py-0.2 rounded text-[8px] font-bold bg-orange-500/20 text-[#FF8A24] border border-orange-500/30">
                 PWA
