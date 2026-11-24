@@ -29,7 +29,7 @@ const FAQ_DATA: FAQItem[] = [
     category: "Business & Stock",
     question: "What is the legal business name behind Aki Enterprise?",
     answer:
-      "Our registered legal business name is AKI ADUNI VENTURES (Registration No: BN987061122 • TIN: P0062373706), officially registered in the Republic of Ghana under the Registration of Business Names Act, 1962 (Act 151). We operate and trade commercially as Aki Enterprise, with our physical retail store and central fulfillment hub located at Miaso Near The Market, Kwahu East, Eastern Region, Ghana (Digital Address: EF35051780).",
+      "Our registered business name is AKI ADUNI VENTURES (Registration No: BN987061122), officially registered in the Republic of Ghana under the Registration of Business Names Act, 1962 (Act 151). Our physical retail store and central fulfillment hub is located in Miaso, Kwahu East, Eastern Region, Ghana.",
   },
   {
     category: "Business & Stock",
@@ -221,7 +221,7 @@ export default function FAQPage() {
               Need personalized assistance or store verification?
             </h3>
             <p className="text-xs text-gray-500 leading-relaxed">
-              <strong>AKI ADUNI VENTURES</strong> (Registration No: BN987061122 • TIN: P0062373706 • Digital Address: EF35051780) maintains dedicated customer service lines for retail purchases, business inquiries, and warranty claims in Ghana.
+              <strong>AKI ADUNI VENTURES</strong> maintains dedicated customer service lines for retail purchases, business inquiries, and warranty claims in Ghana.
             </p>
           </div>
 

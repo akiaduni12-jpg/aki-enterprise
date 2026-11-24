@@ -172,7 +172,7 @@ export function Navbar() {
                 </span>
               </div>
               <span className="hidden sm:inline-block text-[10px] text-gray-500 tracking-tight font-medium mt-0.5">
-                Trading as Aki Enterprise • Reg: 2118270 • Ghana
+                Original Electronics &amp; Smart Devices • Ghana
               </span>
             </div>
           </Link>

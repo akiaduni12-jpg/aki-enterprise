@@ -142,16 +142,13 @@ export function Footer() {
                       AKI <span className="text-[#FF8A24]">ADUNI</span> VENTURES
                     </span>
                     <span className="block text-[10px] text-gray-400 uppercase tracking-widest font-semibold">
-                      Trading as Aki Enterprise • Reg: BN987061122
+                      Original Electronics &amp; Accessories • Ghana
                     </span>
                   </div>
                 </Link>
                 <p className="text-xs text-gray-400 leading-relaxed max-w-sm pt-2">
-                  Officially registered Ghanaian commercial retailer for genuine smartphones, original PD chargers, high-capacity power banks, and electronics. 100% on-hand physical stock at Miaso, Kwahu East with transparent battery health ratings and shop warranty.
+                  Certified Ghanaian commercial retailer for genuine smartphones, original PD chargers, high-capacity power banks, and computer electronics. 100% on-hand physical stock with verified warranty.
                 </p>
-                <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-[11px] text-orange-400 font-mono">
-                  Reg No: BN987061122 • TIN: P0062373706 • GPS: EF35051780
-                </div>
               </div>
 
               {/* Direct Store Coordinates */}
@@ -337,10 +334,10 @@ export function Footer() {
           <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
             <div>
               <p>
-                © 2026 <strong className="text-gray-300">AKI ADUNI VENTURES</strong> (Trading as Aki Enterprise). All rights reserved.
+                © 2026 <strong className="text-gray-300">AKI ADUNI VENTURES</strong>. All rights reserved.
               </p>
               <p className="text-[11px] text-gray-500 mt-0.5">
-                Registered in Ghana • Reg No: BN987061122 • TIN: P0062373706 • Digital Address: EF35051780
+                Certified Electronics Retailer • Miaso, Kwahu East, Ghana
               </p>
             </div>
 

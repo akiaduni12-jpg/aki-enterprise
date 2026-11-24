@@ -1146,7 +1146,7 @@ export default function HomePage() {
               How QR Scan &amp; Shop Works in Our Store
             </h2>
             <p className="text-xs sm:text-sm text-gray-500">
-              Visiting AKI ADUNI VENTURES (Aki Enterprise) in Miaso, Kwahu East? Skip queues, view exact battery health stats, and pay via MoMo right from your phone.
+              Visiting AKI ADUNI VENTURES in Miaso, Kwahu East? Skip queues, view exact battery health stats, and pay via MoMo right from your phone.
             </p>
           </div>
 

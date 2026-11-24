@@ -83,10 +83,7 @@ export const DEFAULT_STORE_SETTINGS: StoreSettings = {
 AKI ADUNI VENTURES is an officially registered Sole Proprietorship in the Republic of Ghana under the Registration of Business Names Act, 1962 (Act 151):
 • Business Name: AKI ADUNI VENTURES
 • Official Registration Number: BN987061122
-• Taxpayer Identification Number (TIN): P0062373706
-• Proprietor / Owner: Aki Aduni
-• GhanaPost GPS Digital Address: EF35051780
-• Physical Place of Business: Unnumbered House, Miaso Near The Market, Kwahu East District, Eastern Region, Ghana.
+• Physical Place of Business: Miaso, Kwahu East District, Eastern Region, Ghana.
 • Principal Business Activity: General Trading & Mobile Money Services (Electronics, Certified Smartphones, Gadgets & Peripherals).
 • Official Store Domain: https://akiaduniventures.com
 
@@ -121,10 +118,10 @@ Once the returned product is physically inspected and verified at our shop (with
 - Refunds are issued via the original payment method: Mobile Money (MTN MoMo, Telecel Cash, ATMoney) or Bank Card through Paystack.
 - Processing takes 1 to 3 business days with zero deduction.`,
 
-    privacyPolicy: `AKI ADUNI VENTURES ("we", "us", or "our", Trading as Aki Enterprise) respects your privacy and is committed to protecting your personal data in accordance with the Ghana Data Protection Act, 2012 (Act 843).
+    privacyPolicy: `AKI ADUNI VENTURES ("we", "us", or "our") respects your privacy and is committed to protecting your personal data in accordance with the Ghana Data Protection Act, 2012 (Act 843).
 
 1. LEGAL BUSINESS IDENTITY
-This website is operated by AKI ADUNI VENTURES (Registration No: BN987061122 • TIN: P0062373706), situated at Miaso Near The Market, Kwahu East, Eastern Region, Ghana (Digital Address: EF35051780). Official Website: https://akiaduniventures.com.
+This website is operated by AKI ADUNI VENTURES (Registration No: BN987061122), situated at Miaso, Kwahu East, Eastern Region, Ghana. Official Website: https://akiaduniventures.com.
 
 2. INFORMATION WE COLLECT
 When you browse our store, create an account, place an order, or contact customer support, we collect:
@@ -147,7 +144,7 @@ We do NOT sell, rent, or trade your personal data to any third party or marketin
     termsConditions: `These Terms and Conditions govern your use of the AKI ADUNI VENTURES website (https://akiaduniventures.com) and purchases made online or in our physical retail store in Miaso, Kwahu East, Eastern Region, Ghana.
 
 1. LEGAL CONTRACTING ENTITY
-The merchant of record and contracting entity for all transactions is AKI ADUNI VENTURES (Registration No: BN987061122 • TIN: P0062373706 • Digital Address: EF35051780), trading as Aki Enterprise.
+The merchant of record and contracting entity for all transactions is AKI ADUNI VENTURES (Registration No: BN987061122), located in Miaso, Kwahu East, Eastern Region, Ghana.
 
 2. PHYSICAL INVENTORY & PRODUCT AVAILABILITY
 All items listed for purchase are held in physical stock at our retail shop in Miaso. While we strive to maintain real-time inventory synchronization, in the rare event of an inventory discrepancy, we reserve the right to cancel unfulfilled orders with an immediate 100% refund.

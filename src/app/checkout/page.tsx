@@ -851,7 +851,7 @@ export default function CheckoutPage() {
             <span>Guaranteed Authenticity &amp; 14-Day Return Protection</span>
           </div>
           <p className="leading-relaxed">
-            By placing an order, you agree to AKI ADUNI VENTURES&apos; (Trading as Aki Enterprise){" "}
+            By placing an order, you agree to AKI ADUNI VENTURES&apos;{" "}
             <Link href="/policies/terms" target="_blank" className="text-[#F26A00] underline font-semibold">
               Terms of Service
             </Link>
