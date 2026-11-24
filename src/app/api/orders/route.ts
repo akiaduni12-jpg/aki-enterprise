@@ -75,16 +75,32 @@ export async function POST(request: NextRequest) {
 
           // Insert line items
           if (Array.isArray(items) && items.length > 0) {
-            const lineItems = items.map((i: any) => ({
-              order_id: dbOrder.id,
-              product_id: i.product_id || null,
-              variant_id: i.variant_id || null,
-              product_title: i.product_title || "Product",
-              variant_sku: i.variant_sku || null,
-              unit_price: Number(i.unit_price) || 0,
-              quantity: Number(i.quantity) || 1,
-              total_price: Number(i.total_price || i.unit_price * i.quantity) || 0,
-            }));
+            const lineItems = items.map((i: any) => {
+              // Normalize condition to valid enum: 'brand_new' | 'uk_used' | 'refurbished'
+              let cond = "brand_new";
+              const rawCond = String(i.condition || "").toLowerCase();
+              if (rawCond.includes("uk") || rawCond.includes("used")) {
+                cond = "uk_used";
+              } else if (rawCond.includes("refurb")) {
+                cond = "refurbished";
+              }
+
+              return {
+                order_id: dbOrder.id,
+                product_id: i.product_id || null,
+                variant_id: i.variant_id || null,
+                product_title: i.product_title || "Product",
+                variant_sku: i.variant_sku || i.sku || `SKU-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+                condition: cond,
+                storage: i.storage || null,
+                ram: i.ram || null,
+                color: i.color || "Standard",
+                unit_price: Number(i.unit_price) || 0,
+                quantity: Number(i.quantity) || 1,
+                total_price: Number(i.total_price || (i.unit_price * (i.quantity || 1))) || 0,
+                image_url: i.image_url || null,
+              };
+            });
 
             const { error: itemsErr } = await client
               .from("order_items")
