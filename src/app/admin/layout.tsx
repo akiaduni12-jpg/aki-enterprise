@@ -254,7 +254,7 @@ export default function AdminLayout({
               </div>
               <div className="overflow-hidden">
                 <span className="block font-bold text-white text-[11px] truncate max-w-[120px]">
-                  {adminUser?.email || "admin@akienterprise.com"}
+                  {adminUser?.email || "admin@akiaduniventures.com"}
                 </span>
                 <span className="block text-[9px] text-emerald-400 uppercase font-semibold">
                   ● Role: {adminUser?.role || "Owner"}

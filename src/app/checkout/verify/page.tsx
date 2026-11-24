@@ -177,9 +177,9 @@ function VerifyContent() {
       <div id="printable-receipt" className="bg-white rounded-3xl border border-gray-100 shadow-xl p-6 sm:p-8 space-y-6">
         {/* Printable Official Store Header */}
         <div className="hidden print:block pb-4 mb-2 border-b-2 border-black text-center space-y-1">
-          <h2 className="text-2xl font-black text-black">AKI ENTERPRISE</h2>
-          <p className="text-xs font-bold text-gray-700 uppercase tracking-wider">Official Sales &amp; Delivery Receipt</p>
-          <p className="text-[11px] text-gray-600">Store: Miaso, Kwahu East, Ghana • Phone / WhatsApp: 0551243372</p>
+          <h2 className="text-2xl font-black text-black">AKI ADUNI VENTURES</h2>
+          <p className="text-xs font-bold text-gray-700 uppercase tracking-wider">Trading as Aki Enterprise • Official Sales &amp; Delivery Receipt</p>
+          <p className="text-[11px] text-gray-600">Form A Reg ID: 2118270 • Store: Miaso, Kwahu East, Ghana • Tel: 0551243372</p>
           <p className="text-[10px] text-gray-500">Date: {new Date().toLocaleDateString("en-GB")}</p>
         </div>
 

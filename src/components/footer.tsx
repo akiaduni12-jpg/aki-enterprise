@@ -103,10 +103,10 @@ export function Footer() {
               </div>
               <div>
                 <div className="text-sm font-black text-white tracking-tight">
-                  AKI <span className="text-[#FF8A24]">ENTERPRISE</span>
+                  AKI <span className="text-[#FF8A24]">ADUNI</span> VENTURES
                 </div>
                 <div className="text-[10px] text-gray-400 -mt-0.5 uppercase tracking-wider font-semibold">
-                  Shop Smart. Live Better.
+                  Trading as Aki Enterprise • Ghana
                 </div>
               </div>
             </div>
@@ -138,17 +138,20 @@ export function Footer() {
                     />
                   </div>
                   <div>
-                    <span className="text-xl font-black tracking-tight text-white font-sans">
-                      AKI <span className="text-[#FF8A24]">ENTERPRISE</span>
+                    <span className="text-lg sm:text-xl font-black tracking-tight text-white font-sans">
+                      AKI <span className="text-[#FF8A24]">ADUNI</span> VENTURES
                     </span>
                     <span className="block text-[10px] text-gray-400 uppercase tracking-widest font-semibold">
-                      Original Electronics &amp; Accessories • Ghana
+                      Trading as Aki Enterprise • Reg: BN987061122
                     </span>
                   </div>
                 </Link>
                 <p className="text-xs text-gray-400 leading-relaxed max-w-sm pt-2">
-                  Your certified destination for genuine smartphones, original PD chargers, high-capacity power banks, and computer electronics. Every device includes transparent battery health ratings and shop warranty.
+                  Officially registered Ghanaian commercial retailer for genuine smartphones, original PD chargers, high-capacity power banks, and electronics. 100% on-hand physical stock at Miaso, Kwahu East with transparent battery health ratings and shop warranty.
                 </p>
+                <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-[11px] text-orange-400 font-mono">
+                  Reg No: BN987061122 • TIN: P0062373706 • GPS: EF35051780
+                </div>
               </div>
 
               {/* Direct Store Coordinates */}
@@ -240,9 +243,27 @@ export function Footer() {
               </div>
               <ul className="space-y-2 text-xs text-gray-400">
                 <li>
+                  <Link href="/faq" className="hover:text-[#FF8A24] transition flex items-center gap-1.5 font-semibold text-orange-400">
+                    <ArrowRight className="w-3 h-3 text-[#F26A00]" />
+                    <span>Frequently Asked Questions (FAQ)</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/reviews" className="hover:text-[#FF8A24] transition flex items-center gap-1.5 font-semibold text-orange-400">
+                    <ArrowRight className="w-3 h-3 text-[#F26A00]" />
+                    <span>Customer Feedback &amp; Reviews</span>
+                  </Link>
+                </li>
+                <li>
                   <Link href="/orders" className="hover:text-[#FF8A24] transition flex items-center gap-1.5">
                     <ArrowRight className="w-3 h-3 text-[#F26A00]" />
                     <span>Track Your Order</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/policies/cancellation" className="hover:text-[#FF8A24] transition flex items-center gap-1.5">
+                    <ArrowRight className="w-3 h-3 text-[#F26A00]" />
+                    <span>Order Cancellation Policy</span>
                   </Link>
                 </li>
                 <li>
@@ -252,27 +273,27 @@ export function Footer() {
                   </Link>
                 </li>
                 <li>
+                  <Link href="/policies/delivery" className="hover:text-[#FF8A24] transition flex items-center gap-1.5">
+                    <Truck className="w-3 h-3 text-[#F26A00]" />
+                    <span>Shipping &amp; Delivery Policy</span>
+                  </Link>
+                </li>
+                <li>
                   <Link href="/policies/warranty" className="hover:text-[#FF8A24] transition flex items-center gap-1.5">
                     <ShieldCheck className="w-3 h-3 text-[#F26A00]" />
                     <span>Warranty &amp; Authenticity</span>
                   </Link>
                 </li>
                 <li>
-                  <Link href="/policies/delivery" className="hover:text-[#FF8A24] transition flex items-center gap-1.5">
-                    <Truck className="w-3 h-3 text-[#F26A00]" />
-                    <span>Delivery &amp; Pickup</span>
+                  <Link href="/about" className="hover:text-[#FF8A24] transition flex items-center gap-1.5">
+                    <ArrowRight className="w-3 h-3 text-[#F26A00]" />
+                    <span>About AKI ADUNI VENTURES</span>
                   </Link>
                 </li>
                 <li>
                   <Link href="/contact" className="hover:text-[#FF8A24] transition flex items-center gap-1.5">
                     <Phone className="w-3 h-3 text-[#F26A00]" />
                     <span>Contact Customer Care</span>
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/about" className="hover:text-[#FF8A24] transition flex items-center gap-1.5">
-                    <ArrowRight className="w-3 h-3 text-[#F26A00]" />
-                    <span>About Aki Enterprise</span>
                   </Link>
                 </li>
               </ul>
@@ -314,21 +335,38 @@ export function Footer() {
 
           {/* Bottom Copyright & Legal Links */}
           <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
-            <p>
-              © 2026 <strong className="text-gray-300">Aki Enterprise</strong>. All rights reserved.
-            </p>
+            <div>
+              <p>
+                © 2026 <strong className="text-gray-300">AKI ADUNI VENTURES</strong> (Trading as Aki Enterprise). All rights reserved.
+              </p>
+              <p className="text-[11px] text-gray-500 mt-0.5">
+                Registered in Ghana • Reg No: BN987061122 • TIN: P0062373706 • Digital Address: EF35051780
+              </p>
+            </div>
 
             <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-[11px]">
               <Link href="/about" className="hover:text-gray-300 transition">
                 About Us
               </Link>
               <span>•</span>
+              <Link href="/faq" className="hover:text-gray-300 transition text-orange-400 font-semibold">
+                FAQ
+              </Link>
+              <span>•</span>
+              <Link href="/reviews" className="hover:text-gray-300 transition text-orange-400 font-semibold">
+                Customer Feedback
+              </Link>
+              <span>•</span>
+              <Link href="/policies/cancellation" className="hover:text-gray-300 transition">
+                Cancellation Policy
+              </Link>
+              <span>•</span>
               <Link href="/policies/returns" className="hover:text-gray-300 transition">
-                Return &amp; Refund Policy
+                Return &amp; Refund
               </Link>
               <span>•</span>
               <Link href="/policies/delivery" className="hover:text-gray-300 transition">
-                Delivery Policy
+                Shipping &amp; Delivery
               </Link>
               <span>•</span>
               <Link href="/policies/warranty" className="hover:text-gray-300 transition">

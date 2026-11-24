@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
       const sanitizedEmail =
         customer.email && customer.email.includes("@")
           ? customer.email.trim()
-          : `customer.${customer.phone.replace(/[^0-9]/g, "")}@akienterprise.com`;
+          : `customer.${customer.phone.replace(/[^0-9]/g, "")}@akiaduniventures.com`;
 
       const amountInPesewas = Math.round(Number(total_amount) * 100);
 

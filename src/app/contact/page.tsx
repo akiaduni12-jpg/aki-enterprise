@@ -62,18 +62,19 @@ export default function ContactPage() {
           __html: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "ContactPage",
-            name: "Contact Aki Enterprise",
-            url: "https://akienterprise.com/contact",
+            name: "Contact AKI ADUNI VENTURES",
+            url: "https://akiaduniventures.com/contact",
             mainEntity: {
               "@type": "LocalBusiness",
-              name: "Aki Enterprise",
+              name: "AKI ADUNI VENTURES",
               telephone: "+233551243372",
-              email: "support@akienterprise.com",
+              email: "support@akiaduniventures.com",
               address: {
                 "@type": "PostalAddress",
-                streetAddress: "Miaso",
+                streetAddress: "Miaso Near The Market",
                 addressLocality: "Kwahu East",
                 addressRegion: "Eastern Region",
+                postalCode: "EF35051780",
                 addressCountry: "GH",
               },
               openingHoursSpecification: [
@@ -101,10 +102,10 @@ export default function ContactPage() {
 
           <div className="max-w-3xl space-y-2">
             <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white font-sans">
-              Contact Us
+              Contact AKI ADUNI VENTURES
             </h1>
             <p className="text-sm sm:text-base text-gray-300 leading-relaxed">
-              Have questions about product availability, battery health, delivery to your town, or an existing order? Get in touch with our team.
+              Official customer care for AKI ADUNI VENTURES (Trading as Aki Enterprise • Reg ID: 2118270). Inquire about device stock, battery health verification, express delivery across Ghana, or warranty service.
             </p>
           </div>
         </div>
@@ -179,10 +180,10 @@ export default function ContactPage() {
                 Email
               </span>
               <a
-                href="mailto:support@akienterprise.com"
-                className="text-sm font-black text-slate-900 hover:text-[#F26A00] transition block mt-0.5 truncate max-w-[150px]"
+                href="mailto:support@akiaduniventures.com"
+                className="text-sm font-black text-slate-900 hover:text-[#F26A00] transition block mt-0.5 truncate max-w-[200px]"
               >
-                support@akienterprise.com
+                support@akiaduniventures.com
               </a>
               <span className="text-[11px] text-gray-500 block mt-0.5">Orders &amp; inquiries</span>
             </div>

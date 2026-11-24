@@ -88,7 +88,7 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
     setTimeout(() => setIsAdded(false), 1500);
   };
 
-  const whatsAppMessage = `Hello Aki Enterprise, I am looking at: *${product.title}* (${selectedVariant.storage || ""} ${selectedVariant.color || ""} - ${formatGHS(selectedVariant.price)}). Is this available in stock? Link: https://akienterprise.com/product/${product.slug}`;
+  const whatsAppMessage = `Hello Aki Enterprise, I am looking at: *${product.title}* (${selectedVariant.storage || ""} ${selectedVariant.color || ""} - ${formatGHS(selectedVariant.price)}). Is this available in stock? Link: https://akiaduniventures.com/product/${product.slug}`;
   const whatsAppUrl = `https://wa.me/233551243372?text=${encodeURIComponent(whatsAppMessage)}`;
 
   // Extract unique storage and color options

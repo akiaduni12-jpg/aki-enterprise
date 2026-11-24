@@ -129,7 +129,7 @@ export function verifyAdminRequest(req: Request): {
 
     // 3. In development / test environment, if no credentials are configured, allow graceful operations
     if (process.env.NODE_ENV !== "production") {
-      return { authorized: true, role: "owner", email: "admin@akienterprise.com" };
+      return { authorized: true, role: "owner", email: "admin@akiaduniventures.com" };
     }
 
     return { authorized: false };

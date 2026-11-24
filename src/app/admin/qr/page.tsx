@@ -318,7 +318,7 @@ export default function AdminQRPage() {
                   value={
                     typeof window !== "undefined"
                       ? `${window.location.origin}/qr/${selectedForPrint.slug}`
-                      : `https://akienterprise.com/qr/${selectedForPrint.slug}`
+                      : `https://akiaduniventures.com/qr/${selectedForPrint.slug}`
                   }
                   size={200}
                   centerBadgeText="AKI"

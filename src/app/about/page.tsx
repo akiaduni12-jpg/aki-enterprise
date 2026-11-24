@@ -2,18 +2,19 @@ import { Metadata } from "next";
 import { PolicyLayout } from "@/components/policies/policy-layout";
 
 export const metadata: Metadata = {
-  title: "About Us | Aki Enterprise - Ghana Electronics & Smart Devices",
+  title: "About Us | AKI ADUNI VENTURES (Trading as Aki Enterprise)",
   description:
-    "Learn about Aki Enterprise, Ghana's certified retailer of original smartphones, certified UK-used iPhones, GaN chargers, and electronics located in Miaso, Kwahu East.",
+    "Learn about AKI ADUNI VENTURES (Trading as Aki Enterprise), officially registered Ghanaian retailer of original smartphones, certified UK-used iPhones, GaN chargers, and electronics located in Miaso, Kwahu East. 100% on-hand physical stock with verified store warranty.",
 };
 
 export default function AboutPage() {
   return (
     <PolicyLayout
-      title="About Aki Enterprise"
-      subtitle="Authentic smart electronics, certified UK-used devices, and dependable customer service in Ghana."
+      title="About AKI ADUNI VENTURES"
+      subtitle="Registered Ghanaian commercial retailer (BN: AKI ADUNI VENTURES • ID: 2118270) trading as Aki Enterprise. Authentic smartphones, physical in-stock inventory, and dependable electronics service."
       policyKey="aboutUs"
-      badge="About Our Store"
+      badge="Registered Business Entity • Form A"
+      lastUpdated="November 2026"
     />
   );
 }

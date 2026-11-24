@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
     const format = (searchParams.get("format") || "xml").toLowerCase();
 
     // Determine Base URL
-    const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || "akienterprise.com";
+    const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || "akiaduniventures.com";
     const proto = req.headers.get("x-forwarded-proto") || (host.includes("localhost") ? "http" : "https");
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || `${proto}://${host}`;
 

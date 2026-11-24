@@ -19,14 +19,14 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "AKI ENTERPRISE | Phones, Electronics & Accessories (Ghana)",
+  title: "AKI ADUNI VENTURES | Genuine Electronics, Phones & Accessories (Ghana)",
   description:
-    "Aki Enterprise - Official electronics store in Ghana. Authentic brand new & Grade-A UK-used iPhones, Samsung smartphones, fast chargers, power banks, and computer accessories with warranty. Delivery across Accra & Ghana.",
+    "AKI ADUNI VENTURES (Trading as Aki Enterprise) - Official registered electronics store in Ghana (Reg: 2118270). Authentic brand new & Grade-A UK-used iPhones, Samsung smartphones, fast chargers, power banks, and computer accessories with warranty. Physical shop at Miaso, Kwahu East, Ghana.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Aki Enterprise",
+    title: "AKI ADUNI VENTURES",
   },
   icons: {
     icon: "/icons/logo-icon.webp",

@@ -606,7 +606,7 @@ export default function AdminSettingsPage() {
                   value={
                     typeof window !== "undefined"
                       ? `${window.location.origin}/feed/google-merchant.xml`
-                      : "https://akienterprise.com/feed/google-merchant.xml"
+                      : "https://akiaduniventures.com/feed/google-merchant.xml"
                   }
                   className="flex-1 px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-orange-400 font-mono text-xs select-all focus:outline-hidden"
                 />
@@ -615,7 +615,7 @@ export default function AdminSettingsPage() {
                   onClick={() => {
                     const url = typeof window !== "undefined"
                       ? `${window.location.origin}/feed/google-merchant.xml`
-                      : "https://akienterprise.com/feed/google-merchant.xml";
+                      : "https://akiaduniventures.com/feed/google-merchant.xml";
                     navigator.clipboard.writeText(url);
                     setCopiedFeed(true);
                     setTimeout(() => setCopiedFeed(false), 2500);

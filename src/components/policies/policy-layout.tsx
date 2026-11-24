@@ -24,7 +24,8 @@ interface PolicyLayoutProps {
     | "privacyPolicy"
     | "termsConditions"
     | "deliveryPolicy"
-    | "warrantyPolicy";
+    | "warrantyPolicy"
+    | "cancellationPolicy";
   lastUpdated?: string;
 }
 
@@ -211,11 +212,14 @@ export function PolicyLayout({
               </h4>
               {[
                 { title: "Return & Refund Policy", href: "/policies/returns" },
-                { title: "Privacy Policy", href: "/policies/privacy" },
+                { title: "Cancellation Policy", href: "/policies/cancellation" },
                 { title: "Shipping & Delivery", href: "/policies/delivery" },
                 { title: "Warranty Protection", href: "/policies/warranty" },
                 { title: "Terms & Conditions", href: "/policies/terms" },
-                { title: "About Aki Enterprise", href: "/about" },
+                { title: "Privacy Policy", href: "/policies/privacy" },
+                { title: "About AKI ADUNI VENTURES", href: "/about" },
+                { title: "Frequently Asked Questions", href: "/faq" },
+                { title: "Customer Feedback & Reviews", href: "/reviews" },
               ].map((link) => (
                 <Link
                   key={link.href}

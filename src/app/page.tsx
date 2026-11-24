@@ -546,7 +546,7 @@ export default function HomePage() {
                 </span>
                 <span className="flex items-center gap-1.5">
                   <CheckCircle2 className="w-4 h-4 text-emerald-300" />
-                  <span>Official Aki Enterprise Warranty</span>
+                  <span>Official AKI ADUNI VENTURES Warranty</span>
                 </span>
                 <span className="flex items-center gap-1.5">
                   <CheckCircle2 className="w-4 h-4 text-emerald-300" />
@@ -562,7 +562,7 @@ export default function HomePage() {
                   value={
                     typeof window !== "undefined"
                       ? `${window.location.origin}/qr`
-                      : "https://akienterprise.com/qr"
+                      : "https://akiaduniventures.com/qr"
                   }
                   size={120}
                   centerBadgeText="AKI"
@@ -574,7 +574,7 @@ export default function HomePage() {
                   Storefront Entry QR
                 </span>
                 <h4 className="text-sm font-black text-slate-900">
-                  Aki Enterprise
+                  AKI ADUNI VENTURES
                 </h4>
                 <p className="text-[11px] text-gray-500 max-w-[160px] leading-tight">
                   Point your phone camera to launch direct catalog
@@ -1146,7 +1146,7 @@ export default function HomePage() {
               How QR Scan &amp; Shop Works in Our Store
             </h2>
             <p className="text-xs sm:text-sm text-gray-500">
-              Visiting Aki Enterprise in Miaso, Kwahu East? Skip queues, view exact battery health stats, and pay via MoMo right from your phone.
+              Visiting AKI ADUNI VENTURES (Aki Enterprise) in Miaso, Kwahu East? Skip queues, view exact battery health stats, and pay via MoMo right from your phone.
             </p>
           </div>
 

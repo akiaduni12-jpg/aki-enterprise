@@ -167,12 +167,12 @@ export function Navbar() {
             </div>
             <div className="flex flex-col">
               <div className="flex items-center gap-1.5 leading-none">
-                <span className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 font-sans">
-                  Aki <span className="text-[#F26A00]">Enterprise</span>
+                <span className="text-lg sm:text-2xl font-black tracking-tight text-slate-900 font-sans">
+                  AKI <span className="text-[#F26A00]">ADUNI</span> VENTURES
                 </span>
               </div>
-              <span className="hidden sm:inline-block text-[10px] text-gray-400 tracking-tight font-medium mt-0.5">
-                Electronics &amp; Smart Devices • Ghana
+              <span className="hidden sm:inline-block text-[10px] text-gray-500 tracking-tight font-medium mt-0.5">
+                Trading as Aki Enterprise • Reg: 2118270 • Ghana
               </span>
             </div>
           </Link>
@@ -484,6 +484,18 @@ export function Navbar() {
                 Deals
               </Link>
               <Link
+                href="/faq"
+                className="hover:text-[#F26A00] transition"
+              >
+                FAQ
+              </Link>
+              <Link
+                href="/reviews"
+                className="hover:text-[#F26A00] transition"
+              >
+                Reviews
+              </Link>
+              <Link
                 href="/contact"
                 className="hover:text-[#F26A00] transition"
               >
@@ -534,6 +546,20 @@ export function Navbar() {
           </div>
 
           <div className="pt-3 border-t border-gray-100 flex flex-col gap-2">
+            <Link
+              href="/faq"
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-xs text-gray-700 py-1.5 px-2 hover:bg-gray-50 rounded font-semibold"
+            >
+              Frequently Asked Questions (FAQ)
+            </Link>
+            <Link
+              href="/reviews"
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-xs text-gray-700 py-1.5 px-2 hover:bg-gray-50 rounded font-semibold"
+            >
+              Customer Reviews &amp; Feedback
+            </Link>
             <Link
               href="/track"
               onClick={() => setMobileMenuOpen(false)}

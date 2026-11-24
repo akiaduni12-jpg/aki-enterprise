@@ -851,11 +851,15 @@ export default function CheckoutPage() {
             <span>Guaranteed Authenticity &amp; 14-Day Return Protection</span>
           </div>
           <p className="leading-relaxed">
-            By placing an order, you agree to Aki Enterprise&apos;s{" "}
+            By placing an order, you agree to AKI ADUNI VENTURES&apos; (Trading as Aki Enterprise){" "}
             <Link href="/policies/terms" target="_blank" className="text-[#F26A00] underline font-semibold">
               Terms of Service
-            </Link>{" "}
-            and{" "}
+            </Link>
+            ,{" "}
+            <Link href="/policies/cancellation" target="_blank" className="text-[#F26A00] underline font-semibold">
+              Cancellation Policy
+            </Link>
+            , and{" "}
             <Link href="/policies/returns" target="_blank" className="text-[#F26A00] underline font-semibold">
               Return &amp; Refund Policy
             </Link>

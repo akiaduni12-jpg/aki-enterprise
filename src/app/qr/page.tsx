@@ -8,7 +8,7 @@ import { ChevronLeft, Download, ShoppingBag, QrCode } from "lucide-react";
 
 export default function ScanAndShopQRPage() {
   const router = useRouter();
-  const storeUrl = typeof window !== "undefined" ? window.location.origin : "https://akienterprise.com";
+  const storeUrl = typeof window !== "undefined" ? window.location.origin : "https://akiaduniventures.com";
 
   return (
     <div className="min-h-screen bg-[#0E0C0A] text-white flex flex-col justify-between p-4 sm:p-6 relative overflow-hidden">
