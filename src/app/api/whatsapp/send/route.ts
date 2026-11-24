@@ -113,7 +113,7 @@ export async function POST(req: NextRequest) {
     const messageId = metaData.messages?.[0]?.id;
 
     // Record outbound message in store for sync
-    addWhatsAppMessage({
+    await addWhatsAppMessage({
       id: messageId,
       from: phoneNumberId,
       to: recipientPhone,

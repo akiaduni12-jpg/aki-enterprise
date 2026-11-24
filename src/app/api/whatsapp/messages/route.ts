@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
     const since = searchParams.get("since");
     const sinceTimestamp = since ? parseInt(since, 10) : undefined;
 
-    const messages = getWhatsAppMessages(sinceTimestamp);
+    const messages = await getWhatsAppMessages(sinceTimestamp);
 
     return NextResponse.json({
       success: true,

@@ -61,8 +61,8 @@ export async function POST(req: NextRequest) {
 
         console.log(`[WhatsApp Webhook] Incoming message from ${from} (${messageType}): ${text || "[non-text]"}`);
 
-        // Persist message to local store for real-time mobile sync
-        addWhatsAppMessage({
+        // Persist message to persistent store for real-time mobile sync
+        await addWhatsAppMessage({
           id: message.id,
           from,
           to: value.metadata?.display_phone_number || "233541855969",
