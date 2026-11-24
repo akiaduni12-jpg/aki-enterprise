@@ -49,7 +49,7 @@ export interface StoreSettings {
 
 export const DEFAULT_STORE_SETTINGS: StoreSettings = {
   storeName: "AKI ADUNI VENTURES",
-  tagline: "Trading as Aki Enterprise • Genuine Electronics & Smart Devices • Ghana",
+  tagline: "Phones, Electronics & Smart Devices • Ghana",
   businessName: "AKI ADUNI VENTURES",
   legalBusinessName: "AKI ADUNI VENTURES",
   registrationNumber: "BN987061122",
@@ -65,7 +65,7 @@ export const DEFAULT_STORE_SETTINGS: StoreSettings = {
   region: "Eastern Region",
   country: "Ghana",
   currency: "GH₵",
-  announcementText: "Free Delivery on Orders Above GH₵ 500 across Ghana | Genuine Warranty Guaranteed by AKI ADUNI VENTURES",
+  announcementText: "Free Delivery on Orders Above GH₵ 500 across Ghana | Full Store Warranty Guaranteed",
   announcementEnabled: true,
   deliveryFee: 30,
   freeDeliveryThreshold: 500,

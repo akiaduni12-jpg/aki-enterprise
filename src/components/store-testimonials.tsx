@@ -81,7 +81,7 @@ export function StoreTestimonials() {
             </h2>
           </div>
           <p className="text-xs text-gray-500 mt-1">
-            Genuine shopping reviews from customers who purchased certified phones, power banks, and accessories.
+            Customer reviews from verified buyers who purchased smartphones, power banks, and accessories.
           </p>
         </div>
 
@@ -108,11 +108,10 @@ export function StoreTestimonials() {
                   {[1, 2, 3, 4, 5].map((star) => (
                     <Star
                       key={star}
-                      className={`w-3.5 h-3.5 ${
-                        star <= test.rating
+                      className={`w-3.5 h-3.5 ${star <= test.rating
                           ? "fill-[#F26A00] text-[#F26A00]"
                           : "text-gray-200"
-                      }`}
+                        }`}
                     />
                   ))}
                 </div>
@@ -191,11 +190,10 @@ export function StoreTestimonials() {
                       className="p-1 hover:scale-110 transition"
                     >
                       <Star
-                        className={`w-7 h-7 ${
-                          s <= rating
+                        className={`w-7 h-7 ${s <= rating
                             ? "fill-[#F26A00] text-[#F26A00]"
                             : "text-gray-300"
-                        }`}
+                          }`}
                       />
                     </button>
                   ))}

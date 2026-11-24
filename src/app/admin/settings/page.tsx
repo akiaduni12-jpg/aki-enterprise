@@ -178,7 +178,7 @@ export default function AdminSettingsPage() {
                 onChange={(e) =>
                   setSettings({ ...settings, announcementText: e.target.value })
                 }
-                placeholder="e.g. Free Delivery on Orders Above GH₵ 500 across Ghana | Genuine Warranty"
+                placeholder="e.g. Free Delivery on Orders Above GH₵ 500 across Ghana | Store Warranty"
                 className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs focus:outline-hidden focus:border-[#F26A00]"
               />
             </div>

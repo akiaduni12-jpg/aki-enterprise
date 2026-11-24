@@ -396,7 +396,7 @@ export const PRODUCTS: Product[] = [
     category_id: "cat-5",
     category_slug: "computer-accessories",
     category_name: "Computer & Accessories",
-    description: "Speed up your laptop and multitask effortlessly. Quick and easy upgrade for HP, Dell, Lenovo, and Asus laptops. Genuine high-efficiency memory modules tested for reliability.",
+    description: "Speed up your laptop and multitask effortlessly. Quick and easy upgrade for HP, Dell, Lenovo, and Asus laptops. High-efficiency memory modules tested for reliability.",
     features: [
       "16GB Single Module DDR4-3200 SODIMM",
       "Improves system responsiveness and loading speeds",

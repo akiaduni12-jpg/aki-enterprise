@@ -19,9 +19,9 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "AKI ADUNI VENTURES | Genuine Electronics, Phones & Accessories (Ghana)",
+  title: "AKI ADUNI VENTURES | Phones, Electronics & Accessories (Ghana)",
   description:
-    "AKI ADUNI VENTURES - Certified electronics store in Ghana. Authentic brand new & Grade-A UK-used iPhones, Samsung smartphones, fast chargers, power banks, and computer accessories with warranty. Physical shop at Miaso, Kwahu East, Ghana.",
+    "AKI ADUNI VENTURES - Certified electronics store in Ghana. Brand new & Grade-A UK-used iPhones, Samsung smartphones, fast chargers, power banks, and computer accessories with warranty. Physical shop at Miaso, Kwahu East, Ghana.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -30,12 +30,19 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+      { url: "/favicon.ico?v=2" },
+      { url: "/icons/icon-192.png?v=2", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png?v=2", sizes: "512x512", type: "image/png" },
     ],
+    shortcut: "/favicon.ico?v=2",
     apple: [
-      { url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+      { url: "/icons/apple-touch-icon.png?v=2", sizes: "180x180", type: "image/png" },
     ],
+  },
+  verification: {
+    other: {
+      "facebook-domain-verification": "eu3wmu09awyjoqtv3hzpxfnws85r7c",
+    },
   },
 };
 
@@ -46,6 +53,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+      <head>
+        <meta name="facebook-domain-verification" content="eu3wmu09awyjoqtv3hzpxfnws85r7c" />
+      </head>
       <body className="min-h-full flex flex-col bg-slate-50 text-slate-900 font-sans">
         <CartProvider>
           <StoreLayoutWrapper>{children}</StoreLayoutWrapper>

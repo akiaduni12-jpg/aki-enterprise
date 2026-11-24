@@ -147,7 +147,7 @@ export function Footer() {
                   </div>
                 </Link>
                 <p className="text-xs text-gray-400 leading-relaxed max-w-sm pt-2">
-                  Certified Ghanaian commercial retailer for genuine smartphones, original PD chargers, high-capacity power banks, and computer electronics. 100% on-hand physical stock with verified warranty.
+                  Certified Ghanaian commercial retailer for smartphones, original PD chargers, high-capacity power banks, and computer electronics. 100% on-hand physical stock with verified warranty.
                 </p>
               </div>
 

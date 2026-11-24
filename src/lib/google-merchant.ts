@@ -78,7 +78,7 @@ export function generateGoogleMerchantXml(products: Product[], baseUrl: string):
       else variantDetails.push("Brand New");
 
       const title = `${product.title} ${variantDetails.length > 0 ? `(${variantDetails.join(" • ")})` : ""}`;
-      const description = product.description || `Buy genuine ${product.title} in Ghana at Aki Enterprise. Guaranteed quality with store warranty and fast delivery across Accra and nationwide.`;
+      const description = product.description || `Buy ${product.title} in Ghana at AKI ADUNI VENTURES. Guaranteed quality with store warranty and fast delivery across Accra and nationwide.`;
       const link = `${cleanBase}/product/${product.slug}`;
       const mainImage = product.images?.[0] || `${cleanBase}/icons/logo-icon.webp`;
       const additionalImages = (product.images || []).slice(1, 10);
@@ -171,7 +171,7 @@ export function generateGoogleMerchantTsv(products: Product[], baseUrl: string):
       else variantDetails.push("New");
 
       const title = `${product.title} ${variantDetails.length > 0 ? `(${variantDetails.join(" ")})` : ""}`.replace(/[\t\n\r]/g, " ");
-      const description = (product.description || `Genuine ${product.title} available at Aki Enterprise with store warranty and Ghana-wide delivery.`).replace(/[\t\n\r]/g, " ");
+      const description = (product.description || `${product.title} available at AKI ADUNI VENTURES with store warranty and Ghana-wide delivery.`).replace(/[\t\n\r]/g, " ");
       const link = `${cleanBase}/product/${product.slug}`;
       const mainImage = product.images?.[0] || `${cleanBase}/icons/logo-icon.webp`;
       const condition = mapCondition(v.condition);

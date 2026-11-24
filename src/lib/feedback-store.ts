@@ -39,7 +39,7 @@ export const INITIAL_PRODUCT_REVIEWS: ProductReview[] = [
     product_title: "Apple iPhone 15 Pro Max",
     customer_name: "Kwame Mensah",
     rating: 5,
-    title: "100% Genuine & Battery Health is pristine!",
+    title: "Original Quality & Battery Health is pristine!",
     comment:
       "Picked this up at their Accra shop. IMEI matched Apple website and battery health is exactly 100%. Free tempered glass was installed for me on the spot. Best electronics shop in Accra!",
     verified_purchase: true,
@@ -136,9 +136,9 @@ export const INITIAL_STORE_TESTIMONIALS: StoreTestimonial[] = [
     customer_name: "Naa Adjeley",
     city: "Osu, Accra",
     rating: 5,
-    highlight: "Genuine Anker & Original Accessories",
+    highlight: "Original Anker & Brand Accessories",
     content:
-      "Finding original GaN chargers in Accra used to be difficult with all the fake copies in town. Aki Enterprise sells 100% genuine Anker and Oraimo chargers. Highly recommended!",
+      "Finding original GaN chargers in Accra used to be difficult with all the fake copies in town. AKI ADUNI VENTURES sells 100% original Anker and Oraimo chargers. Highly recommended!",
     verified_buyer: true,
     featured: true,
     status: "approved",

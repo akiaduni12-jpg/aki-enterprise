@@ -1265,14 +1265,14 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Genuine Products */}
+          {/* Certified Quality */}
           <div className="flex items-center gap-3 pt-2 md:pt-0 md:pl-4">
             <div className="p-2.5 rounded-xl bg-orange-50 text-[#F26A00] shrink-0">
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-bold text-xs text-slate-900">Genuine Products</h4>
-              <p className="text-[11px] text-gray-500">100% Authentic</p>
+              <h4 className="font-bold text-xs text-slate-900">Certified Quality</h4>
+              <p className="text-[11px] text-gray-500">Tested &amp; Verified</p>
             </div>
           </div>
 

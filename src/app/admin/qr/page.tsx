@@ -342,7 +342,7 @@ export default function AdminQRPage() {
               </div>
 
               <div className="mt-3 pt-3 border-t border-gray-200 w-full flex items-center justify-around text-[10px] font-bold text-gray-600 uppercase">
-                <span>100% Genuine</span>
+                <span>Verified Quality</span>
                 <span>Shop Warranty</span>
                 <span>Instant Pickup</span>
               </div>

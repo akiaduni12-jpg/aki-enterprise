@@ -128,7 +128,7 @@ export default function CategoriesPage() {
               Categories
             </h2>
             <p className="text-[11px] text-orange-100 leading-snug">
-              Find genuine electronics, original accessories &amp; daily deals.
+              Find smartphones, electronics, original accessories &amp; daily deals.
             </p>
             <div className="pt-1">
               <Link

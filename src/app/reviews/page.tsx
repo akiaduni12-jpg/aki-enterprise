@@ -250,7 +250,7 @@ export default function ReviewsPage() {
                   onChange={(e) => setRating(Number(e.target.value))}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-xs text-slate-900 focus:outline-hidden focus:border-[#F26A00] focus:ring-1 focus:ring-[#F26A00] transition"
                 >
-                  <option value={5}>5 Stars - Outstanding &amp; 100% Genuine</option>
+                  <option value={5}>5 Stars - Outstanding &amp; Original Quality</option>
                   <option value={4}>4 Stars - Very Good Experience</option>
                   <option value={3}>3 Stars - Satisfactory</option>
                 </select>

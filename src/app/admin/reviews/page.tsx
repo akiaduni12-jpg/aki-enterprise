@@ -126,7 +126,7 @@ export default function AdminReviewsPage() {
             Reviews &amp; Store Testimonials
           </h1>
           <p className="text-xs text-gray-400 mt-1">
-            Moderate incoming customer ratings, verify genuine purchasers, and feature highlights on the public storefront.
+            Moderate incoming customer ratings, verify real purchasers, and feature highlights on the public storefront.
           </p>
         </div>
 

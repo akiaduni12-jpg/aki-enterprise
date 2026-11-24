@@ -219,7 +219,7 @@ export default function AdminCatalogPage() {
     setEditingProductId(null);
     setPTitle("");
     setPSlug("");
-    setPDescription("Genuine certified electronics with official Aki Enterprise warranty.");
+    setPDescription("Certified electronics with official store warranty.");
     setPBasePrice(1200);
     setPOriginalPrice(1400);
     setPStock(10);
