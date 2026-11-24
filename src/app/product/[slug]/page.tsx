@@ -16,17 +16,40 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!product) {
     return {
-      title: "Product Not Found | AKI ENTERPRISE",
+      title: "Product Not Found | AKI ADUNI VENTURES",
     };
   }
 
+  const primaryPrice = product.variants?.[0]?.price || product.base_price;
+  const mainImage = product.images?.[0] || "/icons/icon-512.png";
+
   return {
-    title: `${product.title} - Price & Specs | AKI ENTERPRISE (Ghana)`,
-    description: product.description,
+    title: `${product.title} - Price & Specs | AKI ADUNI VENTURES (Ghana)`,
+    description: `${product.description} Available in Ghana at GH₵ ${primaryPrice.toLocaleString()}. Fast delivery nationwide & store warranty.`,
+    alternates: {
+      canonical: `/product/${product.slug}`,
+    },
     openGraph: {
-      title: `${product.title} | AKI ENTERPRISE`,
+      title: `${product.title} | AKI ADUNI VENTURES`,
       description: product.description,
-      images: [{ url: product.images[0] || "" }],
+      url: `https://akiaduniventures.com/product/${product.slug}`,
+      siteName: "AKI ADUNI VENTURES",
+      locale: "en_GH",
+      type: "website",
+      images: [
+        {
+          url: mainImage,
+          width: 800,
+          height: 800,
+          alt: product.title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${product.title} | AKI ADUNI VENTURES`,
+      description: product.description,
+      images: [mainImage],
     },
   };
 }
@@ -54,5 +77,43 @@ export default async function ProductPage({ params }: Props) {
     })
     .slice(0, 4);
 
-  return <ProductDetailClient product={product} relatedProducts={relatedProducts} />;
+  const primaryVariant = product.variants?.[0];
+  const price = primaryVariant?.price || product.base_price;
+  const isUkUsed = primaryVariant?.condition === "uk_used";
+
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": product.title,
+    "image": product.images && product.images.length > 0 ? product.images : ["https://akiaduniventures.com/icons/icon-512.png"],
+    "description": product.description,
+    "sku": primaryVariant?.sku || product.slug,
+    "brand": {
+      "@type": "Brand",
+      "name": product.brand_name || "AKI ADUNI VENTURES",
+    },
+    "category": product.category_name,
+    "offers": {
+      "@type": "Offer",
+      "url": `https://akiaduniventures.com/product/${product.slug}`,
+      "priceCurrency": "GHS",
+      "price": price,
+      "itemCondition": isUkUsed ? "https://schema.org/UsedCondition" : "https://schema.org/NewCondition",
+      "availability": (primaryVariant?.stock_quantity ?? 1) > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      "seller": {
+        "@type": "Organization",
+        "name": "AKI ADUNI VENTURES",
+      },
+    },
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
+      <ProductDetailClient product={product} relatedProducts={relatedProducts} />
+    </>
+  );
 }
