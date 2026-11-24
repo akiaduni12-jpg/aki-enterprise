@@ -46,6 +46,11 @@ export function ProductCard({ product }: ProductCardProps) {
   // Use first variant by default
   const defaultVariant = product.variants[0];
   const conditionBadge = defaultVariant ? getConditionBadge(defaultVariant.condition) : null;
+  const hasBatteryHealth =
+    Boolean(defaultVariant?.battery_health && defaultVariant.battery_health.trim()) &&
+    defaultVariant!.battery_health!.trim().toLowerCase() !== "n/a" &&
+    defaultVariant!.battery_health!.trim().toLowerCase() !== "none" &&
+    defaultVariant!.condition !== "brand_new";
 
   return (
     <div className="group relative bg-white rounded-2xl border border-gray-100 shadow-xs hover:shadow-xl hover:border-orange-200 transition-all duration-300 flex flex-col overflow-hidden">
@@ -59,10 +64,10 @@ export function ProductCard({ product }: ProductCardProps) {
               {conditionBadge.label}
             </span>
           )}
-          {defaultVariant?.battery_health && (
+          {hasBatteryHealth && (
             <span className="flex items-center gap-1 bg-slate-900/80 text-emerald-400 text-[9px] font-mono font-semibold px-1.5 py-0.5 rounded-md backdrop-blur-xs">
               <BatteryCharging className="w-3 h-3" />
-              {defaultVariant.battery_health}
+              {defaultVariant?.battery_health}
             </span>
           )}
         </div>

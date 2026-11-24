@@ -821,7 +821,10 @@ export default function HomePage() {
                       >
                         {isUkUsed ? "UK Used Grade A" : "Brand New"}
                       </span>
-                      {primaryVariant.battery_health && (
+                      {isUkUsed &&
+                        Boolean(primaryVariant.battery_health && primaryVariant.battery_health.trim()) &&
+                        primaryVariant.battery_health!.trim().toLowerCase() !== "n/a" &&
+                        primaryVariant.battery_health!.trim().toLowerCase() !== "none" && (
                         <span className="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[10px] font-bold flex items-center gap-1">
                           <BatteryCharging className="w-3 h-3" />
                           <span>{primaryVariant.battery_health}</span>

@@ -59,6 +59,11 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
   if (!isOpen || !product || !selectedVariant) return null;
 
   const conditionBadge = getConditionBadge(selectedVariant.condition);
+  const hasBatteryHealth =
+    Boolean(selectedVariant?.battery_health && selectedVariant.battery_health.trim()) &&
+    selectedVariant.battery_health!.trim().toLowerCase() !== "n/a" &&
+    selectedVariant.battery_health!.trim().toLowerCase() !== "none" &&
+    selectedVariant.condition !== "brand_new";
   const currentImages = product.images && product.images.length > 0 ? product.images : ["/placeholder.png"];
   const displayImage = currentImages[activeImageIndex] || currentImages[0];
 
@@ -137,7 +142,7 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
                 <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border shadow-xs ${conditionBadge.className}`}>
                   {conditionBadge.label}
                 </span>
-                {selectedVariant.battery_health && (
+                {hasBatteryHealth && (
                   <span className="flex items-center gap-1 bg-slate-900/90 text-emerald-400 text-[10px] font-mono font-bold px-2 py-0.5 rounded-md">
                     <BatteryCharging className="w-3.5 h-3.5" />
                     <span>{selectedVariant.battery_health}</span>

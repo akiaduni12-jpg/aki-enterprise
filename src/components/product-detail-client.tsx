@@ -45,6 +45,11 @@ export function ProductDetailClient({
   const { addToCart } = useCart();
 
   const conditionBadge = getConditionBadge(selectedVariant.condition);
+  const hasBatteryHealth =
+    Boolean(selectedVariant?.battery_health && selectedVariant.battery_health.trim()) &&
+    selectedVariant.battery_health!.trim().toLowerCase() !== "n/a" &&
+    selectedVariant.battery_health!.trim().toLowerCase() !== "none" &&
+    selectedVariant.condition !== "brand_new";
   const [isLiked, setIsLiked] = useState(false);
 
   // Sync latest product images & details from catalog store
@@ -205,7 +210,7 @@ export function ProductDetailClient({
               <span className={`px-2.5 py-1 rounded-full text-xs font-bold border shadow-xs backdrop-blur-md ${conditionBadge.className}`}>
                 {conditionBadge.label}
               </span>
-              {selectedVariant.battery_health && (
+              {hasBatteryHealth && (
                 <span className="flex items-center gap-1 bg-slate-900/90 text-emerald-400 text-xs font-mono font-semibold px-2 py-1 rounded-md shadow-xs">
                   <BatteryCharging className="w-3.5 h-3.5" />
                   Battery: {selectedVariant.battery_health}
@@ -360,7 +365,7 @@ export function ProductDetailClient({
             )}
 
             {/* Battery Health & Device Details */}
-            {selectedVariant.battery_health && (
+            {hasBatteryHealth && (
               <div className="p-3 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-between text-xs">
                 <span className="text-gray-500">Certified Battery Health:</span>
                 <span className="font-mono font-bold text-emerald-600 flex items-center gap-1">
