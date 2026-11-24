@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// Verify Token chosen by you and configured in Meta Developer Dashboard
-const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN || "aki_enterprise_whatsapp_token_2026";
+// Verify Tokens accepted from Meta Developer Dashboard
+const VALID_VERIFY_TOKENS = [
+  process.env.WHATSAPP_VERIFY_TOKEN,
+  "aki_aduni_whatsapp_token_2026",
+  "aki_enterprise_whatsapp_token_2026",
+].filter(Boolean) as string[];
 
 /**
  * 1. GET /api/whatsapp/webhook
@@ -18,7 +22,7 @@ export async function GET(req: NextRequest) {
     const token = searchParams.get("hub.verify_token");
     const challenge = searchParams.get("hub.challenge");
 
-    if (mode === "subscribe" && token === VERIFY_TOKEN) {
+    if (mode === "subscribe" && token && VALID_VERIFY_TOKENS.includes(token)) {
       console.log("[WhatsApp Webhook] Verification successful");
       return new NextResponse(challenge, {
         status: 200,
