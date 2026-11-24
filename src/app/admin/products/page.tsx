@@ -38,6 +38,12 @@ import {
   ArrowRight,
   Loader2,
   Cloud,
+  Zap,
+  Headphones,
+  Laptop,
+  Watch,
+  Smartphone,
+  Sparkles,
 } from "lucide-react";
 
 export default function AdminCatalogPage() {
@@ -64,31 +70,28 @@ export default function AdminCatalogPage() {
   const [pCategorySlug, setPCategorySlug] = useState("");
   const [pBrandName, setPBrandName] = useState("");
   const [pDescription, setPDescription] = useState("");
-  const [pBasePrice, setPBasePrice] = useState<number>(1000);
-  const [pOriginalPrice, setPOriginalPrice] = useState<number | undefined>(1200);
-  const [pStock, setPStock] = useState<number>(10);
+  const [pBasePrice, setPBasePrice] = useState<number>(0);
+  const [pOriginalPrice, setPOriginalPrice] = useState<number | undefined>(undefined);
+  const [pStock, setPStock] = useState<number>(5);
   const [pCondition, setPCondition] = useState<"brand_new" | "uk_used">("brand_new");
-  const [pBatteryHealth, setPBatteryHealth] = useState("100%");
+  const [pBatteryHealth, setPBatteryHealth] = useState("");
   const [pWarrantyMonths, setPWarrantyMonths] = useState(12);
-  const [pStorage, setPStorage] = useState("128GB");
-  const [pRam, setPRam] = useState("8GB");
-  const [pColor, setPColor] = useState("Natural Titanium");
-  const [pColorHex, setPColorHex] = useState("#9a978f");
-  const [pAvailableStorages, setPAvailableStorages] = useState("128GB, 256GB, 512GB");
+  const [pStorage, setPStorage] = useState("");
+  const [pRam, setPRam] = useState("");
+  const [pColor, setPColor] = useState("Default");
+  const [pColorHex, setPColorHex] = useState("#171717");
+  const [pAvailableStorages, setPAvailableStorages] = useState("");
 
   // Detailed Features & Specs
-  const [pFeatures, setPFeatures] = useState(
-    "A17 Pro Chip with 6-core GPU\nGrade 5 Titanium design with textured matte glass\n48MP Main Camera with 5x Telephoto zoom\nUSB-C connector with fast 10Gb/s transfer\nAll-day battery life with certified health warranty"
-  );
-  const [pSpecDisplay, setPSpecDisplay] = useState("6.7-inch Super Retina XDR OLED 120Hz ProMotion");
-  const [pSpecProcessor, setPSpecProcessor] = useState("Apple A17 Pro (3nm) / Octa-Core High Performance");
-  const [pSpecCamera, setPSpecCamera] = useState("48MP Main + 12MP Ultra-Wide + 5x Telephoto");
-  const [pSpecOS, setPSpecOS] = useState("iOS 18 (Upgradable) / Android 15");
-  const [pSpecNetwork, setPSpecNetwork] = useState("5G / Dual SIM + eSIM Unlocked (MTN, Telecel, AT)");
+  const [pFeatures, setPFeatures] = useState("");
+  const [pSpecDisplay, setPSpecDisplay] = useState("");
+  const [pSpecProcessor, setPSpecProcessor] = useState("");
+  const [pSpecCamera, setPSpecCamera] = useState("");
+  const [pSpecOS, setPSpecOS] = useState("");
+  const [pSpecNetwork, setPSpecNetwork] = useState("");
+  const [customSpecs, setCustomSpecs] = useState<{ key: string; value: string }[]>([]);
 
-  const [pImages, setPImages] = useState<string[]>([
-    "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=800&q=80",
-  ]);
+  const [pImages, setPImages] = useState<string[]>([]);
   const [newImageUrl, setNewImageUrl] = useState("");
   const [pFeatured, setPFeatured] = useState(false);
   const [pBestSeller, setPBestSeller] = useState(false);
@@ -219,20 +222,26 @@ export default function AdminCatalogPage() {
     setEditingProductId(null);
     setPTitle("");
     setPSlug("");
-    setPDescription("Certified electronics with official store warranty.");
-    setPBasePrice(1200);
-    setPOriginalPrice(1400);
-    setPStock(10);
+    setPDescription("");
+    setPBasePrice(0);
+    setPOriginalPrice(undefined);
+    setPStock(5);
     setPCondition("brand_new");
-    setPBatteryHealth("100%");
+    setPBatteryHealth("");
     setPWarrantyMonths(12);
-    setPStorage("128GB");
-    setPRam("8GB");
-    setPColor("Space Black");
-    setPColorHex("#222222");
-    setPImages([
-      "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=800&q=80",
-    ]);
+    setPStorage("");
+    setPRam("");
+    setPColor("Default");
+    setPColorHex("#171717");
+    setPAvailableStorages("");
+    setPFeatures("");
+    setPSpecDisplay("");
+    setPSpecProcessor("");
+    setPSpecCamera("");
+    setPSpecOS("");
+    setPSpecNetwork("");
+    setCustomSpecs([]);
+    setPImages([]);
     setPFeatured(false);
     setPBestSeller(false);
     setIsProductModalOpen(true);
@@ -255,57 +264,86 @@ export default function AdminCatalogPage() {
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/(^-|-$)+/g, "");
 
-    // Parse features from lines
+    // Parse features from lines or clean contextual bullets
     const parsedFeatures = pFeatures.trim()
       ? pFeatures
           .split("\n")
           .map((f) => f.trim())
           .filter(Boolean)
       : [
-          `Original ${brandName} certified unit`,
-          `${pCondition === "uk_used" ? "Grade A UK-Used" : "Brand New Factory Sealed"}`,
+          `Original ${brandName} verified product`,
+          `${pCondition === "uk_used" ? "Grade-A UK-Used (Fully Tested)" : "Brand New Factory Sealed"}`,
           `${pWarrantyMonths} Months AKI ADUNI VENTURES Store Warranty`,
-          `Battery Health: ${pBatteryHealth.trim() ? pBatteryHealth.trim() : (pCondition === "uk_used" ? "90%+" : "100%")}`,
+          ...(pBatteryHealth.trim() ? [`Battery Health: ${pBatteryHealth.trim()}`] : []),
         ];
 
-    // Build specs record
-    const parsedSpecs: Record<string, string> = {
-      Display: pSpecDisplay.trim() || "OLED Super Retina 120Hz",
-      Processor: pSpecProcessor.trim() || "Octa-Core High Performance",
-      Main_Camera: pSpecCamera.trim() || "High-Res AI Camera System",
-      OS: pSpecOS.trim() || "Latest OS",
-      Network: pSpecNetwork.trim() || "5G / 4G LTE Unlocked (MTN, Telecel, AT)",
-      Storage: pStorage,
-      RAM: pRam,
-    };
+    // Build specs record dynamically - ONLY save non-empty specs
+    const parsedSpecs: Record<string, string> = {};
+    if (pSpecDisplay.trim()) parsedSpecs["Display"] = pSpecDisplay.trim();
+    if (pSpecProcessor.trim()) parsedSpecs["Processor"] = pSpecProcessor.trim();
+    if (pSpecCamera.trim()) parsedSpecs["Main Camera"] = pSpecCamera.trim();
+    if (pSpecOS.trim()) parsedSpecs["OS"] = pSpecOS.trim();
+    if (pSpecNetwork.trim()) parsedSpecs["Network"] = pSpecNetwork.trim();
+    if (pStorage.trim()) parsedSpecs["Storage"] = pStorage.trim();
+    if (pRam.trim()) parsedSpecs["RAM"] = pRam.trim();
+
+    // Include custom specs
+    customSpecs.forEach((cs) => {
+      if (cs.key.trim() && cs.value.trim()) {
+        parsedSpecs[cs.key.trim()] = cs.value.trim();
+      }
+    });
 
     // Parse multi-storage options
     const storageList = pAvailableStorages
       .split(",")
       .map((s) => s.trim())
       .filter(Boolean);
-    const storagesToUse = storageList.length > 0 ? storageList : [pStorage];
+    const storagesToUse = storageList.length > 0 ? storageList : (pStorage.trim() ? [pStorage.trim()] : []);
 
-    const variantsToSave: ProductVariant[] = storagesToUse.map((st, idx) => {
-      // Step pricing for larger capacities
-      const stepPrice = idx === 0 ? Number(pBasePrice) : Number(pBasePrice) + idx * 1500;
-      const stepOriginal = pOriginalPrice ? Number(pOriginalPrice) + idx * 1500 : undefined;
-      return {
-        id: `var-${Date.now()}-${idx}`,
-        product_id: editingProductId || `prod-${Date.now()}`,
-        sku: `${generatedSlug}-${st}-${pCondition}`.toUpperCase(),
-        condition: pCondition,
-        storage: st,
-        ram: pRam,
-        color: pColor,
-        color_hex: pColorHex,
-        battery_health: pBatteryHealth.trim() ? pBatteryHealth.trim() : (pCondition === "uk_used" ? "90%+" : "100%"),
-        warranty_months: pWarrantyMonths,
-        price: stepPrice,
-        original_price: stepOriginal,
-        stock_quantity: Math.max(1, Math.round(Number(pStock) / storagesToUse.length)),
-      };
-    });
+    let variantsToSave: ProductVariant[] = [];
+
+    if (storagesToUse.length > 0) {
+      variantsToSave = storagesToUse.map((st, idx) => {
+        // Step pricing for larger capacities
+        const stepPrice = idx === 0 ? Number(pBasePrice) : Number(pBasePrice) + idx * 1500;
+        const stepOriginal = pOriginalPrice ? Number(pOriginalPrice) + idx * 1500 : undefined;
+        return {
+          id: `var-${Date.now()}-${idx}`,
+          product_id: editingProductId || `prod-${Date.now()}`,
+          sku: `${generatedSlug}-${st}-${pCondition}`.toUpperCase(),
+          condition: pCondition,
+          storage: st,
+          ram: pRam.trim() || undefined,
+          color: pColor.trim() || "Default",
+          color_hex: pColorHex || "#171717",
+          battery_health: pBatteryHealth.trim() || undefined,
+          warranty_months: pWarrantyMonths,
+          price: stepPrice,
+          original_price: stepOriginal,
+          stock_quantity: Math.max(1, Math.round(Number(pStock) / storagesToUse.length)),
+        };
+      });
+    } else {
+      // Single variant for products without storage options (chargers, power banks, audio, accessories)
+      variantsToSave = [
+        {
+          id: `var-${Date.now()}-0`,
+          product_id: editingProductId || `prod-${Date.now()}`,
+          sku: `${generatedSlug}-${pCondition}`.toUpperCase(),
+          condition: pCondition,
+          storage: undefined,
+          ram: pRam.trim() || undefined,
+          color: pColor.trim() || "Default",
+          color_hex: pColorHex || "#171717",
+          battery_health: pBatteryHealth.trim() || undefined,
+          warranty_months: pWarrantyMonths,
+          price: Number(pBasePrice),
+          original_price: pOriginalPrice ? Number(pOriginalPrice) : undefined,
+          stock_quantity: Math.max(1, Number(pStock) || 1),
+        },
+      ];
+    }
 
     if (editingProductId) {
       updateProduct(editingProductId, {
@@ -372,31 +410,62 @@ export default function AdminCatalogPage() {
 
     if (prod.features && prod.features.length > 0) {
       setPFeatures(prod.features.join("\n"));
+    } else {
+      setPFeatures("");
     }
+
     if (prod.specs) {
       setPSpecDisplay(prod.specs.Display || prod.specs.Screen || "");
       setPSpecProcessor(prod.specs.Processor || prod.specs.Chipset || "");
       setPSpecCamera(prod.specs.Main_Camera || prod.specs.Camera || "");
       setPSpecOS(prod.specs.OS || "");
       setPSpecNetwork(prod.specs.Network || "");
+
+      const knownKeys = ["Display", "Screen", "Processor", "Chipset", "Main_Camera", "Main Camera", "Camera", "OS", "Network", "Storage", "RAM"];
+      const extra: { key: string; value: string }[] = [];
+      Object.entries(prod.specs).forEach(([k, v]) => {
+        if (!knownKeys.includes(k) && typeof v === "string") {
+          extra.push({ key: k, value: v });
+        }
+      });
+      setCustomSpecs(extra);
+    } else {
+      setPSpecDisplay("");
+      setPSpecProcessor("");
+      setPSpecCamera("");
+      setPSpecOS("");
+      setPSpecNetwork("");
+      setCustomSpecs([]);
     }
 
     const storages = Array.from(new Set(prod.variants.map((v) => v.storage).filter(Boolean)));
     if (storages.length > 0) {
       setPAvailableStorages(storages.join(", "));
+    } else {
+      setPAvailableStorages("");
     }
 
     const firstVar = prod.variants?.[0];
     if (firstVar) {
       setPCondition(firstVar.condition === "uk_used" ? "uk_used" : "brand_new");
-      setPBatteryHealth(firstVar.battery_health || "90%+");
+      setPBatteryHealth(firstVar.battery_health || "");
       setPWarrantyMonths(firstVar.warranty_months || 12);
-      setPStorage(firstVar.storage || "128GB");
-      setPRam(firstVar.ram || "8GB");
-      setPColor(firstVar.color || "Natural Titanium");
-      setPColorHex(firstVar.color_hex || "#9a978f");
-      setPStock(firstVar.stock_quantity || 10);
+      setPStorage(firstVar.storage || "");
+      setPRam(firstVar.ram || "");
+      setPColor(firstVar.color || "Default");
+      setPColorHex(firstVar.color_hex || "#171717");
+      setPStock(firstVar.stock_quantity || 5);
       setPOriginalPrice(firstVar.original_price);
+    } else {
+      setPCondition("brand_new");
+      setPBatteryHealth("");
+      setPWarrantyMonths(12);
+      setPStorage("");
+      setPRam("");
+      setPColor("Default");
+      setPColorHex("#171717");
+      setPStock(5);
+      setPOriginalPrice(undefined);
     }
     setIsProductModalOpen(true);
   };
@@ -1143,20 +1212,20 @@ export default function AdminCatalogPage() {
                       onChange={(e) => setPCondition(e.target.value as any)}
                       className="w-full px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500"
                     >
-                      <option value="brand_new">Brand New Sealed</option>
+                      <option value="brand_new">Brand New Factory Sealed</option>
                       <option value="uk_used">Tested UK-Used Grade A</option>
                     </select>
                   </div>
 
                   <div>
                     <label className="text-[11px] font-semibold text-gray-400 block mb-1">
-                      Battery Health
+                      Battery Health (Phones only)
                     </label>
                     <input
                       type="text"
                       value={pBatteryHealth}
                       onChange={(e) => setPBatteryHealth(e.target.value)}
-                      placeholder="e.g. 100% or 90%+"
+                      placeholder="e.g. 91%+ (leave blank for chargers/accessories)"
                       className="w-full px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500"
                     />
                   </div>
@@ -1181,26 +1250,26 @@ export default function AdminCatalogPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
                   <div>
                     <label className="text-[11px] font-semibold text-gray-400 block mb-1">
-                      Base Storage
+                      Storage (Optional)
                     </label>
                     <input
                       type="text"
                       value={pStorage}
                       onChange={(e) => setPStorage(e.target.value)}
-                      placeholder="e.g. 128GB"
+                      placeholder="e.g. 128GB (blank for accessories)"
                       className="w-full px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500"
                     />
                   </div>
 
                   <div>
                     <label className="text-[11px] font-semibold text-gray-400 block mb-1">
-                      RAM
+                      RAM (Optional)
                     </label>
                     <input
                       type="text"
                       value={pRam}
                       onChange={(e) => setPRam(e.target.value)}
-                      placeholder="e.g. 8GB"
+                      placeholder="e.g. 8GB (blank for accessories)"
                       className="w-full px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500"
                     />
                   </div>
@@ -1221,7 +1290,7 @@ export default function AdminCatalogPage() {
                         type="text"
                         value={pColor}
                         onChange={(e) => setPColor(e.target.value)}
-                        placeholder="e.g. Natural Titanium"
+                        placeholder="e.g. Black / White / Natural Titanium"
                         className="flex-1 px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500"
                       />
                     </div>
@@ -1235,13 +1304,13 @@ export default function AdminCatalogPage() {
                   </label>
                   <div className="flex flex-wrap items-center gap-2">
                     {[
-                      { name: "Natural Titanium", hex: "#9a978f" },
                       { name: "Space Black", hex: "#1e293b" },
-                      { name: "Ocean Blue", hex: "#2563eb" },
-                      { name: "Rose Pink", hex: "#ec4899" },
                       { name: "Pure White", hex: "#f8fafc" },
+                      { name: "Natural Titanium", hex: "#9a978f" },
+                      { name: "Ocean Blue", hex: "#2563eb" },
                       { name: "Gold", hex: "#eab308" },
                       { name: "Deep Purple", hex: "#581c87" },
+                      { name: "Rose Pink", hex: "#ec4899" },
                       { name: "Forest Green", hex: "#15803d" },
                     ].map((swatch) => (
                       <button
@@ -1270,17 +1339,17 @@ export default function AdminCatalogPage() {
                 {/* Multiple Storage Variants Chips */}
                 <div className="pt-2 border-t border-slate-800/80">
                   <label className="text-[11px] font-semibold text-gray-400 block mb-1">
-                    Multiple Storage Option Chips (Comma separated)
+                    Multiple Storage Capacities (Optional)
                   </label>
                   <input
                     type="text"
                     value={pAvailableStorages}
                     onChange={(e) => setPAvailableStorages(e.target.value)}
-                    placeholder="e.g. 128GB, 256GB, 512GB, 1TB"
+                    placeholder="e.g. 128GB, 256GB, 512GB (leave blank if not applicable)"
                     className="w-full px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500 font-mono"
                   />
                   <p className="text-[10px] text-gray-500 mt-1">
-                    Creates the interactive storage selector buttons on the product detail page.
+                    Only use for phones or devices with multiple storage options. Leave empty for chargers, cables, earbuds &amp; single-size products.
                   </p>
                 </div>
               </div>
@@ -1388,83 +1457,208 @@ export default function AdminCatalogPage() {
                   rows={4}
                   value={pFeatures}
                   onChange={(e) => setPFeatures(e.target.value)}
-                  placeholder="e.g.&#10;A17 Pro Chip with 6-core GPU&#10;Grade 5 Titanium design with textured matte glass&#10;48MP Main Camera with 5x Telephoto zoom&#10;USB-C connector with 10Gb/s transfer speeds"
+                  placeholder="e.g.&#10;High-Speed 65W GaN Fast Charging&#10;Dual USB-C Power Delivery ports&#10;Universal compatibility with iPhone, Samsung & MacBook&#10;Certified surge & overheating protection"
                   className="w-full px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500 resize-none font-mono"
                 />
               </div>
 
               {/* Technical Specifications Table */}
-              <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-3">
-                <h4 className="text-xs font-bold text-[#FF8A24] uppercase tracking-wider flex items-center gap-1.5">
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                  <span>Technical Specifications (Detailed Specs Table)</span>
-                </h4>
+              <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <h4 className="text-xs font-bold text-[#FF8A24] uppercase tracking-wider flex items-center gap-1.5">
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    <span>Technical Specifications Table</span>
+                  </h4>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-[11px] font-semibold text-gray-400 block mb-1">
-                      Display / Screen
-                    </label>
-                    <input
-                      type="text"
-                      value={pSpecDisplay}
-                      onChange={(e) => setPSpecDisplay(e.target.value)}
-                      placeholder="e.g. 6.7-inch Super Retina XDR OLED 120Hz"
-                      className="w-full px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500"
-                    />
+                  {/* Category Quick Presets */}
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <span className="text-[10px] text-gray-400 font-medium">Quick Presets:</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCustomSpecs((prev) => [
+                          ...prev,
+                          { key: "Output Power", value: "65W GaN Fast Charging" },
+                          { key: "Ports", value: "2x USB-C + 1x USB-A" },
+                          { key: "Protocols", value: "PD 3.0, PPS, QC 4.0" },
+                        ]);
+                      }}
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 border border-orange-500/30 transition"
+                    >
+                      <Zap className="w-3 h-3" />
+                      <span>+ Charger</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCustomSpecs((prev) => [
+                          ...prev,
+                          { key: "Capacity", value: "20,000mAh (74Wh)" },
+                          { key: "Fast Charge", value: "22.5W Two-Way Quick Charge" },
+                          { key: "Ports", value: "USB-C In/Out + 2x USB-A Out" },
+                        ]);
+                      }}
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 transition"
+                    >
+                      <BatteryCharging className="w-3 h-3" />
+                      <span>+ Power Bank</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCustomSpecs((prev) => [
+                          ...prev,
+                          { key: "Playtime", value: "Up to 30 Hours with Case" },
+                          { key: "Noise Cancellation", value: "Active ANC (40dB)" },
+                          { key: "Bluetooth", value: "v5.3 Low Latency" },
+                        ]);
+                      }}
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 transition"
+                    >
+                      <Headphones className="w-3 h-3" />
+                      <span>+ Audio</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Smartphone / Tablet Standard Specs */}
+                <div className="space-y-2 pt-1 border-t border-slate-800">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-bold text-gray-300">
+                      Standard Hardware Specs <span className="text-gray-500 font-normal">(Leave blank if not applicable)</span>
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-[11px] font-semibold text-gray-400 block mb-1">
+                        Display / Screen
+                      </label>
+                      <input
+                        type="text"
+                        value={pSpecDisplay}
+                        onChange={(e) => setPSpecDisplay(e.target.value)}
+                        placeholder="e.g. 6.7-inch OLED 120Hz (blank for accessories)"
+                        className="w-full px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] font-semibold text-gray-400 block mb-1">
+                        Processor / Chipset
+                      </label>
+                      <input
+                        type="text"
+                        value={pSpecProcessor}
+                        onChange={(e) => setPSpecProcessor(e.target.value)}
+                        placeholder="e.g. Apple A17 Pro / Snapdragon 8 Gen 3"
+                        className="w-full px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] font-semibold text-gray-400 block mb-1">
+                        Camera Specs
+                      </label>
+                      <input
+                        type="text"
+                        value={pSpecCamera}
+                        onChange={(e) => setPSpecCamera(e.target.value)}
+                        placeholder="e.g. 48MP Main + 12MP Ultra-Wide"
+                        className="w-full px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] font-semibold text-gray-400 block mb-1">
+                        Operating System (OS)
+                      </label>
+                      <input
+                        type="text"
+                        value={pSpecOS}
+                        onChange={(e) => setPSpecOS(e.target.value)}
+                        placeholder="e.g. iOS 18 / Android 15"
+                        className="w-full px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500"
+                      />
+                    </div>
                   </div>
 
                   <div>
                     <label className="text-[11px] font-semibold text-gray-400 block mb-1">
-                      Processor / Chipset
+                      Network &amp; Connectivity
                     </label>
                     <input
                       type="text"
-                      value={pSpecProcessor}
-                      onChange={(e) => setPSpecProcessor(e.target.value)}
-                      placeholder="e.g. Apple A17 Pro (3nm) / Snapdragon 8 Gen 3"
-                      className="w-full px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-[11px] font-semibold text-gray-400 block mb-1">
-                      Main Camera
-                    </label>
-                    <input
-                      type="text"
-                      value={pSpecCamera}
-                      onChange={(e) => setPSpecCamera(e.target.value)}
-                      placeholder="e.g. 48MP Main + 12MP Ultra-Wide + 5x Telephoto"
-                      className="w-full px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-[11px] font-semibold text-gray-400 block mb-1">
-                      Operating System (OS)
-                    </label>
-                    <input
-                      type="text"
-                      value={pSpecOS}
-                      onChange={(e) => setPSpecOS(e.target.value)}
-                      placeholder="e.g. iOS 18 (Upgradable) / Android 15"
+                      value={pSpecNetwork}
+                      onChange={(e) => setPSpecNetwork(e.target.value)}
+                      placeholder="e.g. 5G / 4G LTE Unlocked (MTN, Telecel, AT)"
                       className="w-full px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500"
                     />
                   </div>
                 </div>
 
-                <div>
-                  <label className="text-[11px] font-semibold text-gray-400 block mb-1">
-                    Network &amp; Connectivity
-                  </label>
-                  <input
-                    type="text"
-                    value={pSpecNetwork}
-                    onChange={(e) => setPSpecNetwork(e.target.value)}
-                    placeholder="e.g. 5G / 4G LTE Unlocked (MTN, Telecel, AT)"
-                    className="w-full px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500"
-                  />
+                {/* Dynamic Custom Specifications Builder */}
+                <div className="pt-3 border-t border-slate-800 space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-[11px] font-bold text-gray-300 block">
+                        Custom Product Specifications
+                      </span>
+                      <span className="text-[10px] text-gray-500">
+                        Add any custom specs (e.g. Capacity, Output Wattage, Ports, Cable Length, RAM Type)
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setCustomSpecs((prev) => [...prev, { key: "", value: "" }])}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-800 hover:bg-slate-700 text-orange-400 border border-slate-700 transition"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Add Spec</span>
+                    </button>
+                  </div>
+
+                  {customSpecs.length > 0 && (
+                    <div className="space-y-2 pt-1">
+                      {customSpecs.map((spec, sIdx) => (
+                        <div key={sIdx} className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={spec.key}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setCustomSpecs((prev) =>
+                                prev.map((s, i) => (i === sIdx ? { ...s, key: val } : s))
+                              );
+                            }}
+                            placeholder="Spec Name (e.g. Wattage, Ports)"
+                            className="w-1/3 px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500"
+                          />
+                          <input
+                            type="text"
+                            value={spec.value}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setCustomSpecs((prev) =>
+                                prev.map((s, i) => (i === sIdx ? { ...s, value: val } : s))
+                              );
+                            }}
+                            placeholder="Spec Value (e.g. 65W GaN, 2x USB-C)"
+                            className="flex-1 px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-hidden focus:border-orange-500"
+                          />
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setCustomSpecs((prev) => prev.filter((_, i) => i !== sIdx))
+                            }
+                            className="p-2 text-gray-400 hover:text-red-400 transition"
+                            title="Remove Spec"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
