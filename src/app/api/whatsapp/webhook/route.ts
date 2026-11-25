@@ -1,20 +1,103 @@
 import { NextRequest, NextResponse } from "next/server";
 import { addWhatsAppMessage } from "@/lib/whatsapp-store";
+import { processAiMerchantReply } from "@/lib/ai-merchant";
 
 // Verify Tokens accepted from Meta Developer Dashboard
 const VALID_VERIFY_TOKENS = [
   process.env.WHATSAPP_VERIFY_TOKEN,
   "aki_aduni_whatsapp_token_2026",
   "aki_enterprise_whatsapp_token_2026",
+  "rabuni_whatsapp_webhook_token_2026",
 ].filter(Boolean) as string[];
+
+interface ExtractedMessage {
+  id: string;
+  from: string;
+  to: string;
+  text: string;
+  type: string;
+  timestamp: number;
+}
+
+/**
+ * Universal Multi-Format Message Extractor (inspired by VoteCastHub)
+ * Supports Meta WhatsApp Cloud API, interactive button clicks, list choices, and direct webhooks.
+ */
+function extractMessagesFromPayload(body: any): ExtractedMessage[] {
+  if (!body || typeof body !== "object") return [];
+
+  const results: ExtractedMessage[] = [];
+
+  // 1. Meta WhatsApp Cloud API format: entry -> changes -> value -> messages
+  if (Array.isArray(body.entry)) {
+    for (const entry of body.entry) {
+      if (Array.isArray(entry.changes)) {
+        for (const change of entry.changes) {
+          const value = change.value;
+          if (Array.isArray(value?.messages)) {
+            const displayPhone = value.metadata?.display_phone_number || "233541855969";
+
+            for (const msg of value.messages) {
+              const rawFrom = String(msg.from || "");
+              let text = "";
+
+              if (msg.type === "text" && msg.text) {
+                text = String(msg.text.body || "").trim();
+              } else if (msg.type === "interactive" && msg.interactive) {
+                if (msg.interactive.button_reply) {
+                  text = String(msg.interactive.button_reply.title || msg.interactive.button_reply.id || "").trim();
+                } else if (msg.interactive.list_reply) {
+                  text = String(msg.interactive.list_reply.title || msg.interactive.list_reply.id || "").trim();
+                }
+              } else if (msg.type === "image" && msg.image) {
+                text = msg.image.caption || "[Image]";
+              } else if (msg.type === "document" && msg.document) {
+                text = msg.document.filename || "[Document]";
+              } else if (msg.type === "audio" || msg.type === "voice") {
+                text = "[Voice Note]";
+              } else if (typeof msg.body === "string") {
+                text = msg.body.trim();
+              }
+
+              if (rawFrom) {
+                results.push({
+                  id: msg.id || `wa-${Date.now()}-${Math.random()}`,
+                  from: rawFrom,
+                  to: displayPhone,
+                  text: text || "[WhatsApp Message]",
+                  type: msg.type || "text",
+                  timestamp: msg.timestamp ? Number(msg.timestamp) * 1000 : Date.now(),
+                });
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // 2. Direct / Forwarder format: payload.message or payload.text
+  if (results.length === 0 && (body.message || body.text || body.body)) {
+    const rawFrom = String(body.from || body.phone || body.sender || "");
+    const text = String(body.message || body.text || body.body || "").trim();
+    if (rawFrom) {
+      results.push({
+        id: body.id || `direct-${Date.now()}`,
+        from: rawFrom,
+        to: body.to || "233541855969",
+        text: text || "[Message]",
+        type: "text",
+        timestamp: body.timestamp ? Number(body.timestamp) : Date.now(),
+      });
+    }
+  }
+
+  return results;
+}
 
 /**
  * 1. GET /api/whatsapp/webhook
- * Meta sends a GET request to verify the webhook when you click "Verify and save" in the Meta dashboard.
- * Query params:
- *   - hub.mode: 'subscribe'
- *   - hub.verify_token: token string configured in Meta dashboard
- *   - hub.challenge: random integer/string sent by Meta that must be returned in the response
+ * Meta Developer Dashboard verification handshake
  */
 export async function GET(req: NextRequest) {
   try {
@@ -24,14 +107,14 @@ export async function GET(req: NextRequest) {
     const challenge = searchParams.get("hub.challenge");
 
     if (mode === "subscribe" && token && VALID_VERIFY_TOKENS.includes(token)) {
-      console.log("[WhatsApp Webhook] Verification successful");
+      console.log("[WhatsApp Webhook] Verification successful!");
       return new NextResponse(challenge, {
         status: 200,
         headers: { "Content-Type": "text/plain" },
       });
     }
 
-    console.warn("[WhatsApp Webhook] Verification failed. Token mismatch or invalid mode.");
+    console.warn("[WhatsApp Webhook] Verification failed. Mode or token mismatch.", { mode, token });
     return new NextResponse("Forbidden: Verification token mismatch", { status: 403 });
   } catch (err: any) {
     console.error("[WhatsApp Webhook] GET Error:", err);
@@ -41,51 +124,51 @@ export async function GET(req: NextRequest) {
 
 /**
  * 2. POST /api/whatsapp/webhook
- * Meta sends notifications whenever an incoming message arrives, or when message status changes (sent, delivered, read).
+ * Handles incoming WhatsApp customer inquiries & Meta status callbacks
  */
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    const rawBody = await req.json().catch(() => null);
+    if (!rawBody) {
+      return NextResponse.json({ status: "invalid_body" }, { status: 400 });
+    }
 
-    if (body.object === "whatsapp_business_account") {
-      const entry = body.entry?.[0];
-      const changes = entry?.changes?.[0];
-      const value = changes?.value;
+    const messages = extractMessagesFromPayload(rawBody);
 
-      // Handle Incoming Messages from Customers
-      if (value?.messages && value.messages.length > 0) {
-        const message = value.messages[0];
-        const from = message.from; // Customer's phone number with country code (e.g., 233551243372)
-        const text = message.text?.body;
-        const messageType = message.type;
+    if (messages.length > 0) {
+      for (const msg of messages) {
+        console.log(`[WhatsApp Webhook] Received message from ${msg.from}: ${msg.text}`);
 
-        console.log(`[WhatsApp Webhook] Incoming message from ${from} (${messageType}): ${text || "[non-text]"}`);
-
-        // Persist message to persistent store for real-time mobile sync
+        // 1. Persist to shared Supabase Storage for Companion Mobile App real-time sync
         await addWhatsAppMessage({
-          id: message.id,
-          from,
-          to: value.metadata?.display_phone_number || "233541855969",
+          id: msg.id,
+          from: msg.from,
+          to: msg.to,
           direction: "incoming",
-          type: messageType,
-          text: text || "",
-          timestamp: message.timestamp ? Number(message.timestamp) * 1000 : Date.now(),
+          type: msg.type,
+          text: msg.text,
+          timestamp: msg.timestamp,
+        });
+
+        // 2. Trigger AI Merchant Auto-Responder (async, non-blocking)
+        processAiMerchantReply({
+          id: msg.id,
+          phone: msg.from,
+          text: msg.text,
+          type: msg.type,
+          timestamp: msg.timestamp,
+        }).catch((err) => {
+          console.warn("[WhatsApp Webhook] AI Merchant auto-reply error:", err);
         });
       }
 
-      // Handle Message Delivery Status Updates (sent, delivered, read, failed)
-      if (value?.statuses && value.statuses.length > 0) {
-        const statusObj = value.statuses[0];
-        console.log(`[WhatsApp Webhook] Status update for message ${statusObj.id}: ${statusObj.status}`);
-      }
-
-      return NextResponse.json({ status: "success" }, { status: 200 });
+      return NextResponse.json({ status: "success", count: messages.length }, { status: 200 });
     }
 
-    return NextResponse.json({ status: "ignored" }, { status: 404 });
+    // Acknowledge delivery receipts & status updates (sent, delivered, read)
+    return NextResponse.json({ status: "received", type: "event_acknowledged" }, { status: 200 });
   } catch (err: any) {
-    console.error("[WhatsApp Webhook] POST Error:", err);
-    // Meta requires a 200 OK or 400 even on error so it doesn't repeatedly retry failing webhooks
+    console.error("[WhatsApp Webhook] POST Exception:", err);
     return NextResponse.json({ status: "error", message: err.message }, { status: 200 });
   }
 }
