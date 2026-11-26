@@ -35,6 +35,7 @@ export default function AdminSettingsPage() {
   const [settings, setSettings] = useState<StoreSettings>(DEFAULT_STORE_SETTINGS);
   const [activeTab, setActiveTab] = useState<"general" | "policies" | "google">("general");
   const [copiedFeed, setCopiedFeed] = useState(false);
+  const [copiedFbFeed, setCopiedFbFeed] = useState(false);
   const [activePolicy, setActivePolicy] = useState<
     | "aboutUs"
     | "returnRefundPolicy"
@@ -144,8 +145,8 @@ export default function AdminSettingsPage() {
               : "text-gray-400 hover:text-gray-200"
           }`}
         >
-          <ShieldCheck className="w-4 h-4 text-[#F26A00]" />
-          <span>Google Merchant Requirements</span>
+          <Rss className="w-4 h-4 text-[#F26A00]" />
+          <span>Google &amp; Meta Feeds</span>
         </button>
       </div>
 
@@ -666,6 +667,112 @@ export default function AdminSettingsPage() {
                 <li>Log in to <span className="text-white font-medium">Google Merchant Center</span> and navigate to <span className="text-white font-medium">Products &gt; Feeds</span>.</li>
                 <li>Click <span className="text-white font-medium">Add products (+)</span> and select your target country (<span className="text-white font-medium">Ghana</span>) and language (<span className="text-white font-medium">English</span>).</li>
                 <li>Choose <span className="text-white font-medium">Scheduled Fetch</span>, paste the Feed URL copied above, and set the fetch frequency to <span className="text-white font-medium">Daily</span>.</li>
+              </ol>
+            </div>
+          </div>
+
+          {/* Section 3: Live Facebook & Instagram Product Feed (Meta Commerce Manager) */}
+          <div className="p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-5">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="p-1.5 rounded-lg bg-blue-500/10 text-blue-400">
+                    <Rss className="w-4 h-4" />
+                  </span>
+                  <h2 className="text-sm font-black text-white">Live Facebook &amp; Instagram Catalog Feed</h2>
+                </div>
+                <p className="text-xs text-gray-400 mt-1">
+                  Automated catalog feed for Meta Commerce Manager, Facebook Shop, Instagram Shopping, and WhatsApp Commerce.
+                </p>
+              </div>
+
+              <span className="px-2.5 py-1 rounded-full text-[10px] font-black bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                Meta Commerce Valid
+              </span>
+            </div>
+
+            {/* Feed URL Box */}
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-gray-300 block">
+                Primary Scheduled Fetch URL (Submit to Meta Commerce Manager)
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  readOnly
+                  value={
+                    typeof window !== "undefined"
+                      ? `${window.location.origin}/feed/facebook-catalog.xml`
+                      : "https://akiaduniventures.com/feed/facebook-catalog.xml"
+                  }
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-blue-400 font-mono text-xs select-all focus:outline-hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const url = typeof window !== "undefined"
+                      ? `${window.location.origin}/feed/facebook-catalog.xml`
+                      : "https://akiaduniventures.com/feed/facebook-catalog.xml";
+                    navigator.clipboard.writeText(url);
+                    setCopiedFbFeed(true);
+                    setTimeout(() => setCopiedFbFeed(false), 2500);
+                  }}
+                  className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition active:scale-95"
+                >
+                  {copiedFbFeed ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-white" />
+                      <span>Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5" />
+                      <span>Copy Facebook Feed URL</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Download & Direct View Actions */}
+            <div className="pt-2 flex flex-wrap items-center gap-3">
+              <a
+                href="/feed/facebook-catalog.xml"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-850 border border-slate-800 text-gray-200 hover:text-white text-xs font-bold transition"
+              >
+                <ExternalLink className="w-3.5 h-3.5 text-blue-400" />
+                <span>Open Live Meta Feed</span>
+              </a>
+
+              <a
+                href="/api/feed/facebook?format=csv"
+                download="facebook-catalog-feed.csv"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-850 border border-slate-800 text-gray-200 hover:text-white text-xs font-bold transition"
+              >
+                <Download className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Download Spreadsheet Feed (.csv)</span>
+              </a>
+
+              <a
+                href="https://business.facebook.com/commerce"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-bold transition"
+              >
+                <ExternalLink className="w-3.5 h-3.5 text-blue-400" />
+                <span>Go to Meta Commerce Manager</span>
+              </a>
+            </div>
+
+            {/* Quick 3-Step Setup Instructions */}
+            <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800/80 space-y-2 text-xs text-gray-300">
+              <span className="font-bold text-white block">How to connect in Meta Commerce Manager:</span>
+              <ol className="list-decimal list-inside space-y-1 text-gray-400">
+                <li>Log in to <span className="text-white font-medium">Meta Commerce Manager</span> and select your Catalog.</li>
+                <li>Go to <span className="text-white font-medium">Catalog &gt; Data Sources</span> and click <span className="text-white font-medium">Add Items &gt; Data Feed</span>.</li>
+                <li>Select <span className="text-white font-medium">Scheduled Feed</span>, paste the Feed URL above, choose <span className="text-white font-medium">Daily</span>, and select currency <span className="text-white font-medium">GHS (Ghana Cedi)</span>.</li>
               </ol>
             </div>
           </div>
