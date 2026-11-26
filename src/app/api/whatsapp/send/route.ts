@@ -9,6 +9,8 @@ interface SendMessageRequest {
   documentUrl?: string;
   documentFilename?: string;
   templateName?: string;
+  templateLanguage?: string;
+  templateComponents?: any[];
   phoneNumberId?: string;
   metadata?: any;
 }
@@ -72,7 +74,10 @@ export async function POST(req: NextRequest) {
       payload.type = "template";
       payload.template = {
         name: templateName,
-        language: { code: "en_US" },
+        language: { code: body.templateLanguage || "en_US" },
+        ...(body.templateComponents && body.templateComponents.length > 0
+          ? { components: body.templateComponents }
+          : {}),
       };
     } else {
       payload.type = "text";

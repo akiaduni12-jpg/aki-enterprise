@@ -85,7 +85,7 @@ export async function processAiMerchantReply(inbound: InboundWhatsAppMessage) {
   if (isResetCommand) {
     try {
       await setAgentSession(phone, false);
-    } catch {}
+    } catch { }
   } else {
     // If a human agent session is active (e.g. customer asked for agent or admin manually replied), suppress AI bot!
     try {

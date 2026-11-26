@@ -31,6 +31,7 @@ import {
   Megaphone,
   CheckCircle2,
   Package,
+  FileText,
 } from "lucide-react";
 
 interface StoredMessage {
@@ -104,6 +105,11 @@ export default function AdminWhatsAppEnginePage() {
   const [showWaybillModal, setShowWaybillModal] = useState(false);
   const [showBroadcastModal, setShowBroadcastModal] = useState(false);
   const [showTemplateGuideModal, setShowTemplateGuideModal] = useState(false);
+  const [showSendTemplateModal, setShowSendTemplateModal] = useState(false);
+  const [templateNameToSend, setTemplateNameToSend] = useState("aki_catalog_showcase");
+  const [customTemplateName, setCustomTemplateName] = useState("");
+  const [templateLangCode, setTemplateLangCode] = useState("en_US");
+  const [isSendingTemplate, setIsSendingTemplate] = useState(false);
 
   // Form states
   const [newChatPhone, setNewChatPhone] = useState("");
@@ -217,7 +223,7 @@ export default function AdminWhatsAppEnginePage() {
           setProducts(data);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
 
     fetch("/api/orders")
       .then((res) => (res.ok ? res.json() : null))
@@ -226,7 +232,7 @@ export default function AdminWhatsAppEnginePage() {
           setOrders(data.orders);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
 
     // Fetch store customers directory
     fetch("/api/customers")
@@ -236,7 +242,7 @@ export default function AdminWhatsAppEnginePage() {
           setStoreCustomers(data.customers);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
 
     // Support initiating chat from any admin link (e.g. /admin/whatsapp?phone=233541855969&name=Kofi)
     if (typeof window !== "undefined") {
@@ -265,7 +271,7 @@ export default function AdminWhatsAppEnginePage() {
           setRemainingMinutes(data.remainingMinutes || 0);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, [selectedPhone]);
 
   // Toggle AI Bot manual pause / resume
@@ -572,6 +578,44 @@ export default function AdminWhatsAppEnginePage() {
     setShowWaybillModal(false);
   };
 
+  // Send Meta Approved Template
+  const handleSendMetaTemplate = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!selectedPhone) return;
+
+    const finalTemplateName = templateNameToSend === "custom" ? customTemplateName.trim() : templateNameToSend;
+    if (!finalTemplateName) {
+      alert("Please enter the Meta template name.");
+      return;
+    }
+
+    setIsSendingTemplate(true);
+    try {
+      const res = await fetch("/api/whatsapp/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          to: selectedPhone,
+          type: "template",
+          templateName: finalTemplateName,
+          templateLanguage: templateLangCode,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setShowSendTemplateModal(false);
+        fetchMessages(true);
+      } else {
+        alert(data.error || "Failed to send template. Ensure it is approved in Meta Business Suite.");
+      }
+    } catch (err: any) {
+      alert("Error sending template: " + err.message);
+    } finally {
+      setIsSendingTemplate(false);
+    }
+  };
+
   // Start New Chat
   const handleStartNewChat = (e: React.FormEvent) => {
     e.preventDefault();
@@ -679,11 +723,10 @@ export default function AdminWhatsAppEnginePage() {
           {/* Sound Toggle */}
           <button
             onClick={() => setSoundEnabled(!soundEnabled)}
-            className={`p-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition ${
-              soundEnabled
-                ? "bg-slate-800 text-gray-300 hover:text-white"
-                : "bg-red-500/10 text-red-400 border border-red-500/30"
-            }`}
+            className={`p-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition ${soundEnabled
+              ? "bg-slate-800 text-gray-300 hover:text-white"
+              : "bg-red-500/10 text-red-400 border border-red-500/30"
+              }`}
             title={soundEnabled ? "Notification sound enabled" : "Sound muted"}
           >
             {soundEnabled ? <Volume2 className="w-4 h-4 text-emerald-400" /> : <VolumeX className="w-4 h-4" />}
@@ -759,21 +802,19 @@ export default function AdminWhatsAppEnginePage() {
             <div className="flex items-center gap-1 text-[11px] font-semibold">
               <button
                 onClick={() => setFilterTab("all")}
-                className={`px-2.5 py-1 rounded-lg transition ${
-                  filterTab === "all"
-                    ? "bg-slate-800 text-white font-bold"
-                    : "text-gray-400 hover:text-white hover:bg-slate-900"
-                }`}
+                className={`px-2.5 py-1 rounded-lg transition ${filterTab === "all"
+                  ? "bg-slate-800 text-white font-bold"
+                  : "text-gray-400 hover:text-white hover:bg-slate-900"
+                  }`}
               >
                 All ({conversations.length})
               </button>
               <button
                 onClick={() => setFilterTab("unread")}
-                className={`px-2.5 py-1 rounded-lg transition flex items-center gap-1 ${
-                  filterTab === "unread"
-                    ? "bg-emerald-600 text-white font-bold"
-                    : "text-gray-400 hover:text-white hover:bg-slate-900"
-                }`}
+                className={`px-2.5 py-1 rounded-lg transition flex items-center gap-1 ${filterTab === "unread"
+                  ? "bg-emerald-600 text-white font-bold"
+                  : "text-gray-400 hover:text-white hover:bg-slate-900"
+                  }`}
               >
                 Unread
                 {conversations.filter((c) => c.unreadCount > 0).length > 0 && (
@@ -784,31 +825,28 @@ export default function AdminWhatsAppEnginePage() {
               </button>
               <button
                 onClick={() => setFilterTab("orders")}
-                className={`px-2.5 py-1 rounded-lg transition ${
-                  filterTab === "orders"
-                    ? "bg-orange-600 text-white font-bold"
-                    : "text-gray-400 hover:text-white hover:bg-slate-900"
-                }`}
+                className={`px-2.5 py-1 rounded-lg transition ${filterTab === "orders"
+                  ? "bg-orange-600 text-white font-bold"
+                  : "text-gray-400 hover:text-white hover:bg-slate-900"
+                  }`}
               >
                 Orders
               </button>
               <button
                 onClick={() => setFilterTab("leads")}
-                className={`px-2.5 py-1 rounded-lg transition ${
-                  filterTab === "leads"
-                    ? "bg-blue-600 text-white font-bold"
-                    : "text-gray-400 hover:text-white hover:bg-slate-900"
-                }`}
+                className={`px-2.5 py-1 rounded-lg transition ${filterTab === "leads"
+                  ? "bg-blue-600 text-white font-bold"
+                  : "text-gray-400 hover:text-white hover:bg-slate-900"
+                  }`}
               >
                 Leads
               </button>
               <button
                 onClick={() => setFilterTab("contacts")}
-                className={`px-2.5 py-1 rounded-lg transition flex items-center gap-1 ${
-                  filterTab === "contacts"
-                    ? "bg-purple-600 text-white font-bold"
-                    : "text-gray-400 hover:text-white hover:bg-slate-900"
-                }`}
+                className={`px-2.5 py-1 rounded-lg transition flex items-center gap-1 ${filterTab === "contacts"
+                  ? "bg-purple-600 text-white font-bold"
+                  : "text-gray-400 hover:text-white hover:bg-slate-900"
+                  }`}
               >
                 <span>Customers</span>
                 {storeCustomers.length > 0 && (
@@ -841,11 +879,10 @@ export default function AdminWhatsAppEnginePage() {
                       onClick={() => {
                         setSelectedPhone(cleanCustPhone);
                       }}
-                      className={`w-full text-left p-3.5 flex items-center justify-between gap-3 transition ${
-                        isSelected
-                          ? "bg-slate-800/90 border-l-4 border-emerald-500"
-                          : "hover:bg-slate-900/60"
-                      }`}
+                      className={`w-full text-left p-3.5 flex items-center justify-between gap-3 transition ${isSelected
+                        ? "bg-slate-800/90 border-l-4 border-emerald-500"
+                        : "hover:bg-slate-900/60"
+                        }`}
                     >
                       <div className="flex items-center gap-3 min-w-0">
                         <div className="w-10 h-10 rounded-full bg-purple-600/20 border border-purple-500/30 text-purple-300 font-bold flex items-center justify-center shrink-0 text-xs">
@@ -884,11 +921,10 @@ export default function AdminWhatsAppEnginePage() {
                   <button
                     key={conv.phone}
                     onClick={() => setSelectedPhone(conv.phone)}
-                    className={`w-full text-left p-3.5 flex items-start gap-3 transition ${
-                      isSelected
-                        ? "bg-slate-800/90 border-l-4 border-emerald-500"
-                        : "hover:bg-slate-900/60"
-                    }`}
+                    className={`w-full text-left p-3.5 flex items-start gap-3 transition ${isSelected
+                      ? "bg-slate-800/90 border-l-4 border-emerald-500"
+                      : "hover:bg-slate-900/60"
+                      }`}
                   >
                     {/* Avatar */}
                     <div className="relative shrink-0">
@@ -974,11 +1010,10 @@ export default function AdminWhatsAppEnginePage() {
                   {/* AI Bot Human Session Mode Toggle */}
                   <button
                     onClick={handleToggleAiBot}
-                    className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border shadow-xs ${
-                      isAiPaused
-                        ? "bg-amber-500/15 text-amber-300 border-amber-500/30 hover:bg-amber-500/25"
-                        : "bg-emerald-500/15 text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/25"
-                    }`}
+                    className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border shadow-xs ${isAiPaused
+                      ? "bg-amber-500/15 text-amber-300 border-amber-500/30 hover:bg-amber-500/25"
+                      : "bg-emerald-500/15 text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/25"
+                      }`}
                     title={
                       isAiPaused
                         ? "Live Human Support session active (AI Bot paused for this customer). Click to resume bot."
@@ -986,9 +1021,8 @@ export default function AdminWhatsAppEnginePage() {
                     }
                   >
                     <span
-                      className={`w-2 h-2 rounded-full ${
-                        isAiPaused ? "bg-amber-400" : "bg-emerald-400 animate-pulse"
-                      }`}
+                      className={`w-2 h-2 rounded-full ${isAiPaused ? "bg-amber-400" : "bg-emerald-400 animate-pulse"
+                        }`}
                     />
                     <span className="hidden sm:inline">
                       {isAiPaused ? `Human Mode (${remainingMinutes}m)` : "AI Bot Active"}
@@ -1022,11 +1056,10 @@ export default function AdminWhatsAppEnginePage() {
                   {/* Toggle Right CRM Drawer */}
                   <button
                     onClick={() => setShowRightDrawer(!showRightDrawer)}
-                    className={`p-2 rounded-xl transition ${
-                      showRightDrawer
-                        ? "bg-slate-800 text-orange-400"
-                        : "bg-slate-800 text-gray-400 hover:text-white"
-                    }`}
+                    className={`p-2 rounded-xl transition ${showRightDrawer
+                      ? "bg-slate-800 text-orange-400"
+                      : "bg-slate-800 text-gray-400 hover:text-white"
+                      }`}
                     title="Toggle Customer & Orders Drawer"
                   >
                     <User className="w-4 h-4" />
@@ -1076,11 +1109,10 @@ export default function AdminWhatsAppEnginePage() {
                       className={`flex ${isOutgoing ? "justify-end" : "justify-start"}`}
                     >
                       <div
-                        className={`max-w-[85%] sm:max-w-[70%] rounded-2xl p-3 shadow-md ${
-                          isOutgoing
-                            ? "bg-[#005c4b] text-white rounded-tr-xs"
-                            : "bg-[#202c33] text-gray-100 rounded-tl-xs"
-                        }`}
+                        className={`max-w-[85%] sm:max-w-[70%] rounded-2xl p-3 shadow-md ${isOutgoing
+                          ? "bg-[#005c4b] text-white rounded-tr-xs"
+                          : "bg-[#202c33] text-gray-100 rounded-tl-xs"
+                          }`}
                       >
                         {/* 1. PRODUCT RECOMMENDATION CARD BUBBLE */}
                         {msg.type === "product_card" && msg.metadata?.productCard && (
@@ -1262,6 +1294,16 @@ export default function AdminWhatsAppEnginePage() {
                     <Package className="w-3.5 h-3.5 text-purple-400" />
                     <span>Send Order Status</span>
                   </button>
+
+                  {/* Send Meta Template */}
+                  <button
+                    onClick={() => setShowSendTemplateModal(true)}
+                    className="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-gray-200 hover:text-white flex items-center gap-1.5 font-semibold shrink-0 border border-slate-700"
+                    title="Send an approved Meta Template (e.g. Catalog showcase or promo)"
+                  >
+                    <FileText className="w-3.5 h-3.5 text-pink-400" />
+                    <span>Meta Template</span>
+                  </button>
                 </div>
 
                 {/* Message Input Box */}
@@ -1376,11 +1418,10 @@ export default function AdminWhatsAppEnginePage() {
                     <div className="flex items-center justify-between">
                       <span className="font-bold text-white">#{ord.order_number}</span>
                       <span
-                        className={`text-[9px] font-black px-1.5 py-0.5 rounded uppercase ${
-                          ord.payment_status === "paid"
-                            ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                            : "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
-                        }`}
+                        className={`text-[9px] font-black px-1.5 py-0.5 rounded uppercase ${ord.payment_status === "paid"
+                          ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                          : "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
+                          }`}
                       >
                         {ord.payment_status}
                       </span>
@@ -1626,11 +1667,10 @@ export default function AdminWhatsAppEnginePage() {
                       key={net}
                       type="button"
                       onClick={() => setMomoNetwork(net)}
-                      className={`py-2 rounded-xl text-xs font-bold border transition ${
-                        momoNetwork === net
-                          ? "bg-yellow-500/20 text-yellow-300 border-yellow-500"
-                          : "bg-slate-950 text-gray-400 border-slate-800 hover:border-slate-700"
-                      }`}
+                      className={`py-2 rounded-xl text-xs font-bold border transition ${momoNetwork === net
+                        ? "bg-yellow-500/20 text-yellow-300 border-yellow-500"
+                        : "bg-slate-950 text-gray-400 border-slate-800 hover:border-slate-700"
+                        }`}
                     >
                       {net} MoMo
                     </button>
@@ -1812,6 +1852,122 @@ export default function AdminWhatsAppEnginePage() {
         </div>
       )}
 
+      {/* ================= MODAL: SEND META TEMPLATE ================= */}
+      {showSendTemplateModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg p-5 space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-pink-500/20 text-pink-400 flex items-center justify-center">
+                  <FileText className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white">Send Meta WhatsApp Template</h3>
+                  <p className="text-[11px] text-gray-400">
+                    Send an approved template to {activeConversation?.name || selectedPhone}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowSendTemplateModal(false)}
+                className="text-gray-400 hover:text-white"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSendMetaTemplate} className="space-y-3">
+              <div>
+                <label className="block text-xs font-semibold text-gray-300 mb-1">
+                  Select Approved Meta Template
+                </label>
+                <select
+                  value={templateNameToSend}
+                  onChange={(e) => setTemplateNameToSend(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-pink-500"
+                >
+                  <option value="aki_catalog_showcase">aki_catalog_showcase (Official Catalog &amp; Shop)</option>
+                  <option value="aki_device_promo">aki_device_promo (Device Flash Sale &amp; Stock)</option>
+                  <option value="aki_keypad_promo">aki_keypad_promo (Keypad Phones Promo)</option>
+                  <option value="aki_cart_recovery">aki_cart_recovery (Cart Recovery &amp; MoMo Follow-up)</option>
+                  <option value="custom">✏️ Enter custom template name from Meta...</option>
+                </select>
+              </div>
+
+              {templateNameToSend === "custom" && (
+                <div>
+                  <label className="block text-xs font-semibold text-gray-300 mb-1">
+                    Exact Template Name in Meta WhatsApp Manager *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. aki_new_year_sale, catalog_template, hello_world"
+                    value={customTemplateName}
+                    onChange={(e) => setCustomTemplateName(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-pink-500 font-mono"
+                  />
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-300 mb-1">
+                    Language Code
+                  </label>
+                  <select
+                    value={templateLangCode}
+                    onChange={(e) => setTemplateLangCode(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-pink-500 font-mono"
+                  >
+                    <option value="en_US">en_US (English - US)</option>
+                    <option value="en">en (English generic)</option>
+                    <option value="en_GB">en_GB (English - UK)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-300 mb-1">
+                    24h Window Bypass
+                  </label>
+                  <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-[10px] text-emerald-400 font-semibold flex items-center gap-1.5 h-[34px]">
+                    <Check className="w-3.5 h-3.5" /> Delivered Anytime
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 text-[11px] text-gray-400 space-y-1">
+                <p className="font-semibold text-gray-300">💡 Meta Cloud API Template Rule</p>
+                <p>
+                  Meta requires pre-approved templates when initiating outbound conversations or messaging past 24 hours. The template will be delivered directly to the customer&apos;s WhatsApp.
+                </p>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setShowSendTemplateModal(false)}
+                  className="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-gray-300 text-xs font-bold transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSendingTemplate}
+                  className="px-4 py-1.5 rounded-xl bg-pink-600 hover:bg-pink-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-pink-600/30 transition disabled:opacity-50"
+                >
+                  {isSendingTemplate ? (
+                    <span className="w-3.5 h-3.5 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                  ) : (
+                    <Send className="w-3.5 h-3.5" />
+                  )}
+                  <span>{isSendingTemplate ? "Sending..." : "Send Template Now"}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* ================= MODAL: BROADCAST CAMPAIGN ================= */}
       {showBroadcastModal && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
@@ -1857,26 +2013,23 @@ export default function AdminWhatsAppEnginePage() {
                       { key: "all", label: `All Contacts (${conversations.length})` },
                       {
                         key: "leads",
-                        label: `Hot Leads (${
-                          conversations.filter((c) => c.tags.some((t) => t.toLowerCase().includes("lead"))).length
-                        })`,
+                        label: `Hot Leads (${conversations.filter((c) => c.tags.some((t) => t.toLowerCase().includes("lead"))).length
+                          })`,
                       },
                       {
                         key: "buyers",
-                        label: `Paid Buyers (${
-                          conversations.filter((c) => c.tags.some((t) => t.toLowerCase().includes("paid"))).length
-                        })`,
+                        label: `Paid Buyers (${conversations.filter((c) => c.tags.some((t) => t.toLowerCase().includes("paid"))).length
+                          })`,
                       },
                     ].map((opt) => (
                       <button
                         key={opt.key}
                         type="button"
                         onClick={() => setBroadcastTarget(opt.key as any)}
-                        className={`p-2 rounded-xl text-xs font-semibold border transition text-center ${
-                          broadcastTarget === opt.key
-                            ? "bg-orange-600/20 text-orange-400 border-orange-500 font-bold"
-                            : "bg-slate-950 text-gray-400 border-slate-800"
-                        }`}
+                        className={`p-2 rounded-xl text-xs font-semibold border transition text-center ${broadcastTarget === opt.key
+                          ? "bg-orange-600/20 text-orange-400 border-orange-500 font-bold"
+                          : "bg-slate-950 text-gray-400 border-slate-800"
+                          }`}
                       >
                         {opt.label}
                       </button>
@@ -1999,7 +2152,7 @@ export default function AdminWhatsAppEnginePage() {
                   <span className="text-[10px] font-mono bg-slate-800 px-2 py-0.5 rounded text-gray-300">aki_device_promo</span>
                 </div>
                 <div className="bg-slate-900 p-2.5 rounded-lg text-xs font-mono text-gray-300 whitespace-pre-wrap leading-relaxed border border-slate-800">
-{`Hello {{1}}, exciting news from AKI ADUNI VENTURES! 🇬🇭
+                  {`Hello {{1}}, exciting news from AKI ADUNI VENTURES! 🇬🇭
 
 We have received fresh stock of original {{2}} starting from just GH₵ {{3}} with a full 6-Month Warranty.
 
@@ -2021,7 +2174,7 @@ Tap the button below or reply here to reserve yours.`}
                   <span className="text-[10px] font-mono bg-slate-800 px-2 py-0.5 rounded text-gray-300">aki_keypad_promo</span>
                 </div>
                 <div className="bg-slate-900 p-2.5 rounded-lg text-xs font-mono text-gray-300 whitespace-pre-wrap leading-relaxed border border-slate-800">
-{`Hello {{1}}, need a durable long-battery phone? 🔋
+                  {`Hello {{1}}, need a durable long-battery phone? 🔋
 
 Our brand-new keypad phones (Itel, Villaon, Ifinex, CALE) are now available at our Circle & Miaso shops starting from only GH₵ 70.00!
 
@@ -2042,7 +2195,7 @@ Reply "KEYPAD" to this message to see the full price list.`}
                   <span className="text-[10px] font-mono bg-slate-800 px-2 py-0.5 rounded text-gray-300">aki_cart_recovery</span>
                 </div>
                 <div className="bg-slate-900 p-2.5 rounded-lg text-xs font-mono text-gray-300 whitespace-pre-wrap leading-relaxed border border-slate-800">
-{`Hello {{1}}, we noticed you were interested in {{2}} at AKI ADUNI VENTURES.
+                  {`Hello {{1}}, we noticed you were interested in {{2}} at AKI ADUNI VENTURES.
 
 Do you have any questions regarding battery health, warranty, or delivery to your location?
 
