@@ -90,6 +90,8 @@ export default function AdminWhatsAppEnginePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterTab, setFilterTab] = useState<"all" | "unread" | "orders" | "leads" | "contacts">("all");
   const [storeCustomers, setStoreCustomers] = useState<any[]>([]);
+  const [isAiPaused, setIsAiPaused] = useState(false);
+  const [remainingMinutes, setRemainingMinutes] = useState(0);
   const [isSending, setIsSending] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -251,6 +253,44 @@ export default function AdminWhatsAppEnginePage() {
       }
     }
   }, []);
+
+  // Check AI Bot Pause status for active phone
+  useEffect(() => {
+    if (!selectedPhone) return;
+    fetch(`/api/whatsapp/bot-status?phone=${selectedPhone}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && data.success) {
+          setIsAiPaused(Boolean(data.isPaused));
+          setRemainingMinutes(data.remainingMinutes || 0);
+        }
+      })
+      .catch(() => {});
+  }, [selectedPhone]);
+
+  // Toggle AI Bot manual pause / resume
+  const handleToggleAiBot = async () => {
+    if (!selectedPhone) return;
+    const newAction = isAiPaused ? "resume" : "pause";
+    try {
+      const res = await fetch("/api/whatsapp/bot-status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phone: selectedPhone,
+          action: newAction,
+          durationHours: 2,
+        }),
+      });
+      const data = await res.json();
+      if (data && data.success) {
+        setIsAiPaused(Boolean(data.isPaused));
+        setRemainingMinutes(data.remainingMinutes || 0);
+      }
+    } catch (err) {
+      console.warn("Failed to toggle bot:", err);
+    }
+  };
 
   // Group messages into conversations
   const conversations: Conversation[] = useMemo(() => {
@@ -420,6 +460,8 @@ export default function AdminWhatsAppEnginePage() {
 
       const data = await res.json();
       if (data.success && data.message) {
+        setIsAiPaused(true);
+        setRemainingMinutes(120);
         // Replace temp message with server message
         setMessages((prev) =>
           prev.map((m) => (m.id === optimisticMsg.id ? data.message : m))
@@ -929,6 +971,33 @@ export default function AdminWhatsAppEnginePage() {
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
+                  {/* AI Bot Human Session Mode Toggle */}
+                  <button
+                    onClick={handleToggleAiBot}
+                    className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border shadow-xs ${
+                      isAiPaused
+                        ? "bg-amber-500/15 text-amber-300 border-amber-500/30 hover:bg-amber-500/25"
+                        : "bg-emerald-500/15 text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/25"
+                    }`}
+                    title={
+                      isAiPaused
+                        ? "Live Human Support session active (AI Bot paused for this customer). Click to resume bot."
+                        : "AI Bot is active. Click to pause bot for 2 hours (Human Mode)."
+                    }
+                  >
+                    <span
+                      className={`w-2 h-2 rounded-full ${
+                        isAiPaused ? "bg-amber-400" : "bg-emerald-400 animate-pulse"
+                      }`}
+                    />
+                    <span className="hidden sm:inline">
+                      {isAiPaused ? `Human Mode (${remainingMinutes}m)` : "AI Bot Active"}
+                    </span>
+                    <span className="text-[10px] underline ml-0.5 opacity-80">
+                      {isAiPaused ? "Resume" : "Pause"}
+                    </span>
+                  </button>
+
                   {/* Phone Call Link */}
                   <a
                     href={`tel:${activeConversation.phone}`}

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { addWhatsAppMessage } from "@/lib/whatsapp-store";
+import { addWhatsAppMessage, setAgentSession } from "@/lib/whatsapp-store";
 
 interface SendMessageRequest {
   to: string;
@@ -122,6 +122,13 @@ export async function POST(req: NextRequest) {
       metadata,
       status: deliveredToMeta ? "delivered" : "sent",
     });
+
+    // Automatically pause AI bot for 2 hours when admin manually replies
+    try {
+      await setAgentSession(recipientPhone, true, 2, "Admin manual message sent");
+    } catch (err) {
+      console.warn("[WhatsApp Send] Session update error:", err);
+    }
 
     return NextResponse.json(
       {

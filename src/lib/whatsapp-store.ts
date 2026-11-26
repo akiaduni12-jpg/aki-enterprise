@@ -260,3 +260,110 @@ export async function getWhatsAppMessages(sinceTimestamp?: number): Promise<Stor
   }
   return valid.filter((m) => (m.timestamp || 0) > sinceTimestamp);
 }
+
+export interface AgentSessionInfo {
+  pausedUntil: number; // Unix ms
+  reason: string;
+  pausedAt: number;
+}
+
+const SESSIONS_KEY = "sessions.json";
+const SESSIONS_TMP_PATH = path.join(os.tmpdir(), "whatsapp-sessions.json");
+let sessionsCache: Record<string, AgentSessionInfo> = {};
+let lastFetchedSessions = 0;
+
+export async function loadAgentSessions(): Promise<Record<string, AgentSessionInfo>> {
+  const now = Date.now();
+  if (Object.keys(sessionsCache).length > 0 && now - lastFetchedSessions < 2000) {
+    return sessionsCache;
+  }
+
+  if (isSupabaseConfigured) {
+    try {
+      const client = getServiceSupabase();
+      const { data, error } = await client.storage.from(BUCKET_NAME).download(SESSIONS_KEY);
+      if (data && !error) {
+        const text = await data.text();
+        const parsed = JSON.parse(text);
+        if (parsed && typeof parsed === "object") {
+          sessionsCache = { ...sessionsCache, ...parsed };
+          lastFetchedSessions = now;
+          return sessionsCache;
+        }
+      }
+    } catch {
+      // quiet fallback
+    }
+  }
+
+  try {
+    if (fs.existsSync(SESSIONS_TMP_PATH)) {
+      const raw = fs.readFileSync(SESSIONS_TMP_PATH, "utf-8");
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === "object") {
+        sessionsCache = { ...sessionsCache, ...parsed };
+      }
+    }
+  } catch {
+    // quiet
+  }
+
+  return sessionsCache;
+}
+
+export async function persistAgentSessions(sessions: Record<string, AgentSessionInfo>) {
+  const payload = JSON.stringify(sessions, null, 2);
+  sessionsCache = sessions;
+
+  if (isSupabaseConfigured) {
+    try {
+      const client = getServiceSupabase();
+      await client.storage.from(BUCKET_NAME).upload(SESSIONS_KEY, payload, {
+        upsert: true,
+        contentType: "application/json",
+      });
+    } catch (err: any) {
+      console.warn("[WhatsApp Store] Sessions sync warning:", err?.message);
+    }
+  }
+
+  try {
+    fs.writeFileSync(SESSIONS_TMP_PATH, payload, "utf-8");
+  } catch {}
+}
+
+export async function isAgentSessionActive(phone: string): Promise<boolean> {
+  const cleanPhone = phone.replace(/\D/g, "");
+  const sessions = await loadAgentSessions();
+  const session = sessions[cleanPhone];
+  if (!session) return false;
+  return Date.now() < session.pausedUntil;
+}
+
+export async function getAgentSessionInfo(phone: string): Promise<AgentSessionInfo | null> {
+  const cleanPhone = phone.replace(/\D/g, "");
+  const sessions = await loadAgentSessions();
+  const session = sessions[cleanPhone];
+  if (!session || Date.now() >= session.pausedUntil) return null;
+  return session;
+}
+
+export async function setAgentSession(
+  phone: string,
+  active: boolean,
+  durationHours = 2,
+  reason = "Agent handoff"
+) {
+  const cleanPhone = phone.replace(/\D/g, "");
+  const sessions = await loadAgentSessions();
+  if (active) {
+    sessions[cleanPhone] = {
+      pausedAt: Date.now(),
+      pausedUntil: Date.now() + durationHours * 60 * 60 * 1000,
+      reason,
+    };
+  } else {
+    delete sessions[cleanPhone];
+  }
+  await persistAgentSessions(sessions);
+}

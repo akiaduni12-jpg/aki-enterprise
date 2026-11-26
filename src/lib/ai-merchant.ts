@@ -1,5 +1,5 @@
 import { sendWhatsAppMessage } from "@/lib/whatsapp";
-import { addWhatsAppMessage } from "@/lib/whatsapp-store";
+import { addWhatsAppMessage, isAgentSessionActive, setAgentSession } from "@/lib/whatsapp-store";
 import { getServiceSupabase, isSupabaseConfigured } from "@/lib/supabase";
 
 export interface InboundWhatsAppMessage {
@@ -79,6 +79,25 @@ export async function processAiMerchantReply(inbound: InboundWhatsAppMessage) {
   const clean = text.trim();
   const lower = clean.toLowerCase();
   const formattedUserPhone = formatPhonePretty(phone);
+
+  // Check if customer explicitly wants to resume the bot
+  const isResetCommand = lower === "btn_menu" || /^(menu|start|bot|restart|options)\b/i.test(lower);
+  if (isResetCommand) {
+    try {
+      await setAgentSession(phone, false);
+    } catch {}
+  } else {
+    // If a human agent session is active (e.g. customer asked for agent or admin manually replied), suppress AI bot!
+    try {
+      const sessionActive = await isAgentSessionActive(phone);
+      if (sessionActive) {
+        console.log(`[AI Merchant] Human agent session active for ${phone}. Bot auto-reply suppressed.`);
+        return;
+      }
+    } catch (e) {
+      console.warn("[AI Merchant] Error checking agent session:", e);
+    }
+  }
 
   let replyText = "";
   let buttons: Array<{ id: string; title: string }> = [];
@@ -208,15 +227,22 @@ export async function processAiMerchantReply(inbound: InboundWhatsAppMessage) {
   ) {
     replyText =
       "👤 *Shop Manager Connected*\n\n" +
-      "Our shop manager in Miaso has been alerted to take over this chat directly on WhatsApp.\n\n" +
+      "Our shop manager in Miaso has taken over this chat. The automated bot is now paused so you can speak directly with our team!\n\n" +
       "📞 Direct Line: *055 124 3372*\n" +
       "🌐 Live Website: https://www.akiaduniventures.com\n\n" +
-      "We will respond here in just a moment!";
+      "Type any question and our team will answer you directly right here.";
 
     buttons = [
+      { id: "btn_menu", title: "🤖 Re-open Bot Menu" },
       { id: "btn_phones", title: "📱 View Phones" },
-      { id: "btn_track", title: "📦 Track Order" },
     ];
+
+    // Activate 2-hour human takeover session (AI auto-responder paused)
+    try {
+      await setAgentSession(phone, true, 2, "Customer requested agent");
+    } catch (e) {
+      console.warn("[AI Merchant] Error activating agent session:", e);
+    }
   }
   // 6. General fallback with interactive navigation buttons
   else {
