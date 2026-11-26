@@ -71,11 +71,36 @@ export async function getProducts(): Promise<Product[]> {
 }
 
 /**
- * Fetch a single product by slug
+ * Fetch a single product by slug (with multi-strategy matching for raw, decoded, and normalized slugs)
  */
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   const all = await getProducts();
-  return all.find((p) => p.slug === slug) || null;
+  const rawClean = (slug || "").trim();
+  const decodedClean = (() => {
+    try {
+      return decodeURIComponent(rawClean).trim();
+    } catch {
+      return rawClean;
+    }
+  })();
+
+  const normalize = (str: string) => {
+    try {
+      return decodeURIComponent(str).toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "");
+    } catch {
+      return str.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "");
+    }
+  };
+
+  const targetNorm = normalize(rawClean);
+
+  return (
+    all.find((p) => p.slug === rawClean || p.slug === decodedClean) ||
+    all.find((p) => normalize(p.slug) === targetNorm) ||
+    all.find((p) => p.title.trim().toLowerCase() === decodedClean.toLowerCase() || normalize(p.title) === targetNorm) ||
+    all.find((p) => p.id === rawClean || p.id === decodedClean) ||
+    null
+  );
 }
 
 /**

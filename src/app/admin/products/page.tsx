@@ -257,12 +257,11 @@ export default function AdminCatalogPage() {
     const selectedBrand = brands.find((b) => b.name === pBrandName) || brands[0];
     const brandName = selectedBrand?.name || "AKI ADUNI VENTURES";
 
-    const generatedSlug =
-      pSlug.trim() ||
-      pTitle
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/(^-|-$)+/g, "");
+    const rawSlugCandidate = pSlug.trim() || pTitle.trim();
+    const generatedSlug = rawSlugCandidate
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)+/g, "");
 
     // Parse features from lines or clean contextual bullets
     const parsedFeatures = pFeatures.trim()

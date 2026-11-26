@@ -177,23 +177,18 @@ export function ProductCard({ product }: ProductCardProps) {
 
             <button
               onClick={handleQuickAdd}
-              className={`px-3.5 py-1.5 rounded-xl font-bold text-xs shadow-xs active:scale-90 transition-all duration-300 flex items-center gap-1 shrink-0 ${
+              className={`w-9 h-9 rounded-xl font-bold text-xs shadow-xs active:scale-90 transition-all duration-300 flex items-center justify-center shrink-0 cursor-pointer ${
                 isJustAdded
                   ? "bg-emerald-600 text-white scale-105"
                   : "bg-[#F26A00] hover:bg-[#d95e00] text-white"
               }`}
+              title="Add to Cart"
               aria-label="Add to cart"
             >
               {isJustAdded ? (
-                <>
-                  <span>Added</span>
-                  <Check className="w-3.5 h-3.5 animate-in zoom-in-50 duration-200" />
-                </>
+                <Check className="w-4 h-4 animate-in zoom-in-50 duration-200" />
               ) : (
-                <>
-                  <span>Add</span>
-                  <Plus className="w-3.5 h-3.5" />
-                </>
+                <ShoppingBag className="w-4 h-4" />
               )}
             </button>
           </div>

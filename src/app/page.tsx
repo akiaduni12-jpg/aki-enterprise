@@ -506,10 +506,11 @@ export default function HomePage() {
                   <span className="text-[9px] font-bold text-emerald-600">In Stock</span>
                   <button
                     onClick={() => handleQuickAdd(prod.productRef, prod.productRef.variants[0])}
-                    className="px-2.5 py-1 rounded-lg bg-[#F26A00] text-white text-[10px] font-black flex items-center gap-1 active:scale-95 shadow-xs"
+                    className="w-7 h-7 rounded-lg bg-[#F26A00] hover:bg-[#d95e00] text-white flex items-center justify-center active:scale-95 shadow-xs transition shrink-0 cursor-pointer"
+                    title="Add to Cart"
+                    aria-label="Add to cart"
                   >
-                    <span>Add</span>
-                    <span>+</span>
+                    <ShoppingBag className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
@@ -531,13 +532,13 @@ export default function HomePage() {
             <div className="space-y-3 text-center lg:text-left max-w-xl">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-white text-[10px] sm:text-xs font-black uppercase tracking-wider">
                 <QrCode className="w-3.5 h-3.5" />
-                <span>Instant In-Store QR Experience</span>
+                <span>Instant Smart QR Experience</span>
               </span>
               <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-tight">
-                Scan &amp; Shop at Our Accra Store
+                Scan &amp; Shop Online or In-Store
               </h2>
               <p className="text-xs sm:text-sm text-orange-50 leading-relaxed">
-                Scan the official QR code to browse real-time inventory, compare battery health ratings, view daily deals, and complete instant mobile money checkout on your own device.
+                Scan the official QR code to browse real-time inventory, compare battery health ratings, view daily deals, and complete instant mobile money checkout with nationwide doorstep delivery.
               </p>
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2 text-xs font-bold text-white">
                 <span className="flex items-center gap-1.5">
@@ -550,7 +551,7 @@ export default function HomePage() {
                 </span>
                 <span className="flex items-center gap-1.5">
                   <CheckCircle2 className="w-4 h-4 text-emerald-300" />
-                  <span>Same-Day Accra Delivery</span>
+                  <span>Nationwide Delivery Across Ghana</span>
                 </span>
               </div>
             </div>
@@ -1124,9 +1125,11 @@ export default function HomePage() {
                     </span>
                     <button
                       onClick={() => handleQuickAdd(prod, primaryVariant)}
-                      className="px-3 py-1.5 rounded-lg bg-[#171717] hover:bg-[#F26A00] text-white font-bold text-[11px] transition"
+                      className="w-7 h-7 rounded-lg bg-[#171717] hover:bg-[#F26A00] text-white flex items-center justify-center transition shrink-0 cursor-pointer"
+                      title="Add to Cart"
+                      aria-label="Add to cart"
                     >
-                      Add
+                      <ShoppingBag className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </div>

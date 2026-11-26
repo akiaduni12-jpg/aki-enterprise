@@ -138,14 +138,6 @@ export function Navbar() {
               <SocialIcon platform="tiktok" href={settings.socials.tiktok} className="!w-6 !h-6 !text-[10px]" />
               <SocialIcon platform="x" href={settings.socials.x} className="!w-6 !h-6 !text-[10px]" />
             </div>
-            <span>|</span>
-            <Link
-              href="/admin/dashboard"
-              className="flex items-center gap-1 text-[#FF8A24] hover:text-orange-300 font-semibold transition"
-            >
-              <SlidersHorizontal className="w-3 h-3" />
-              <span>Admin</span>
-            </Link>
           </div>
         </div>
       </div>
@@ -566,14 +558,6 @@ export function Navbar() {
               className="text-xs text-gray-600 py-1.5 px-2 hover:bg-gray-50 rounded"
             >
               Track Order
-            </Link>
-            <Link
-              href="/admin/dashboard"
-              onClick={() => setMobileMenuOpen(false)}
-              className="text-xs font-semibold text-[#F26A00] py-1.5 px-2 hover:bg-orange-50 rounded flex items-center gap-1.5"
-            >
-              <SlidersHorizontal className="w-3.5 h-3.5" />
-              Staff Administration Portal
             </Link>
           </div>
         </div>

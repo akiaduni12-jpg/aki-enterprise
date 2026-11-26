@@ -3,16 +3,77 @@ import { notFound } from "next/navigation";
 import { PRODUCTS } from "@/lib/mock-data";
 import { getProducts } from "@/lib/db-service";
 import { ProductDetailClient } from "@/components/product-detail-client";
+import { Product } from "@/types/ecommerce";
 import type { Metadata } from "next";
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
 
+function normalizeSlug(s: string): string {
+  if (!s) return "";
+  try {
+    return decodeURIComponent(s)
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)+/g, "");
+  } catch {
+    return s
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)+/g, "");
+  }
+}
+
+export async function findProductBySlugOrId(rawSlug: string): Promise<Product | null> {
+  const allProducts = await getProducts();
+  const rawClean = (rawSlug || "").trim();
+  const decodedClean = (() => {
+    try {
+      return decodeURIComponent(rawClean).trim();
+    } catch {
+      return rawClean;
+    }
+  })();
+  const targetNorm = normalizeSlug(rawClean);
+
+  // 1. Direct exact slug match
+  let product = allProducts.find(
+    (p) => p.slug === rawClean || p.slug === decodedClean
+  );
+  if (product) return product;
+
+  // 2. Normalized kebab-case slug match
+  product = allProducts.find((p) => normalizeSlug(p.slug) === targetNorm);
+  if (product) return product;
+
+  // 3. Match against product title (clean or normalized)
+  product = allProducts.find(
+    (p) =>
+      p.title.trim().toLowerCase() === decodedClean.toLowerCase() ||
+      normalizeSlug(p.title) === targetNorm
+  );
+  if (product) return product;
+
+  // 4. Match against ID
+  product = allProducts.find((p) => p.id === rawClean || p.id === decodedClean);
+  if (product) return product;
+
+  // 5. Fallback search against built-in mock products
+  product =
+    PRODUCTS.find((p) => p.slug === rawClean || p.slug === decodedClean) ||
+    PRODUCTS.find((p) => normalizeSlug(p.slug) === targetNorm) ||
+    PRODUCTS.find((p) => normalizeSlug(p.title) === targetNorm) ||
+    PRODUCTS.find((p) => p.id === rawClean);
+
+  return product || null;
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const allProducts = await getProducts();
-  const product = allProducts.find((p) => p.slug === slug) || PRODUCTS.find((p) => p.slug === slug);
+  const product = await findProductBySlugOrId(slug);
 
   if (!product) {
     return {
@@ -56,12 +117,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProductPage({ params }: Props) {
   const { slug } = await params;
-  const allProducts = await getProducts();
-  const product = allProducts.find((p) => p.slug === slug) || PRODUCTS.find((p) => p.slug === slug);
+  const product = await findProductBySlugOrId(slug);
 
   if (!product) {
     notFound();
   }
+
+  const allProducts = await getProducts();
 
   // Find up to 4 related / recommended products
   const relatedProducts = allProducts
