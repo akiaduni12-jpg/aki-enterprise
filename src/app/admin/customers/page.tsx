@@ -23,6 +23,7 @@ import {
   Save,
   UserPlus,
 } from "lucide-react";
+import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
 
 interface CustomerOrderSummary {
   order_number: string;
@@ -501,10 +502,10 @@ export default function AdminCustomersPage() {
                           {/* Internal Admin WhatsApp Chat */}
                           <Link
                             href={`/admin/whatsapp?phone=${c.phone.replace(/\D/g, "")}&name=${encodeURIComponent(c.full_name)}`}
-                            className="p-1.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white transition flex items-center gap-1 text-[11px] font-bold"
+                            className="p-1.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white transition flex items-center gap-1.5 text-[11px] font-bold"
                             title="Chat in Admin WhatsApp Engine"
                           >
-                            <MessageCircle className="w-3.5 h-3.5" />
+                            <WhatsAppIcon className="w-3.5 h-3.5" />
                             <span className="hidden xl:inline">Chat</span>
                           </Link>
 
@@ -513,10 +514,10 @@ export default function AdminCustomersPage() {
                             href={getWhatsAppLink(c.phone, c.full_name)}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-gray-300 hover:text-white transition"
+                            className="p-1.5 rounded-lg bg-[#25D366]/20 hover:bg-[#25D366] text-[#25D366] hover:text-white transition"
                             title="Open in WhatsApp Web"
                           >
-                            <span className="text-[10px] font-mono">WA</span>
+                            <WhatsAppIcon className="w-3.5 h-3.5" />
                           </a>
 
                           {/* Direct Phone Call */}
@@ -592,7 +593,7 @@ export default function AdminCustomersPage() {
                   href={`/admin/whatsapp?phone=${selectedCustomer.phone.replace(/\D/g, "")}&name=${encodeURIComponent(selectedCustomer.full_name)}`}
                   className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition"
                 >
-                  <MessageCircle className="w-4 h-4" />
+                  <WhatsAppIcon className="w-4 h-4" />
                   <span>Admin WhatsApp Chat</span>
                 </Link>
 

@@ -25,6 +25,7 @@ import {
   Users,
   MessageCircle,
 } from "lucide-react";
+import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
 
 interface LiveOrder {
   id: string;
@@ -150,8 +151,8 @@ export default function AdminDashboardPage() {
           className="p-4 rounded-2xl bg-gradient-to-r from-emerald-950/80 to-slate-950 border border-emerald-500/40 hover:border-emerald-500 flex items-center justify-between transition group shadow-lg shadow-emerald-950/30"
         >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/30">
-              <MessageCircle className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0 border border-emerald-500/30 shadow-md">
+              <img src="/images/social/whatsapp.jpg" alt="WhatsApp" className="w-full h-full object-cover" />
             </div>
             <div>
               <div className="flex items-center gap-2">
@@ -304,8 +305,8 @@ export default function AdminDashboardPage() {
       {/* WhatsApp Commerce Engine Highlight Banner */}
       <div className="hidden md:flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-emerald-950/60 via-slate-950 to-slate-950 border border-emerald-500/30 shadow-lg">
         <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
-            <MessageCircle className="w-6 h-6" />
+          <div className="w-11 h-11 rounded-xl overflow-hidden shrink-0 border border-emerald-500/40 shadow-md">
+            <img src="/images/social/whatsapp.jpg" alt="WhatsApp" className="w-full h-full object-cover" />
           </div>
           <div>
             <div className="flex items-center gap-2">
@@ -439,7 +440,7 @@ export default function AdminDashboardPage() {
                             className="inline-flex items-center gap-1 text-[10px] text-emerald-400 hover:text-white bg-emerald-500/10 hover:bg-emerald-600 px-1.5 py-0.5 rounded border border-emerald-500/20 font-bold transition"
                             title="Open WhatsApp chat with customer"
                           >
-                            <MessageCircle className="w-2.5 h-2.5" />
+                            <WhatsAppIcon className="w-2.5 h-2.5" />
                             <span>Chat</span>
                           </Link>
                         )}

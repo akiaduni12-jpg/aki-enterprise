@@ -25,6 +25,7 @@ import {
   CheckCircle2,
   MessageSquare,
 } from "lucide-react";
+import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
 
 interface AdminOrderDisplay {
   id: string;
@@ -473,10 +474,10 @@ export default function AdminOrdersPage() {
                     </span>
                     <Link
                       href={`/admin/whatsapp?phone=${order.phone.replace(/\D/g, "")}&name=${encodeURIComponent(order.customerName)}`}
-                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 text-[10px] font-bold transition shadow-xs"
+                      className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 text-[10px] font-bold transition shadow-xs"
                       title="Open chat in Admin WhatsApp Engine"
                     >
-                      <MessageSquare className="w-3 h-3" />
+                      <WhatsAppIcon className="w-3.5 h-3.5" />
                       <span>WhatsApp Chat</span>
                     </Link>
                   </div>
@@ -604,9 +605,9 @@ export default function AdminOrdersPage() {
                   <p className="text-gray-300">{selectedOrder.phone}</p>
                   <Link
                     href={`/admin/whatsapp?phone=${selectedOrder.phone.replace(/\D/g, "")}&name=${encodeURIComponent(selectedOrder.customerName)}`}
-                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 text-[10px] font-bold transition"
+                    className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 text-[10px] font-bold transition"
                   >
-                    <MessageSquare className="w-3 h-3" />
+                    <WhatsAppIcon className="w-3.5 h-3.5" />
                     <span>WhatsApp</span>
                   </Link>
                 </div>

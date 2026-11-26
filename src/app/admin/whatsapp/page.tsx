@@ -33,6 +33,7 @@ import {
   Package,
   FileText,
 } from "lucide-react";
+import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
 
 interface StoredMessage {
   id: string;
@@ -217,10 +218,19 @@ export default function AdminWhatsAppEnginePage() {
     fetch("/api/products")
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
-        if (data && Array.isArray(data.products)) {
-          setProducts(data.products);
-        } else if (Array.isArray(data)) {
-          setProducts(data);
+        const raw = data?.products || (Array.isArray(data) ? data : []);
+        if (Array.isArray(raw)) {
+          const sanitized: ProductItem[] = raw.map((p: any) => ({
+            id: String(p.id || Math.random()),
+            title: String(p.title || "Original Device"),
+            slug: String(p.slug || ""),
+            price: Number(p.price ?? p.base_price ?? p.variants?.[0]?.price ?? 0),
+            regular_price: p.regular_price ? Number(p.regular_price) : undefined,
+            image_url: p.image_url || (Array.isArray(p.images) ? p.images[0] : "") || "/icons/logo-icon.webp",
+            condition: p.condition || p.variants?.[0]?.condition || "Brand New (Factory Sealed)",
+            category: { name: p.category_name || p.categories?.name || "Phones & Gadgets" },
+          }));
+          setProducts(sanitized);
         }
       })
       .catch(() => { });
@@ -519,18 +529,24 @@ export default function AdminWhatsAppEnginePage() {
 
   // Send Product Card
   const handleSendProductCard = (product: ProductItem) => {
+    const safePrice = Number(product?.price ?? (product as any)?.base_price ?? 0);
+    const safeTitle = String(product?.title || "Original Store Device");
+    const safeSlug = String(product?.slug || "");
+    const safeCond = String(product?.condition || "Brand New (Factory Sealed)");
+    const safeImg = String(product?.image_url || (product as any)?.images?.[0] || "/icons/logo-icon.webp");
+
     const productCard = {
-      title: product.title,
-      price: product.price,
-      condition: product.condition || "Brand New (Factory Sealed)",
-      specs: product.category?.name || "Original Storefront Item",
+      title: safeTitle,
+      price: safePrice,
+      condition: safeCond,
+      specs: product?.category?.name || "Original Storefront Item",
       warranty: "6 Months Warranty",
-      imageUrl: product.image_url || "/icons/logo-icon.webp",
-      slug: product.slug,
+      imageUrl: safeImg,
+      slug: safeSlug,
     };
 
     handleSendMessage({
-      text: `📱 *${product.title}*\nPrice: GH₵ ${product.price.toLocaleString()}\nCondition: ${productCard.condition}\nLink: https://www.akiaduniventures.com/product/${product.slug}`,
+      text: `📱 *${safeTitle}*\nPrice: GH₵ ${safePrice.toLocaleString()}\nCondition: ${safeCond}\nLink: https://www.akiaduniventures.com/product/${safeSlug}`,
       type: "product_card",
       metadata: { productCard },
     });
@@ -700,16 +716,16 @@ export default function AdminWhatsAppEnginePage() {
       {/* Top Engine Header Bar */}
       <header className="bg-slate-900 border-b border-slate-800 px-4 py-3 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-            <MessageSquare className="w-5 h-5" />
+          <div className="w-9 h-9 rounded-xl overflow-hidden shrink-0 border border-emerald-500/40 shadow-sm flex items-center justify-center bg-emerald-600">
+            <img src="/images/social/whatsapp.jpg" alt="WhatsApp" className="w-full h-full object-cover" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-sm md:text-base font-extrabold text-white tracking-tight">
+              <h1 className="text-sm md:text-base font-extrabold text-white tracking-tight flex items-center gap-1.5">
                 WhatsApp Commerce Engine
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               </h1>
               <span className="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                 Meta Cloud API Live
               </span>
             </div>
@@ -931,7 +947,9 @@ export default function AdminWhatsAppEnginePage() {
                       <div className="w-11 h-11 rounded-full bg-linear-to-br from-emerald-600 to-teal-800 text-white font-bold flex items-center justify-center text-sm shadow-md">
                         {((conv.name || "Customer").slice(0, 2)).toUpperCase()}
                       </div>
-                      <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-500 border-2 border-slate-950" />
+                      <span className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full overflow-hidden border border-slate-900 shadow">
+                        <img src="/images/social/whatsapp.jpg" alt="WhatsApp" className="w-full h-full object-cover" />
+                      </span>
                     </div>
 
                     {/* Content */}
@@ -986,8 +1004,11 @@ export default function AdminWhatsAppEnginePage() {
               {/* Chat Header */}
               <div className="bg-slate-900 border-b border-slate-800 px-4 py-3 flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 rounded-full bg-emerald-600/30 border border-emerald-500/40 text-emerald-300 font-black flex items-center justify-center shrink-0">
+                  <div className="relative w-10 h-10 rounded-full bg-emerald-600/30 border border-emerald-500/40 text-emerald-300 font-black flex items-center justify-center shrink-0">
                     {((activeConversation.name || "Customer").slice(0, 2)).toUpperCase()}
+                    <span className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full overflow-hidden border border-slate-900 shadow">
+                      <img src="/images/social/whatsapp.jpg" alt="WhatsApp" className="w-full h-full object-cover" />
+                    </span>
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
@@ -1049,8 +1070,8 @@ export default function AdminWhatsAppEnginePage() {
                     className="p-2 rounded-xl bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-600 hover:text-white transition flex items-center gap-1.5 text-xs font-bold"
                     title="Open in WhatsApp Web App"
                   >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">Open WA</span>
+                    <WhatsAppIcon className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">WhatsApp</span>
                   </a>
 
                   {/* Toggle Right CRM Drawer */}
@@ -1340,10 +1361,13 @@ export default function AdminWhatsAppEnginePage() {
             </>
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-gray-400 space-y-3">
-              <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-                <MessageSquare className="w-8 h-8" />
+              <div className="w-16 h-16 rounded-2xl overflow-hidden border border-emerald-500/40 shadow-xl p-0.5 bg-emerald-600/20">
+                <img src="/images/social/whatsapp.jpg" alt="WhatsApp" className="w-full h-full object-cover rounded-xl" />
               </div>
-              <h3 className="text-base font-bold text-white">Select a Customer Conversation</h3>
+              <h3 className="text-base font-bold text-white flex items-center gap-1.5">
+                <WhatsAppIcon className="w-4 h-4 text-emerald-400" />
+                Select a Customer Conversation
+              </h3>
               <p className="text-xs text-gray-500 max-w-sm">
                 Choose an active WhatsApp chat from the left or click &quot;New Chat&quot; to send a direct message, product card, or MoMo payment request to any phone number.
               </p>
@@ -1575,49 +1599,62 @@ export default function AdminWhatsAppEnginePage() {
             </div>
 
             <div className="flex-1 overflow-y-auto divide-y divide-slate-800 space-y-1">
-              {products
-                .filter((p) => p.title.toLowerCase().includes(productSearch.toLowerCase()))
-                .slice(0, 30)
-                .map((product) => (
-                  <div
-                    key={product.id}
-                    className="p-2.5 rounded-xl hover:bg-slate-800/70 flex items-center justify-between gap-3 transition"
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      {product.image_url ? (
-                        <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 bg-slate-800 relative">
-                          <img
-                            src={product.image_url}
-                            alt={product.title}
-                            className="object-cover w-full h-full"
-                          />
-                        </div>
-                      ) : (
-                        <div className="w-12 h-12 rounded-lg bg-slate-800 flex items-center justify-center shrink-0 text-gray-500">
-                          <ShoppingBag className="w-5 h-5" />
-                        </div>
-                      )}
-                      <div className="min-w-0">
-                        <h4 className="text-xs font-bold text-white truncate">{product.title}</h4>
-                        <div className="flex items-center gap-2 text-[11px] text-gray-400">
-                          <span className="text-emerald-400 font-extrabold">
-                            GH₵ {product.price.toLocaleString()}
-                          </span>
-                          <span>•</span>
-                          <span className="truncate">{product.condition || "Brand New"}</span>
+              {(products || [])
+                .filter((p) => (p?.title || "").toLowerCase().includes((productSearch || "").toLowerCase()))
+                .slice(0, 40)
+                .map((product) => {
+                  const safePrice = Number(product?.price ?? (product as any)?.base_price ?? 0);
+                  const safeImage = product?.image_url || (product as any)?.images?.[0] || "";
+                  return (
+                    <div
+                      key={product.id || product.slug}
+                      className="p-2.5 rounded-xl hover:bg-slate-800/70 flex items-center justify-between gap-3 transition"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        {safeImage ? (
+                          <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 bg-slate-800 relative border border-slate-700">
+                            <img
+                              src={safeImage}
+                              alt={product.title || "Product"}
+                              className="object-cover w-full h-full"
+                              onError={(e) => {
+                                (e.currentTarget as HTMLImageElement).src = "/icons/logo-icon.webp";
+                              }}
+                            />
+                          </div>
+                        ) : (
+                          <div className="w-12 h-12 rounded-lg bg-slate-800 flex items-center justify-center shrink-0 text-gray-500 border border-slate-700">
+                            <ShoppingBag className="w-5 h-5 text-emerald-400" />
+                          </div>
+                        )}
+                        <div className="min-w-0">
+                          <h4 className="text-xs font-bold text-white truncate">{product.title || "Store Item"}</h4>
+                          <div className="flex items-center gap-2 text-[11px] text-gray-400">
+                            <span className="text-emerald-400 font-extrabold">
+                              GH₵ {safePrice.toLocaleString()}
+                            </span>
+                            <span>•</span>
+                            <span className="truncate">{product.condition || "Brand New"}</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    <button
-                      onClick={() => handleSendProductCard(product)}
-                      className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1 shrink-0 transition"
-                    >
-                      <span>Send Card</span>
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                ))}
+                      <button
+                        onClick={() => handleSendProductCard(product)}
+                        className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1 shrink-0 transition shadow-sm"
+                      >
+                        <span>Send Card</span>
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  );
+                })}
+
+              {(products || []).filter((p) => (p?.title || "").toLowerCase().includes((productSearch || "").toLowerCase())).length === 0 && (
+                <div className="p-8 text-center text-gray-500 text-xs">
+                  No products matched &quot;{productSearch}&quot;.
+                </div>
+              )}
             </div>
           </div>
         </div>
