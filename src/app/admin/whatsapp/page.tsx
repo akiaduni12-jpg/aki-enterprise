@@ -211,9 +211,12 @@ export default function AdminWhatsAppEnginePage() {
   // Group messages into conversations
   const conversations: Conversation[] = useMemo(() => {
     const map = new Map<string, StoredMessage[]>();
-    for (const msg of messages) {
+    for (const msg of messages || []) {
+      if (!msg) continue;
       // Identify contact phone (either incoming 'from' or outgoing 'to')
-      const contactPhone = msg.direction === "incoming" ? msg.from : msg.to;
+      const rawPhone = msg.direction === "incoming" ? msg.from : msg.to;
+      const contactPhone = typeof rawPhone === "string" ? rawPhone.trim() : "";
+      if (!contactPhone) continue;
       if (!map.has(contactPhone)) {
         map.set(contactPhone, []);
       }
@@ -240,30 +243,31 @@ export default function AdminWhatsAppEnginePage() {
     };
 
     map.forEach((msgs, phone) => {
+      if (!phone || typeof phone !== "string") return;
       // Sort messages by timestamp asc
-      const sorted = msgs.sort((a, b) => a.timestamp - b.timestamp);
-      const last = sorted[sorted.length - 1];
+      const sorted = (msgs || []).sort((a, b) => (Number(a.timestamp) || 0) - (Number(b.timestamp) || 0));
+      const last = sorted[sorted.length - 1] || ({} as StoredMessage);
       const known = knownNames[phone] || {
-        name: `Customer ${phone.slice(-4)}`,
+        name: `Customer ${phone.length >= 4 ? phone.slice(-4) : phone}`,
         city: "Ghana",
         tags: ["Active Inquiry"],
       };
 
       convList.push({
         phone,
-        name: known.name,
-        city: known.city,
-        tags: known.tags,
+        name: known.name || `Customer ${phone}`,
+        city: known.city || "Ghana",
+        tags: Array.isArray(known.tags) ? known.tags : [],
         lastMessage: last.text || "[Attachment / Card]",
-        lastMessageTime: last.timestamp,
-        lastDirection: last.direction,
-        unreadCount: sorted.filter((m) => m.direction === "incoming" && m.status !== "read").length,
+        lastMessageTime: Number(last.timestamp) || Date.now(),
+        lastDirection: last.direction || "incoming",
+        unreadCount: sorted.filter((m) => m && m.direction === "incoming" && m.status !== "read").length,
         messages: sorted,
       });
     });
 
     // Sort conversations by latest message time desc
-    return convList.sort((a, b) => b.lastMessageTime - a.lastMessageTime);
+    return convList.sort((a, b) => (b.lastMessageTime || 0) - (a.lastMessageTime || 0));
   }, [messages]);
 
   // Set default selected phone
@@ -280,19 +284,25 @@ export default function AdminWhatsAppEnginePage() {
 
   // Filter conversations
   const filteredConversations = useMemo(() => {
-    return conversations.filter((c) => {
+    return (conversations || []).filter((c) => {
+      if (!c) return false;
+      const safeName = (c.name || "").toLowerCase();
+      const safePhone = (c.phone || "").toLowerCase();
+      const safeMsg = (c.lastMessage || "").toLowerCase();
+      const query = (searchQuery || "").toLowerCase();
+
       const matchSearch =
-        c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        c.phone.includes(searchQuery) ||
-        c.lastMessage.toLowerCase().includes(searchQuery.toLowerCase());
+        safeName.includes(query) ||
+        safePhone.includes(query) ||
+        safeMsg.includes(query);
 
       if (!matchSearch) return false;
 
-      if (filterTab === "unread") return c.unreadCount > 0;
+      if (filterTab === "unread") return (c.unreadCount || 0) > 0;
       if (filterTab === "orders")
-        return c.tags.some((t) => t.toLowerCase().includes("order") || t.toLowerCase().includes("paid"));
+        return (c.tags || []).some((t) => (t || "").toLowerCase().includes("order") || (t || "").toLowerCase().includes("paid"));
       if (filterTab === "leads")
-        return c.tags.some((t) => t.toLowerCase().includes("lead") || t.toLowerCase().includes("inquiry"));
+        return (c.tags || []).some((t) => (t || "").toLowerCase().includes("lead") || (t || "").toLowerCase().includes("inquiry"));
       return true;
     });
   }, [conversations, searchQuery, filterTab]);
@@ -494,10 +504,12 @@ export default function AdminWhatsAppEnginePage() {
 
   // Find matching customer orders for active phone
   const activeCustomerOrders = useMemo(() => {
-    if (!selectedPhone) return [];
+    if (!selectedPhone || typeof selectedPhone !== "string") return [];
     const cleanCurrent = selectedPhone.replace(/\D/g, "").slice(-9);
-    return orders.filter((o) => {
-      const cleanOrderPhone = (o.customer_phone || "").replace(/\D/g, "");
+    if (!cleanCurrent) return [];
+    return (orders || []).filter((o) => {
+      if (!o || !o.customer_phone) return false;
+      const cleanOrderPhone = String(o.customer_phone).replace(/\D/g, "");
       return cleanOrderPhone.endsWith(cleanCurrent);
     });
   }, [orders, selectedPhone]);
@@ -684,7 +696,7 @@ export default function AdminWhatsAppEnginePage() {
                     {/* Avatar */}
                     <div className="relative shrink-0">
                       <div className="w-11 h-11 rounded-full bg-linear-to-br from-emerald-600 to-teal-800 text-white font-bold flex items-center justify-center text-sm shadow-md">
-                        {conv.name.slice(0, 2).toUpperCase()}
+                        {((conv.name || "Customer").slice(0, 2)).toUpperCase()}
                       </div>
                       <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-500 border-2 border-slate-950" />
                     </div>
@@ -716,7 +728,7 @@ export default function AdminWhatsAppEnginePage() {
                               {conv.unreadCount}
                             </span>
                           )}
-                          {conv.tags.slice(0, 1).map((t) => (
+                          {(conv.tags || []).slice(0, 1).map((t) => (
                             <span
                               key={t}
                               className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-slate-800 text-gray-300 border border-slate-700"
@@ -742,7 +754,7 @@ export default function AdminWhatsAppEnginePage() {
               <div className="bg-slate-900 border-b border-slate-800 px-4 py-3 flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="w-10 h-10 rounded-full bg-emerald-600/30 border border-emerald-500/40 text-emerald-300 font-black flex items-center justify-center shrink-0">
-                    {activeConversation.name.slice(0, 2).toUpperCase()}
+                    {((activeConversation.name || "Customer").slice(0, 2)).toUpperCase()}
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
@@ -1101,17 +1113,17 @@ export default function AdminWhatsAppEnginePage() {
             {/* Profile summary */}
             <div className="bg-slate-900 border border-slate-800 rounded-xl p-3 text-center space-y-2">
               <div className="w-14 h-14 rounded-full bg-linear-to-br from-emerald-600 to-teal-800 text-white font-black text-lg mx-auto flex items-center justify-center shadow-lg">
-                {activeConversation.name.slice(0, 2).toUpperCase()}
+                {((activeConversation.name || "Customer").slice(0, 2)).toUpperCase()}
               </div>
               <div>
-                <h4 className="text-sm font-bold text-white">{activeConversation.name}</h4>
-                <p className="text-xs font-mono text-emerald-400">+{activeConversation.phone}</p>
+                <h4 className="text-sm font-bold text-white">{activeConversation.name || "Customer"}</h4>
+                <p className="text-xs font-mono text-emerald-400">+{activeConversation.phone || ""}</p>
                 <p className="text-[11px] text-gray-400">{activeConversation.city || "Accra, Ghana"}</p>
               </div>
 
               {/* Tags */}
               <div className="flex flex-wrap gap-1 justify-center pt-1">
-                {activeConversation.tags.map((tag) => (
+                {(activeConversation.tags || []).map((tag) => (
                   <span
                     key={tag}
                     className="text-[9px] font-bold px-2 py-0.5 rounded-md bg-slate-800 text-orange-400 border border-orange-500/30"

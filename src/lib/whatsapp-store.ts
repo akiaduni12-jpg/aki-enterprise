@@ -236,8 +236,9 @@ const SEED_MESSAGES: StoredWhatsAppMessage[] = [
  */
 export async function getWhatsAppMessages(sinceTimestamp?: number): Promise<StoredWhatsAppMessage[]> {
   const all = await loadWhatsAppMessages();
+  const valid = (all || []).filter((m) => m && (m.from || m.to));
   if (!sinceTimestamp) {
-    return all.slice(-50);
+    return valid.slice(-50);
   }
-  return all.filter((m) => m.timestamp > sinceTimestamp);
+  return valid.filter((m) => (m.timestamp || 0) > sinceTimestamp);
 }
