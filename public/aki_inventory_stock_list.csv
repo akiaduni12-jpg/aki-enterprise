@@ -1,0 +1,52 @@
+Item #,Product Description,Category,Brand,SKU,Condition,Specifications,Supplier Invoice Ref,Invoice Cost (GH₵),Stock Qty,Retail Unit Price (GH₵),Total Retail Value (GH₵)
+1,"Itel IT5606 Big Battery Power Keypad Phone","keypads phone ","AKI ADUNI VENTURES",ITEL-IT5606-NEW,"Brand New (Factory Sealed)","Metallic Gold","Siaka Phones Inv #19799",125.00,2,175.00,350.00
+2,"Itel it2166 Compact Dual SIM Phone","keypads phone ","AKI ADUNI VENTURES",ITEL-IT2166-NEW,"Brand New (Factory Sealed)","Black","Siaka Phones Inv #19799",88.00,2,120.00,240.00
+3,"Itel 5620 Powerful Keypad Phone with Super Torch","keypads phone ","AKI ADUNI VENTURES",ITEL-5620-NEW,"Brand New (Factory Sealed)","Dark Gray","Siaka Phones Inv #19799",134.00,2,185.00,370.00
+4,"Villaon V201 Dual SIM Long-Standby Phone","keypads phone ","AKI ADUNI VENTURES",VILLAON-V201-NEW,"Brand New (Factory Sealed)","Black","Siaka Phones Inv #19799",76.00,2,110.00,220.00
+5,"Jx L170 Wireless FM Keypad Phone","keypads phone ","AKI ADUNI VENTURES",JX-L170-NEW,"Brand New (Factory Sealed)","Black","Siaka Phones Inv #19799",70.00,1,100.00,100.00
+6,"CALE A528 Dual SIM Keypad Phone","keypads phone ","AKI ADUNI VENTURES",CALE-A528-NEW,"Brand New (Factory Sealed)","Dark Blue","Siaka Phones Inv #19799",110.00,1,150.00,150.00
+7,"Itel it2167 Dual SIM Keypad Phone","keypads phone ","AKI ADUNI VENTURES",ITEL-IT2167-NEW,"Brand New (Factory Sealed)","Black","Siaka Phones Inv #19799",101.00,1,135.00,135.00
+8,"Itel IT2160 Dual SIM Keypad Phone with Camera","keypads phone ","AKI ADUNI VENTURES",ITEL-IT2160-NEW,"Brand New (Factory Sealed)","Deep Blue","Siaka Phones Inv #19799",108.00,2,145.00,290.00
+9,"Ifinex M66 Plus Dual SIM Feature Phone","keypads phone ","AKI ADUNI VENTURES",IFINEX-M66P-NEW,"Brand New (Factory Sealed)","Red/Black","Siaka Phones Inv #19799",78.00,2,115.00,230.00
+10,"Apple iPhone 13 (UK Used Grade A)","Smartphones","AKI ADUNI VENTURES",IPH13-128-MID-UK,"UK Used Grade A","128GB / 4GB RAM / Midnight","Warehouse Stock",-,12,5200.00,62400.00
+11,"Apple iPhone 13 (UK Used Grade A)","Smartphones","AKI ADUNI VENTURES",IPH13-128-BLU-UK,"UK Used Grade A","128GB / 4GB RAM / Sierra Blue","Warehouse Stock",-,4,5300.00,21200.00
+12,"Apple iPhone 13 (UK Used Grade A)","Smartphones","AKI ADUNI VENTURES",IPH13-256-MID-UK,"UK Used Grade A","256GB / 4GB RAM / Midnight","Warehouse Stock",-,6,5950.00,35700.00
+13,"Samsung Galaxy S24 Ultra 5G","Smartphones","AKI ADUNI VENTURES",SGS24U-256-GRY-NEW,"Brand New (Factory Sealed)","256GB / 12GB RAM / Titanium Gray","Warehouse Stock",-,6,14200.00,85200.00
+14,"Samsung Galaxy S24 Ultra 5G","Smartphones","AKI ADUNI VENTURES",SGS24U-512-BLK-NEW,"Brand New (Factory Sealed)","512GB / 12GB RAM / Titanium Black","Warehouse Stock",-,4,16500.00,66000.00
+15,"Apple iPhone 14 Pro (UK Used Grade A)","Smartphones","AKI ADUNI VENTURES",IPH14P-128-PUR-UK,"UK Used Grade A","128GB / 6GB RAM / Deep Purple","Warehouse Stock",-,8,7800.00,62400.00
+16,"Apple iPhone 14 Pro (UK Used Grade A)","Smartphones","AKI ADUNI VENTURES",IPH14P-256-GLD-UK,"UK Used Grade A","256GB / 6GB RAM / Gold","Warehouse Stock",-,5,8600.00,43000.00
+17,"Google Pixel 8 Pro 5G (128GB)","Smartphones","AKI ADUNI VENTURES",PIX8P-128-OBS-NEW,"Brand New (Factory Sealed)","128GB / 12GB RAM / Obsidian Black","Warehouse Stock",-,6,9200.00,55200.00
+18,"Google Pixel 8 Pro 5G (128GB)","Smartphones","AKI ADUNI VENTURES",PIX8P-128-BAY-NEW,"Brand New (Factory Sealed)","128GB / 12GB RAM / Bay Blue","Warehouse Stock",-,3,9350.00,28050.00
+19,"Apple Watch Series 9 GPS 45mm","Smartwatches","AKI ADUNI VENTURES",AWS9-45-MID,"Brand New (Factory Sealed)","Midnight","Warehouse Stock",-,9,4950.00,44550.00
+20,"Apple Watch Series 9 GPS 45mm","Smartwatches","AKI ADUNI VENTURES",AWS9-45-SLV,"Brand New (Factory Sealed)","Starlight","Warehouse Stock",-,6,4950.00,29700.00
+21,"Crucial 16GB DDR4 3200MHz SODIMM Laptop RAM","Computer & Accessories","AKI ADUNI VENTURES",CRU-RAM-16G-3200,"Brand New (Factory Sealed)","16GB RAM / Standard Green PCB","Warehouse Stock",-,20,580.00,11600.00
+22,"Oraimo FreePods 4 Active Noise Cancelling Earbuds","Audio & Earbuds","AKI ADUNI VENTURES",ORM-FP4-BLK,"Brand New (Factory Sealed)","Obsidian Black","Warehouse Stock",-,30,420.00,12600.00
+23,"Oraimo FreePods 4 Active Noise Cancelling Earbuds","Audio & Earbuds","AKI ADUNI VENTURES",ORM-FP4-BLU,"Brand New (Factory Sealed)","Ice Blue","Warehouse Stock",-,15,420.00,6300.00
+24,"Samsung Galaxy Buds2 Pro with 24-bit Hi-Fi Audio","Audio & Earbuds","AKI ADUNI VENTURES",SAM-BUDS2P-GRP,"Brand New (Factory Sealed)","Graphite","Warehouse Stock",-,11,1850.00,20350.00
+25,"Samsung Galaxy Buds2 Pro with 24-bit Hi-Fi Audio","Audio & Earbuds","AKI ADUNI VENTURES",SAM-BUDS2P-WHT,"Brand New (Factory Sealed)","White","Warehouse Stock",-,7,1850.00,12950.00
+26,"Oraimo Watch 4 Plus 2.01"" HD Bluetooth Calling Smartwatch","Smartwatches","AKI ADUNI VENTURES",ORM-W4P-BLK,"Brand New (Factory Sealed)","Silicone Black","Warehouse Stock",-,28,520.00,14560.00
+27,"Oraimo Watch 4 Plus 2.01"" HD Bluetooth Calling Smartwatch","Smartwatches","AKI ADUNI VENTURES",ORAIMO-WATCH-4-PLUS-128GB-BRAND_NEW,"Brand New (Factory Sealed)","128GB / 8GB RAM / Silicone Black","Warehouse Stock",-,28,520.00,14560.00
+28,"Anker 65W GaN 3-Port Fast Charger (2x USB-C + 1x USB-A)","Consumer Electronics","AKI ADUNI VENTURES",ANK-GAN65-BLK,"Brand New (Factory Sealed)","Matte Black","Warehouse Stock",-,35,490.00,17150.00
+29,"Kingston NV2 1TB PCIe 4.0 NVMe M.2 SSD","Computer & Accessories","AKI ADUNI VENTURES",KNG-NV2-1TB,"Brand New (Factory Sealed)","1TB / Blue PCB","Warehouse Stock",-,22,890.00,19580.00
+30,"JBL Flip 6 Portable Waterproof Bluetooth Speaker","Audio & Earbuds","AKI ADUNI VENTURES",JBL-FLIP6-BLK,"Brand New (Factory Sealed)","Midnight Black","Warehouse Stock",-,14,1350.00,18900.00
+31,"JBL Flip 6 Portable Waterproof Bluetooth Speaker","Audio & Earbuds","AKI ADUNI VENTURES",JBL-FLIP6-BLU,"Brand New (Factory Sealed)","Ocean Blue","Warehouse Stock",-,8,1350.00,10800.00
+32,"Baseus Metal Glam Series 8-in-1 USB-C Hub","Computer & Accessories","AKI ADUNI VENTURES",BAS-HUB-8IN1-GRY,"Brand New (Factory Sealed)","Space Gray","Warehouse Stock",-,30,450.00,13500.00
+33,"Apple iPhone 15 Pro Max","Smartphones","AKI ADUNI VENTURES",IPH15PM-256-NAT-NEW,"Brand New (Factory Sealed)","256GB / 8GB RAM / Natural Titanium","Warehouse Stock",-,8,14800.00,118400.00
+34,"Apple iPhone 15 Pro Max","Smartphones","AKI ADUNI VENTURES",IPH15PM-256-BLK-UK,"UK Used Grade A","256GB / 8GB RAM / Black Titanium","Warehouse Stock",-,5,12200.00,61000.00
+35,"Apple iPhone 15 Pro Max","Smartphones","AKI ADUNI VENTURES",IPH15PM-512-NAT-NEW,"Brand New (Factory Sealed)","512GB / 8GB RAM / Natural Titanium","Warehouse Stock",-,3,17200.00,51600.00
+36,"Wireless headphone","Audio & Earbuds","AKI ADUNI VENTURES",WIRELESS-HEADPHONE--BRAND_NEW,"Brand New (Factory Sealed)","Pure White","Warehouse Stock",-,10,140.00,1400.00
+37,"Wireless headphone","Audio & Earbuds","AKI ADUNI VENTURES",WIRELESS-HEADPHONE-BRAND_NEW,"Brand New (Factory Sealed)","Pure White","Warehouse Stock",-,10,140.00,1400.00
+38,"Virgo Micro USB Data Cable – 5A Super Fast Charge","Charger","AKI ADUNI VENTURES",VIRGO MICRO USB DATA CABLE – 5A SUPER FAST CHARGE-BRAND_NEW,"Brand New (Factory Sealed)","Default","Warehouse Stock",-,5,30.00,150.00
+39,"Anker 20,000mAh 22.5W Power Bank with Built-in USB-C Cable","Consumer Electronics","AKI ADUNI VENTURES",ANK-PB-20K-BLK,"Brand New (Factory Sealed)","Phantom Black","Warehouse Stock",-,25,650.00,16250.00
+40,"Anker 20,000mAh 22.5W Power Bank with Built-in USB-C Cable","Consumer Electronics","AKI ADUNI VENTURES",ANK-PB-20K-WHT,"Brand New (Factory Sealed)","Pearl White","Warehouse Stock",-,18,650.00,11700.00
+41,"Minicell TITAN 50,000mAh Power Bank","POWERBANK","AKI ADUNI VENTURES",MINICELL TITAN 50,000MAH POWER BANK-BRAND_NEW,"Brand New (Factory Sealed)","Default","Warehouse Stock",-,1,400.00,400.00
+42,"Lexipaul Original X20 Earphones","Audio & Earbuds","AKI ADUNI VENTURES",LEXIPAUL ORIGINAL X20 EARPHONES-BRAND_NEW,"Brand New (Factory Sealed)","Default","Warehouse Stock",-,5,25.00,125.00
+43,"Fsudz P45 30,000mAh Power Bank","POWERBANK","AKI ADUNI VENTURES",FSUDZ P45 30,000MAH POWER BANK-BRAND_NEW,"Brand New (Factory Sealed)","Default","Warehouse Stock",-,1,290.00,290.00
+44,"Gamepad V13 Wireless Controller","Computer & Accessories","AKI ADUNI VENTURES",GAMEPAD V13 WIRELESS CONTROLLER-BRAND_NEW,"Brand New (Factory Sealed)","Default","Warehouse Stock",-,2,100.00,200.00
+45,"iPhone 14 Pro Max 50W USB-C Fast Charging Adapter Set","Charger","AKI ADUNI VENTURES",IPHONE 14 PRO MAX 50W USB-C FAST CHARGING ADAPTER SET-BRAND_NEW,"Brand New (Factory Sealed)","Default","Warehouse Stock",-,5,70.00,350.00
+46,"Baseno BAS-108A Wireless Speaker","Bluetooth speaker","AKI ADUNI VENTURES",BASENO BAS-108A WIRELESS SPEAKER-BRAND_NEW,"Brand New (Factory Sealed)","Default","Warehouse Stock",-,1,50.00,50.00
+47,"Maxbest MB-AM15 Wireless Speaker","Bluetooth speaker","AKI ADUNI VENTURES",MAXBEST MB-AM15 WIRELESS SPEAKER-BRAND_NEW,"Brand New (Factory Sealed)","Default","Warehouse Stock",-,1,110.00,110.00
+48,"Pro 5S Wireless Earbuds","Audio & Earbuds","AKI ADUNI VENTURES",PRO 5S WIRELESS EARBUDS-BRAND_NEW,"Brand New (Factory Sealed)","Default","Warehouse Stock",-,2,35.00,70.00
+49,"Samsung BAR Plus 128GB USB 3.1 Flash Drive","pendrive  and memory card","AKI ADUNI VENTURES",SAMSUNG BAR PLUS 128GB USB 3.1 FLASH DRIVE-BRAND_NEW,"Brand New (Factory Sealed)","Default","Warehouse Stock",-,12,160.00,1920.00
+
+,,,,,,,TOTAL UNITS,446,TOTAL RETAIL VALUE,973750.00

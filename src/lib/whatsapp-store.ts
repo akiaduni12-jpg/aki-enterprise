@@ -12,6 +12,7 @@ export interface StoredWhatsAppMessage {
   text?: string;
   timestamp: number; // Unix timestamp ms
   status?: string;
+  metadata?: any;
 }
 
 const BUCKET_NAME = "whatsapp-store";
@@ -39,7 +40,7 @@ export async function loadWhatsAppMessages(): Promise<StoredWhatsAppMessage[]> {
       if (data && !error) {
         const text = await data.text();
         const parsed = JSON.parse(text);
-        if (Array.isArray(parsed)) {
+        if (Array.isArray(parsed) && parsed.length > 0) {
           messagesCache = parsed;
           lastFetchedFromRemote = now;
           return messagesCache;
@@ -54,10 +55,17 @@ export async function loadWhatsAppMessages(): Promise<StoredWhatsAppMessage[]> {
   try {
     if (fs.existsSync(TMP_PATH)) {
       const raw = fs.readFileSync(TMP_PATH, "utf-8");
-      messagesCache = JSON.parse(raw);
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        messagesCache = parsed;
+      }
     }
   } catch (e) {
     // quiet
+  }
+
+  if (messagesCache.length === 0) {
+    messagesCache = [...SEED_MESSAGES];
   }
 
   return messagesCache;
@@ -107,6 +115,7 @@ export async function addWhatsAppMessage(
     text: msg.text,
     timestamp: msg.timestamp || Date.now(),
     status: msg.status || "delivered",
+    metadata: msg.metadata || undefined,
   };
 
   // Prevent duplicate message IDs
@@ -117,6 +126,110 @@ export async function addWhatsAppMessage(
   await persistMessages(messagesCache);
   return newMsg;
 }
+
+const SEED_MESSAGES: StoredWhatsAppMessage[] = [
+  {
+    id: "seed-1",
+    from: "233541855969",
+    to: "233551243372",
+    direction: "incoming",
+    type: "text",
+    text: "Hello Aki Aduni Ventures! Please do you have the iPhone 13 128GB Midnight in stock? What is the battery health?",
+    timestamp: Date.now() - 1000 * 60 * 35,
+    status: "read",
+  },
+  {
+    id: "seed-2",
+    from: "233551243372",
+    to: "233541855969",
+    direction: "outgoing",
+    type: "product_card",
+    text: "Yes! We have Apple iPhone 13 (UK Used Grade A) 128GB Midnight in stock for GH₵ 5,200. Battery health is 88%, factory unlocked with 6 months warranty.",
+    timestamp: Date.now() - 1000 * 60 * 30,
+    status: "read",
+    metadata: {
+      productCard: {
+        title: "Apple iPhone 13 (UK Used Grade A)",
+        price: 5200,
+        condition: "UK Used Grade A",
+        specs: "128GB / 4GB RAM / Midnight",
+        warranty: "6 Months Warranty",
+        batteryHealth: "88%",
+        imageUrl: "https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=500&auto=format&fit=crop&q=60",
+        slug: "iphone-13-128gb-midnight",
+      },
+    },
+  },
+  {
+    id: "seed-3",
+    from: "233541855969",
+    to: "233551243372",
+    direction: "incoming",
+    type: "text",
+    text: "Nice! Can you send via VIP bus to Kumasi Asafo? Please send your MoMo payment details so I can pay now.",
+    timestamp: Date.now() - 1000 * 60 * 20,
+    status: "read",
+  },
+  {
+    id: "seed-4",
+    from: "233551243372",
+    to: "233541855969",
+    direction: "outgoing",
+    type: "momo_request",
+    text: "Here is your MTN MoMo payment request for GH₵ 5,200 (Ref: AKI-ORD-9281).",
+    timestamp: Date.now() - 1000 * 60 * 15,
+    status: "read",
+    metadata: {
+      momoRequest: {
+        amount: 5200,
+        network: "MTN",
+        reference: "AKI-ORD-9281",
+        status: "paid",
+        itemTitle: "Apple iPhone 13 128GB Midnight",
+      },
+    },
+  },
+  {
+    id: "seed-5",
+    from: "233551243372",
+    to: "233541855969",
+    direction: "outgoing",
+    type: "dispatch_waybill",
+    text: "Your phone has been dispatched to VIP Jeoun Station, Kumasi! Driver contact: 024 412 8890 (Car: AS-4182-24).",
+    timestamp: Date.now() - 1000 * 60 * 5,
+    status: "delivered",
+    metadata: {
+      dispatchWaybill: {
+        orderId: "AKI-ORD-9281",
+        driverPhone: "024 412 8890",
+        carRegistration: "AS-4182-24",
+        busStation: "VIP Jeoun Station, Circle",
+        destination: "Kumasi Asafo Market",
+        estimatedArrival: "Today 4:30 PM",
+      },
+    },
+  },
+  {
+    id: "seed-6",
+    from: "233244192834",
+    to: "233551243372",
+    direction: "incoming",
+    type: "text",
+    text: "Hello! I saw your new stock of Itel IT5606 keypad phones. How much for 2 pieces? Can I pick up at your shop?",
+    timestamp: Date.now() - 1000 * 60 * 12,
+    status: "read",
+  },
+  {
+    id: "seed-7",
+    from: "233201889922",
+    to: "233551243372",
+    direction: "incoming",
+    type: "text",
+    text: "Good afternoon, please do you have original Oraimo FreePods 4 in stock? What is the best price?",
+    timestamp: Date.now() - 1000 * 60 * 2,
+    status: "delivered",
+  },
+];
 
 /**
  * Get messages since timestamp

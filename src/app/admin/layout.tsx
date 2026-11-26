@@ -12,6 +12,7 @@ import {
   QrCode,
   Image as ImageIcon,
   MessageSquare,
+  MessageCircle,
   ExternalLink,
   LogOut,
   ShieldCheck,
@@ -99,6 +100,7 @@ export default function AdminLayout({
 
   const navItems = [
     { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/admin/whatsapp", label: "WhatsApp Engine", icon: MessageCircle, badge: "Live" },
     { href: "/admin/banners", label: "Hero Banners & CMS", icon: ImageIcon },
     { href: "/admin/products", label: "Products & Variants", icon: Package },
     { href: "/admin/inventory", label: "Inventory & Stock-In", icon: Layers },
@@ -174,14 +176,21 @@ export default function AdminLayout({
                       key={item.href}
                       href={item.href}
                       onClick={() => setIsMobileDrawerOpen(false)}
-                      className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition ${
+                      className={`flex items-center justify-between px-3 py-2.5 rounded-xl transition ${
                         isActive
                           ? "bg-orange-600 text-white font-bold"
                           : "text-gray-300 hover:text-white hover:bg-slate-900"
                       }`}
                     >
-                      <Icon className={`w-4 h-4 ${isActive ? "text-white" : "text-orange-500"}`} />
-                      <span>{item.label}</span>
+                      <div className="flex items-center gap-3">
+                        <Icon className={`w-4 h-4 ${isActive ? "text-white" : "text-orange-500"}`} />
+                        <span>{item.label}</span>
+                      </div>
+                      {item.badge && (
+                        <span className="text-[9px] font-black px-1.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 uppercase tracking-wide">
+                          {item.badge}
+                        </span>
+                      )}
                     </Link>
                   );
                 })}
@@ -244,14 +253,25 @@ export default function AdminLayout({
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl transition ${
+                  className={`flex items-center justify-between px-3 py-2.5 rounded-xl transition ${
                     isActive
                       ? "bg-orange-600 text-white shadow-md shadow-orange-600/30"
                       : "text-gray-300 hover:text-white hover:bg-slate-800"
                   }`}
                 >
-                  <Icon className={`w-4 h-4 ${isActive ? "text-white" : "text-orange-500"}`} />
-                  <span>{item.label}</span>
+                  <div className="flex items-center gap-2.5">
+                    <Icon className={`w-4 h-4 ${isActive ? "text-white" : "text-orange-500"}`} />
+                    <span>{item.label}</span>
+                  </div>
+                  {item.badge && (
+                    <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-wider ${
+                      isActive
+                        ? "bg-white text-orange-600"
+                        : "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                    }`}>
+                      {item.badge}
+                    </span>
+                  )}
                 </Link>
               );
             })}
