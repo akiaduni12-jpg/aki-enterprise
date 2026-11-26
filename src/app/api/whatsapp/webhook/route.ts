@@ -150,16 +150,18 @@ export async function POST(req: NextRequest) {
           timestamp: msg.timestamp,
         });
 
-        // 2. Trigger AI Merchant Auto-Responder (async, non-blocking)
-        processAiMerchantReply({
-          id: msg.id,
-          phone: msg.from,
-          text: msg.text,
-          type: msg.type,
-          timestamp: msg.timestamp,
-        }).catch((err) => {
+        // 2. Trigger AI Merchant Auto-Responder (must await in serverless so Vercel does not terminate execution early)
+        try {
+          await processAiMerchantReply({
+            id: msg.id,
+            phone: msg.from,
+            text: msg.text,
+            type: msg.type,
+            timestamp: msg.timestamp,
+          });
+        } catch (err) {
           console.warn("[WhatsApp Webhook] AI Merchant auto-reply error:", err);
-        });
+        }
       }
 
       return NextResponse.json({ status: "success", count: messages.length }, { status: 200 });
