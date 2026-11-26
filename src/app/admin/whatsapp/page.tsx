@@ -97,6 +97,7 @@ export default function AdminWhatsAppEnginePage() {
   const [showMoMoModal, setShowMoMoModal] = useState(false);
   const [showWaybillModal, setShowWaybillModal] = useState(false);
   const [showBroadcastModal, setShowBroadcastModal] = useState(false);
+  const [showTemplateGuideModal, setShowTemplateGuideModal] = useState(false);
 
   // Form states
   const [newChatPhone, setNewChatPhone] = useState("");
@@ -548,6 +549,16 @@ export default function AdminWhatsAppEnginePage() {
             title="Refresh conversations"
           >
             <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin text-orange-400" : ""}`} />
+          </button>
+
+          {/* Meta Templates Guide button */}
+          <button
+            onClick={() => setShowTemplateGuideModal(true)}
+            className="px-3 py-2 rounded-xl bg-purple-600/20 text-purple-300 border border-purple-500/30 hover:bg-purple-600 hover:text-white text-xs font-bold flex items-center gap-1.5 transition"
+            title="Create & manage Meta promotional templates"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+            <span className="hidden sm:inline">Meta Templates</span>
           </button>
 
           {/* Broadcast button */}
@@ -1686,6 +1697,147 @@ export default function AdminWhatsAppEnginePage() {
                 </div>
               </form>
             )}
+          </div>
+        </div>
+      )}
+      {/* ================= MODAL: META TEMPLATES GUIDE ================= */}
+      {showTemplateGuideModal && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-2xl p-6 space-y-5 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center">
+                  <Sparkles className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">Meta WhatsApp Promotional Templates</h3>
+                  <p className="text-xs text-gray-400">Step-by-step creation guide &amp; ready-to-copy marketing templates</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowTemplateGuideModal(false)}
+                className="text-gray-400 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Direct Link Banner */}
+            <div className="p-3.5 rounded-xl bg-purple-950/40 border border-purple-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-bold text-purple-200">Official Meta WhatsApp Manager Console</p>
+                <p className="text-[11px] text-gray-400">Create, submit and view approval status of your templates in 1 click.</p>
+              </div>
+              <a
+                href="https://business.facebook.com/wa/manage/message-templates/"
+                target="_blank"
+                rel="noreferrer"
+                className="px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold flex items-center gap-1.5 shrink-0 transition shadow-md shadow-purple-600/30"
+              >
+                <span>Open Meta Templates</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            </div>
+
+            {/* 4-Step Instructions */}
+            <div className="space-y-2">
+              <h4 className="text-xs font-bold text-gray-300 uppercase tracking-wider">How to Create in Meta (4 Quick Steps)</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+                  <span className="text-purple-400 font-bold">1. Select Category</span>
+                  <p className="text-gray-400 text-[11px]">Choose <strong>Marketing</strong> for product discounts, promos, or new stock announcements.</p>
+                </div>
+                <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+                  <span className="text-purple-400 font-bold">2. Name Your Template</span>
+                  <p className="text-gray-400 text-[11px]">Use lowercase and underscores only (e.g. <code className="text-white">aki_device_promo</code> or <code className="text-white">aki_keypad_stock</code>).</p>
+                </div>
+                <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+                  <span className="text-purple-400 font-bold">3. Paste Body with Variables</span>
+                  <p className="text-gray-400 text-[11px]">Use <code className="text-white">{`{{1}}`}</code> for customer name, <code className="text-white">{`{{2}}`}</code> for product, and <code className="text-white">{`{{3}}`}</code> for price.</p>
+                </div>
+                <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+                  <span className="text-purple-400 font-bold">4. Add Buttons &amp; Submit</span>
+                  <p className="text-gray-400 text-[11px]">Add a <strong>Visit Website</strong> button linking to your shop. Meta AI approves in 1-5 minutes.</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Ready-to-copy Templates */}
+            <div className="space-y-3">
+              <h4 className="text-xs font-bold text-gray-300 uppercase tracking-wider">Ready-to-Copy Promotion Templates</h4>
+
+              {/* Template 1 */}
+              <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-emerald-400">Template 1: Device Flash Sale &amp; New Stock</span>
+                  <span className="text-[10px] font-mono bg-slate-800 px-2 py-0.5 rounded text-gray-300">aki_device_promo</span>
+                </div>
+                <div className="bg-slate-900 p-2.5 rounded-lg text-xs font-mono text-gray-300 whitespace-pre-wrap leading-relaxed border border-slate-800">
+{`Hello {{1}}, exciting news from AKI ADUNI VENTURES! 🇬🇭
+
+We have received fresh stock of original {{2}} starting from just GH₵ {{3}} with a full 6-Month Warranty.
+
+✅ Tested & Grade A Certified
+🚚 Nationwide VIP bus delivery available today!
+
+Tap the button below or reply here to reserve yours.`}
+                </div>
+                <div className="text-[11px] text-gray-400 flex items-center justify-between">
+                  <span>Category: <strong>Marketing</strong> • Language: <strong>English (US)</strong></span>
+                  <span className="text-purple-300">Button: Visit Website &rarr; https://www.akiaduniventures.com</span>
+                </div>
+              </div>
+
+              {/* Template 2 */}
+              <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-yellow-400">Template 2: Keypad Phones Promotion</span>
+                  <span className="text-[10px] font-mono bg-slate-800 px-2 py-0.5 rounded text-gray-300">aki_keypad_promo</span>
+                </div>
+                <div className="bg-slate-900 p-2.5 rounded-lg text-xs font-mono text-gray-300 whitespace-pre-wrap leading-relaxed border border-slate-800">
+{`Hello {{1}}, need a durable long-battery phone? 🔋
+
+Our brand-new keypad phones (Itel, Villaon, Ifinex, CALE) are now available at our Circle & Miaso shops starting from only GH₵ 70.00!
+
+Dual SIM • Heavy Battery • Wireless FM • Super Torch
+
+Reply "KEYPAD" to this message to see the full price list.`}
+                </div>
+                <div className="text-[11px] text-gray-400 flex items-center justify-between">
+                  <span>Category: <strong>Marketing</strong> • Language: <strong>English (US)</strong></span>
+                  <span className="text-yellow-300">Button: Quick Reply &rarr; "I Want To Buy"</span>
+                </div>
+              </div>
+
+              {/* Template 3 */}
+              <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-blue-400">Template 3: Abandoned Cart Follow-Up</span>
+                  <span className="text-[10px] font-mono bg-slate-800 px-2 py-0.5 rounded text-gray-300">aki_cart_recovery</span>
+                </div>
+                <div className="bg-slate-900 p-2.5 rounded-lg text-xs font-mono text-gray-300 whitespace-pre-wrap leading-relaxed border border-slate-800">
+{`Hello {{1}}, we noticed you were interested in {{2}} at AKI ADUNI VENTURES.
+
+Do you have any questions regarding battery health, warranty, or delivery to your location?
+
+Reply directly to this chat to complete your order via MoMo, or click below to finish checkout.`}
+                </div>
+                <div className="text-[11px] text-gray-400 flex items-center justify-between">
+                  <span>Category: <strong>Marketing</strong> • Language: <strong>English (US)</strong></span>
+                  <span className="text-blue-300">Button: URL &rarr; https://www.akiaduniventures.com/cart</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <button
+                type="button"
+                onClick={() => setShowTemplateGuideModal(false)}
+                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition"
+              >
+                Close Guide
+              </button>
+            </div>
           </div>
         </div>
       )}

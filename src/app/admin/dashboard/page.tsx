@@ -23,6 +23,7 @@ import {
   Truck,
   ExternalLink,
   Users,
+  MessageCircle,
 } from "lucide-react";
 
 interface LiveOrder {
@@ -143,6 +144,28 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
+        {/* WhatsApp Commerce Engine Quick Access */}
+        <Link
+          href="/admin/whatsapp"
+          className="p-4 rounded-2xl bg-gradient-to-r from-emerald-950/80 to-slate-950 border border-emerald-500/40 hover:border-emerald-500 flex items-center justify-between transition group shadow-lg shadow-emerald-950/30"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/30">
+              <MessageCircle className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-black text-white">WhatsApp Engine</span>
+                <span className="text-[9px] font-black px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 uppercase">
+                  Live
+                </span>
+              </div>
+              <p className="text-[11px] text-gray-400">Customer chats, MoMo &amp; waybill cards</p>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-emerald-400 group-hover:translate-x-1 transition" />
+        </Link>
+
         {/* Orders Overview: 2 Cards Side-by-Side */}
         <div className="space-y-2">
           <h3 className="text-xs font-extrabold text-gray-400 uppercase tracking-wider">
@@ -247,6 +270,14 @@ export default function AdminDashboardPage() {
             <span>Refresh</span>
           </button>
           <Link
+            href="/admin/whatsapp"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md shadow-emerald-600/30 transition"
+          >
+            <MessageCircle className="w-4 h-4" />
+            <span>WhatsApp Engine</span>
+            <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+          </Link>
+          <Link
             href="/admin/products"
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#F26A00] to-[#FF8A24] hover:from-[#d95e00] text-white font-bold text-xs shadow-md transition"
           >
@@ -268,6 +299,35 @@ export default function AdminDashboardPage() {
             <span>Customers</span>
           </Link>
         </div>
+      </div>
+
+      {/* WhatsApp Commerce Engine Highlight Banner */}
+      <div className="hidden md:flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-emerald-950/60 via-slate-950 to-slate-950 border border-emerald-500/30 shadow-lg">
+        <div className="flex items-center gap-3.5">
+          <div className="w-11 h-11 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
+            <MessageCircle className="w-6 h-6" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-black text-white">WhatsApp Commerce Engine Active</h3>
+              <span className="text-[9px] font-black px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 uppercase tracking-wider flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                Live Meta API
+              </span>
+            </div>
+            <p className="text-xs text-gray-400 mt-0.5">
+              Chat live with customers, send 1-click product cards from your catalog, request MoMo payments, and issue bus waybills.
+            </p>
+          </div>
+        </div>
+
+        <Link
+          href="/admin/whatsapp"
+          className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-emerald-600/30 transition shrink-0"
+        >
+          <span>Open WhatsApp Hub</span>
+          <ArrowUpRight className="w-4 h-4" />
+        </Link>
       </div>
 
       {/* ==================================================================== */}
