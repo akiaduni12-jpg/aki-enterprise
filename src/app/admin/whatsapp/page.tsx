@@ -1017,7 +1017,7 @@ export default function AdminWhatsAppEnginePage() {
                   <button
                     onClick={() =>
                       handleQuickReply(
-                        "📍 *Aki Aduni Ventures Store Locations:*\n1. Circle Shop: Near Vodafone / Siaka Phones, Circle, Accra.\n2. Miaso Hub: Miaso Main Junction.\nOpen Mon - Sat 8:00 AM - 7:00 PM. Nationwide bus delivery available!"
+                        "📍 *Aki Aduni Ventures Store Locations:*\n1. Circle Shop: Near Vodafone / Siaka Phones, Circle, Accra.\n2. Miaso Hub: Miaso Main Junction.\nOpen Sun - Fri 7:30 AM - 10:30 PM (Saturday: Closed). Nationwide bus delivery available!"
                       )
                     }
                     className="px-2.5 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-gray-300 hover:text-white text-[11px] shrink-0"

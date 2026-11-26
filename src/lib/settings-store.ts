@@ -171,7 +171,7 @@ These terms are governed by and construed in accordance with the laws of the Rep
 - Kwahu & Eastern Region: Same day to 24 hours.
 - Greater Accra & Kumasi: 24 to 48 hours via express courier / parcel service.
 - Other Regions in Ghana (Northern, Western, Central, Volta, etc.): 2 to 3 business days.
-- In-Store Shop Pickup: Immediate pickup available at our Miaso, Kwahu East shop (Mon-Sat, 8:00 AM - 7:00 PM).
+- In-Store Shop Pickup: Immediate pickup available at our Miaso, Kwahu East shop (Sun-Fri, 7:30 AM - 10:30 PM; Saturday: Closed).
 
 3. DELIVERY FEES & FREE SHIPPING
 - Standard Delivery: GH₵ 30 nationwide.

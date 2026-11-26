@@ -252,7 +252,7 @@ export function MobileAppLauncher() {
                 </div>
               </div>
               <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                Open Mon-Sat
+                Open Sun-Fri (7:30 AM - 10:30 PM) • Sat Closed
               </span>
             </div>
           </div>

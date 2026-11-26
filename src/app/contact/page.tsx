@@ -80,9 +80,9 @@ export default function ContactPage() {
               openingHoursSpecification: [
                 {
                   "@type": "OpeningHoursSpecification",
-                  dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-                  opens: "08:00",
-                  closes: "19:00",
+                  dayOfWeek: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+                  opens: "07:30",
+                  closes: "22:30",
                 },
               ],
             },
@@ -381,16 +381,12 @@ export default function ContactPage() {
 
               <div className="space-y-2 text-xs">
                 <div className="flex items-center justify-between py-1 border-b border-gray-50">
-                  <span className="text-gray-500">Monday – Friday</span>
-                  <span className="font-bold text-slate-900">8:00 AM – 7:00 PM</span>
-                </div>
-                <div className="flex items-center justify-between py-1 border-b border-gray-50">
-                  <span className="text-gray-500">Saturday</span>
-                  <span className="font-bold text-slate-900">9:00 AM – 6:00 PM</span>
+                  <span className="text-gray-500">Sunday – Friday</span>
+                  <span className="font-bold text-slate-900">7:30 AM – 10:30 PM</span>
                 </div>
                 <div className="flex items-center justify-between py-1">
-                  <span className="text-gray-500">Sunday</span>
-                  <span className="font-bold text-orange-600">WhatsApp Inquiries Only</span>
+                  <span className="text-gray-500">Saturday</span>
+                  <span className="font-bold text-red-600">Closed</span>
                 </div>
               </div>
             </div>

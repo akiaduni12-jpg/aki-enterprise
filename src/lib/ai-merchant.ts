@@ -50,7 +50,7 @@ export async function processAiMerchantReply(inbound: InboundWhatsAppMessage) {
     replyText =
       "📍 *AKI ADUNI VENTURES Physical Store*:\n" +
       "Main Commercial Street, Miaso, Kwahu East, Eastern Region, Ghana.\n\n" +
-      "🕒 *Hours*: Monday - Saturday: 8:00 AM - 7:00 PM\n" +
+      "🕒 *Hours*: Sunday - Friday: 7:30 AM - 10:30 PM (Saturday: Closed)\n" +
       "🚚 *Express Delivery*: VIP Bus Terminal waybill dispatch available to Accra, Kumasi, Takoradi, and all regions nationwide.\n\n" +
       "📞 Shop Manager: 055 124 3372";
   }
