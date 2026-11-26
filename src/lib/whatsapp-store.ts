@@ -41,7 +41,16 @@ export async function loadWhatsAppMessages(): Promise<StoredWhatsAppMessage[]> {
         const text = await data.text();
         const parsed = JSON.parse(text);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          messagesCache = parsed;
+          const map = new Map<string, StoredWhatsAppMessage>();
+          for (const m of parsed) {
+            if (m && m.id) map.set(m.id, m);
+          }
+          for (const m of messagesCache) {
+            if (m && m.id) map.set(m.id, m);
+          }
+          messagesCache = Array.from(map.values()).sort(
+            (a, b) => (Number(a.timestamp) || 0) - (Number(b.timestamp) || 0)
+          );
           lastFetchedFromRemote = now;
           return messagesCache;
         }
@@ -57,7 +66,16 @@ export async function loadWhatsAppMessages(): Promise<StoredWhatsAppMessage[]> {
       const raw = fs.readFileSync(TMP_PATH, "utf-8");
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        messagesCache = parsed;
+        const map = new Map<string, StoredWhatsAppMessage>();
+        for (const m of parsed) {
+          if (m && m.id) map.set(m.id, m);
+        }
+        for (const m of messagesCache) {
+          if (m && m.id) map.set(m.id, m);
+        }
+        messagesCache = Array.from(map.values()).sort(
+          (a, b) => (Number(a.timestamp) || 0) - (Number(b.timestamp) || 0)
+        );
       }
     }
   } catch (e) {

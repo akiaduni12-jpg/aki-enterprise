@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getWhatsAppMessages } from "@/lib/whatsapp-store";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -9,11 +11,18 @@ export async function GET(request: NextRequest) {
 
     const messages = await getWhatsAppMessages(sinceTimestamp);
 
-    return NextResponse.json({
-      success: true,
-      messages,
-      serverTime: Date.now(),
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        messages,
+        serverTime: Date.now(),
+      },
+      {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+        },
+      }
+    );
   } catch (err: any) {
     console.error("[WhatsApp Messages API] Error:", err);
     return NextResponse.json(

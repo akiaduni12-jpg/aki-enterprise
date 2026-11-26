@@ -9,6 +9,9 @@ interface SendWhatsAppMessageParams {
   templateName?: string;
   templateLanguage?: string;
   templateComponents?: any[];
+  buttons?: Array<{ id: string; title: string }>;
+  headerText?: string;
+  footerText?: string;
 }
 
 export async function sendWhatsAppMessage({
@@ -17,6 +20,9 @@ export async function sendWhatsAppMessage({
   templateName,
   templateLanguage = "en_US",
   templateComponents = [],
+  buttons = [],
+  headerText,
+  footerText,
 }: SendWhatsAppMessageParams) {
   const token = process.env.WHATSAPP_ACCESS_TOKEN;
   const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
@@ -47,6 +53,28 @@ export async function sendWhatsAppMessage({
       language: { code: templateLanguage },
       components: templateComponents,
     };
+  } else if (buttons && buttons.length > 0 && text) {
+    // Meta WhatsApp Cloud API Interactive Reply Buttons (up to 3 buttons)
+    payload.type = "interactive";
+    payload.interactive = {
+      type: "button",
+      body: { text },
+      action: {
+        buttons: buttons.slice(0, 3).map((b) => ({
+          type: "reply",
+          reply: {
+            id: b.id.slice(0, 256),
+            title: b.title.slice(0, 20),
+          },
+        })),
+      },
+    };
+    if (headerText) {
+      payload.interactive.header = { type: "text", text: headerText.slice(0, 60) };
+    }
+    if (footerText) {
+      payload.interactive.footer = { text: footerText.slice(0, 60) };
+    }
   } else if (text) {
     payload.type = "text";
     payload.text = { preview_url: false, body: text };
@@ -65,6 +93,16 @@ export async function sendWhatsAppMessage({
     const data = await res.json();
     if (!res.ok) {
       console.error("[WhatsApp API Error]", data);
+      // Fallback: If interactive buttons failed, retry with plain text
+      if (payload.type === "interactive" && text) {
+        console.log("[WhatsApp API] Falling back from interactive to plain text...");
+        const fallbackButtonsText = buttons.map((b) => `• ${b.title}`).join("\n");
+        const fallbackText = `${text}\n\n${fallbackButtonsText}`;
+        return sendWhatsAppMessage({
+          to: cleanTo,
+          text: fallbackText,
+        });
+      }
       return { success: false, error: data.error?.message || "WhatsApp send failed" };
     }
 

@@ -30,6 +30,7 @@ import {
   AlertCircle,
   Megaphone,
   CheckCircle2,
+  Package,
 } from "lucide-react";
 
 interface StoredMessage {
@@ -77,6 +78,8 @@ interface CustomerOrder {
   payment_status: string;
   order_status: string;
   created_at: string;
+  delivery_city?: string;
+  delivery_address?: string;
   items?: any[];
 }
 
@@ -160,13 +163,28 @@ export default function AdminWhatsAppEnginePage() {
         const data = await res.json();
         if (data.success && Array.isArray(data.messages)) {
           setMessages((prev) => {
-            // If new incoming messages arrived, play sound
-            if (prev.length > 0 && data.messages.length > prev.length) {
-              const latestNew = data.messages.slice(prev.length);
+            // Keep any optimistic sending messages (id starts with temp-)
+            const tempMessages = (prev || []).filter(
+              (m) => m && m.id && String(m.id).startsWith("temp-")
+            );
+            const map = new Map<string, StoredMessage>();
+            for (const m of data.messages) {
+              if (m && m.id) map.set(m.id, m);
+            }
+            for (const m of tempMessages) {
+              if (m && m.id && !map.has(m.id)) map.set(m.id, m);
+            }
+            const merged = Array.from(map.values()).sort(
+              (a, b) => (Number(a.timestamp) || 0) - (Number(b.timestamp) || 0)
+            );
+
+            // If new incoming messages arrived, play chime sound
+            if (prev.length > 0 && merged.length > prev.length) {
+              const latestNew = merged.slice(prev.length);
               const hasIncoming = latestNew.some((m: StoredMessage) => m.direction === "incoming");
               if (hasIncoming) playChime();
             }
-            return data.messages;
+            return merged;
           });
         }
       }
@@ -314,11 +332,18 @@ export default function AdminWhatsAppEnginePage() {
 
   // Send message handler
   const handleSendMessage = async (payloadOverride?: {
+    to?: string;
     text?: string;
     type?: any;
     metadata?: any;
   }) => {
-    if (!selectedPhone) return;
+    const targetPhone = payloadOverride?.to || selectedPhone;
+    if (!targetPhone) return;
+
+    if (payloadOverride?.to && payloadOverride.to !== selectedPhone) {
+      setSelectedPhone(payloadOverride.to);
+    }
+
     const textToSend = payloadOverride?.text !== undefined ? payloadOverride.text : inputText.trim();
     const typeToSend = payloadOverride?.type || "text";
     const metadataToSend = payloadOverride?.metadata;
@@ -331,8 +356,8 @@ export default function AdminWhatsAppEnginePage() {
     // Optimistic UI update
     const optimisticMsg: StoredMessage = {
       id: `temp-${Date.now()}`,
-      from: "233551243372",
-      to: selectedPhone,
+      from: "1449155268281310",
+      to: targetPhone,
       direction: "outgoing",
       type: typeToSend,
       text: textToSend,
@@ -348,7 +373,7 @@ export default function AdminWhatsAppEnginePage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          to: selectedPhone,
+          to: targetPhone,
           text: textToSend,
           type: typeToSend,
           metadata: metadataToSend,
@@ -366,6 +391,38 @@ export default function AdminWhatsAppEnginePage() {
       console.error("Failed to send message:", err);
     } finally {
       setIsSending(false);
+    }
+  };
+
+  // Quick Order Tracking Card sender
+  const handleSendCustomerOrderCard = () => {
+    if (!selectedPhone) return;
+    const order = activeCustomerOrders[0];
+    if (order) {
+      const totalFormatted = Number(order.total_amount || 0).toLocaleString();
+      const statusUpper = String(order.order_status || "Processing").toUpperCase();
+      const paymentUpper = String(order.payment_status || "Paid").toUpperCase();
+      const destination = order.delivery_city || "Customer Address";
+
+      const text =
+        `📦 *AKI ADUNI VENTURES - Live Order Status*\n\n` +
+        `• Order Ref: *#${order.order_number}*\n` +
+        `• Customer: ${order.customer_name}\n` +
+        `• Total: GH₵ ${totalFormatted} (${paymentUpper})\n` +
+        `• Fulfillment Status: 🚚 *${statusUpper}*\n` +
+        `• Delivery Destination: ${destination}\n` +
+        `• Track Live: https://www.akiaduniventures.com/track?order=${order.order_number}\n\n` +
+        `Our dispatch office in Miaso has packaged your order. Please reply here or call 055 124 3372 if you have any delivery questions!`;
+
+      handleSendMessage({ text, type: "text" });
+    } else {
+      const text =
+        `📦 *AKI ADUNI VENTURES - Order Tracking*\n\n` +
+        `To track your delivery live on our system, please visit:\n` +
+        `👉 https://www.akiaduniventures.com/track\n\n` +
+        `Or reply with your Order Number (e.g. ORD-1042) and our team will check your waybill status right away!`;
+
+      handleSendMessage({ text, type: "text" });
     }
   };
 
@@ -447,12 +504,12 @@ export default function AdminWhatsAppEnginePage() {
 
     const greeting = newChatMessage.trim() || "Hello from AKI ADUNI VENTURES! How can we assist you today?";
 
-    // Select this phone
+    // Select this phone and send initial greeting
     setSelectedPhone(cleanPhone);
     setShowNewChatModal(false);
 
-    // Send greeting
     handleSendMessage({
+      to: cleanPhone,
       text: greeting,
       type: "text",
     });
@@ -810,6 +867,25 @@ export default function AdminWhatsAppEnginePage() {
                 </div>
               </div>
 
+              {/* Active Customer Order Tracking Alert Pill */}
+              {activeCustomerOrders.length > 0 && (
+                <div className="bg-purple-950/40 border-b border-purple-800/40 px-4 py-2.5 flex items-center justify-between gap-3 text-xs shrink-0">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Package className="w-4 h-4 text-purple-400 shrink-0" />
+                    <span className="text-purple-200 truncate">
+                      Active Customer Order <strong>#{activeCustomerOrders[0].order_number}</strong> • GH₵ {Number(activeCustomerOrders[0].total_amount).toLocaleString()} ({activeCustomerOrders[0].order_status})
+                    </span>
+                  </div>
+                  <button
+                    onClick={handleSendCustomerOrderCard}
+                    className="px-2.5 py-1 bg-purple-600 hover:bg-purple-500 text-white rounded-lg font-bold text-[11px] shrink-0 flex items-center gap-1.5 transition shadow-sm"
+                  >
+                    <Package className="w-3.5 h-3.5" />
+                    <span>Send Tracking Card</span>
+                  </button>
+                </div>
+              )}
+
               {/* Message History Stream */}
               <div className="flex-1 overflow-y-auto p-4 space-y-3">
                 {/* Security & Verification Banner */}
@@ -1009,6 +1085,15 @@ export default function AdminWhatsAppEnginePage() {
                   >
                     <Truck className="w-3.5 h-3.5 text-blue-400" />
                     <span>Send Waybill</span>
+                  </button>
+
+                  {/* Send Order Tracking */}
+                  <button
+                    onClick={handleSendCustomerOrderCard}
+                    className="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-gray-200 hover:text-white flex items-center gap-1.5 font-semibold shrink-0 border border-slate-700"
+                  >
+                    <Package className="w-3.5 h-3.5 text-purple-400" />
+                    <span>Send Order Status</span>
                   </button>
 
                   <div className="h-4 w-px bg-slate-700 shrink-0" />
