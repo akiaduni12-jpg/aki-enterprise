@@ -433,6 +433,16 @@ export default function AdminDashboardPage() {
                         <span className="font-mono font-bold text-orange-400">{ord.order_number}</span>
                         <span className="text-gray-300 font-medium">{ord.customer_name}</span>
                         <span className="text-gray-500 font-mono text-[10px]">{ord.customer_phone}</span>
+                        {ord.customer_phone && (
+                          <Link
+                            href={`/admin/whatsapp?phone=${ord.customer_phone.replace(/\D/g, "")}&name=${encodeURIComponent(ord.customer_name)}`}
+                            className="inline-flex items-center gap-1 text-[10px] text-emerald-400 hover:text-white bg-emerald-500/10 hover:bg-emerald-600 px-1.5 py-0.5 rounded border border-emerald-500/20 font-bold transition"
+                            title="Open WhatsApp chat with customer"
+                          >
+                            <MessageCircle className="w-2.5 h-2.5" />
+                            <span>Chat</span>
+                          </Link>
+                        )}
                       </div>
                       <p className="text-gray-400 text-[11px] mt-0.5 line-clamp-1">{itemsSummary}</p>
                       <p className="text-gray-500 text-[10px] capitalize">

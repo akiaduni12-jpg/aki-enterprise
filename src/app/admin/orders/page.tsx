@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { formatGHS } from "@/lib/utils";
 import { OrderStatus } from "@/types/ecommerce";
 import { getCustomerOrders, recordCustomerOrder } from "@/lib/customer-store";
@@ -22,6 +23,7 @@ import {
   X,
   AlertCircle,
   CheckCircle2,
+  MessageSquare,
 } from "lucide-react";
 
 interface AdminOrderDisplay {
@@ -464,17 +466,19 @@ export default function AdminOrdersPage() {
                     Customer Info
                   </span>
                   <p className="font-bold text-white text-sm">{order.customerName}</p>
-                  <div className="flex items-center gap-1.5 text-gray-300">
-                    <Phone className="w-3.5 h-3.5 text-orange-400" />
-                    <span>{order.phone}</span>
-                    <a
-                      href={`https://wa.me/${order.phone.replace(/[^0-9]/g, "")}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="ml-1 text-[10px] text-emerald-400 hover:underline font-bold"
+                  <div className="flex flex-wrap items-center gap-2 text-gray-300">
+                    <span className="flex items-center gap-1">
+                      <Phone className="w-3.5 h-3.5 text-orange-400" />
+                      <span>{order.phone}</span>
+                    </span>
+                    <Link
+                      href={`/admin/whatsapp?phone=${order.phone.replace(/\D/g, "")}&name=${encodeURIComponent(order.customerName)}`}
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 text-[10px] font-bold transition shadow-xs"
+                      title="Open chat in Admin WhatsApp Engine"
                     >
-                      (WhatsApp)
-                    </a>
+                      <MessageSquare className="w-3 h-3" />
+                      <span>WhatsApp Chat</span>
+                    </Link>
                   </div>
                   {order.email && <p className="text-gray-500 text-[11px] truncate">{order.email}</p>}
                   {order.deliveryAddress && (
@@ -596,7 +600,16 @@ export default function AdminOrdersPage() {
               <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
                 <span className="text-gray-400 font-bold block">Customer</span>
                 <p className="text-white font-bold">{selectedOrder.customerName}</p>
-                <p className="text-gray-300">{selectedOrder.phone}</p>
+                <div className="flex items-center justify-between gap-1">
+                  <p className="text-gray-300">{selectedOrder.phone}</p>
+                  <Link
+                    href={`/admin/whatsapp?phone=${selectedOrder.phone.replace(/\D/g, "")}&name=${encodeURIComponent(selectedOrder.customerName)}`}
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 text-[10px] font-bold transition"
+                  >
+                    <MessageSquare className="w-3 h-3" />
+                    <span>WhatsApp</span>
+                  </Link>
+                </div>
                 {selectedOrder.email && <p className="text-gray-500 truncate">{selectedOrder.email}</p>}
               </div>
 

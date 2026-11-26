@@ -11,6 +11,21 @@ export interface InboundWhatsAppMessage {
 }
 
 /**
+ * Format phone number for clean human-readable WhatsApp display
+ * e.g., "233245259221" -> "+233 24 525 9221"
+ */
+function formatPhonePretty(phone: string): string {
+  const digits = String(phone || "").replace(/\D/g, "");
+  if (digits.startsWith("233") && digits.length === 12) {
+    return `+233 ${digits.slice(3, 5)} ${digits.slice(5, 8)} ${digits.slice(8)}`;
+  }
+  if (digits.startsWith("0") && digits.length === 10) {
+    return `0${digits.slice(1, 3)} ${digits.slice(3, 6)} ${digits.slice(6)}`;
+  }
+  return digits ? `+${digits}` : "Unknown";
+}
+
+/**
  * Helper to search customer orders in Supabase DB by phone or order number
  */
 async function lookupCustomerOrder(phone: string, text: string) {
@@ -18,32 +33,35 @@ async function lookupCustomerOrder(phone: string, text: string) {
   try {
     const client = getServiceSupabase();
 
-    // 1. Check if user sent an explicit order reference or 4+ digits
+    // 1. Check if user sent an explicit order reference (e.g. ORD-1042 or AKI-2026-4182 or 4+ digits)
     const orderMatch = text.match(/\b(AKI[-\w]+|ORD[-\w]+|\d{4,6})\b/i);
     if (orderMatch) {
       const candidate = orderMatch[1];
-      const { data: byNum } = await client
+      const { data: byNum, error: numErr } = await client
         .from("orders")
         .select("*")
         .ilike("order_number", `%${candidate}%`)
         .order("created_at", { ascending: false })
         .limit(1);
-      if (byNum && byNum.length > 0) return byNum[0];
+
+      if (!numErr && byNum && byNum.length > 0) return byNum[0];
     }
 
-    // 2. Query by phone number variations
+    // 2. Query by customer phone number variations
     const cleanDigits = phone.replace(/\D/g, "");
+    if (!cleanDigits) return null;
+
     const localFormat = cleanDigits.startsWith("233") ? "0" + cleanDigits.slice(3) : cleanDigits;
     const intlFormat = cleanDigits.startsWith("0") ? "233" + cleanDigits.slice(1) : cleanDigits;
 
-    const { data: byPhone } = await client
+    const { data: byPhone, error: phoneErr } = await client
       .from("orders")
       .select("*")
       .or(`customer_phone.ilike.%${localFormat}%,customer_phone.ilike.%${intlFormat}%`)
       .order("created_at", { ascending: false })
       .limit(1);
 
-    if (byPhone && byPhone.length > 0) return byPhone[0];
+    if (!phoneErr && byPhone && byPhone.length > 0) return byPhone[0];
   } catch (err) {
     console.warn("[AI Merchant] Order lookup error:", err);
   }
@@ -60,6 +78,7 @@ export async function processAiMerchantReply(inbound: InboundWhatsAppMessage) {
 
   const clean = text.trim();
   const lower = clean.toLowerCase();
+  const formattedUserPhone = formatPhonePretty(phone);
 
   let replyText = "";
   let buttons: Array<{ id: string; title: string }> = [];
@@ -74,7 +93,12 @@ export async function processAiMerchantReply(inbound: InboundWhatsAppMessage) {
 
   // 1. Order Tracking Inquiry
   if (isOrderQuery) {
-    const order = await lookupCustomerOrder(phone, clean);
+    let order: any = null;
+    try {
+      order = await lookupCustomerOrder(phone, clean);
+    } catch (e) {
+      console.warn("[AI Merchant] Error in lookupCustomerOrder:", e);
+    }
 
     if (order) {
       const totalFormatted = Number(order.total_amount || 0).toLocaleString();
@@ -86,7 +110,9 @@ export async function processAiMerchantReply(inbound: InboundWhatsAppMessage) {
         : "TechHub Product";
 
       replyText =
-        `📦 *ORDER TRACKING UPDATE*\n\n` +
+        `📦 *ORDER TRACKING FOUND*\n` +
+        `📱 *Your Number*: ${formattedUserPhone}\n` +
+        `━━━━━━━━━━━━━━━━━━━\n` +
         `• *Order Ref*: #${order.order_number}\n` +
         `• *Customer*: ${order.customer_name}\n` +
         `• *Total*: GH₵ ${totalFormatted} (${paymentUpper})\n` +
@@ -103,15 +129,18 @@ export async function processAiMerchantReply(inbound: InboundWhatsAppMessage) {
       ];
     } else {
       replyText =
-        "📦 *Order Status & Waybill Dispatch*:\n\n" +
-        `We could not find an active order linked to your phone number (*+${phone}*).\n\n` +
-        "👉 If you placed your order with another number or have your receipt, please reply with your *Order Number* (e.g. *ORD-1042* or *AKI-2026-1042*).\n\n" +
-        "You can also track online at https://www.akiaduniventures.com/track";
+        `📦 *LIVE ORDER TRACKING*\n` +
+        `📱 *Your Number Checked*: ${formattedUserPhone}\n` +
+        `━━━━━━━━━━━━━━━━━━━\n` +
+        `We could not find an active dispatch package linked to *${formattedUserPhone}*.\n\n` +
+        `👉 If you placed your order with another phone number or have your store receipt, please reply with your *Order Number* (e.g. *ORD-1042* or *AKI-2026-XXXX*).\n\n` +
+        `You can also track anytime on our live site:\n` +
+        `👉 https://www.akiaduniventures.com/track`;
 
       buttons = [
         { id: "btn_phones", title: "📱 View Phones" },
-        { id: "btn_location", title: "📍 Store Location" },
         { id: "btn_agent", title: "💬 Talk to Agent" },
+        { id: "btn_location", title: "📍 Store Location" },
       ];
     }
   }
@@ -155,12 +184,14 @@ export async function processAiMerchantReply(inbound: InboundWhatsAppMessage) {
   // 4. Location & Directions
   else if (
     lower === "btn_location" ||
-    /\b(location|where|address|shop|store|office|miaso|kwahu|directions|visit)\b/i.test(lower)
+    /\b(location|where|address|shop|store|office|miaso|kwahu|directions|visit|hour|hours)\b/i.test(lower)
   ) {
     replyText =
       "📍 *AKI ADUNI VENTURES Physical Store*:\n" +
       "Main Commercial Street, Miaso, Kwahu East, Eastern Region, Ghana.\n\n" +
-      "🕒 *Hours*: Sunday - Friday: 7:30 AM - 10:30 PM (Saturday: Closed)\n" +
+      "🕒 *Store Hours*:\n" +
+      "• Sunday - Friday: 7:30 AM - 10:30 PM\n" +
+      "• Saturday: Closed\n\n" +
       "🚚 *Express Delivery*: VIP Bus Terminal waybill dispatch available to Accra, Kumasi, Takoradi, and all regions nationwide.\n\n" +
       "📞 Shop Manager: 055 124 3372";
 
@@ -177,8 +208,8 @@ export async function processAiMerchantReply(inbound: InboundWhatsAppMessage) {
   ) {
     replyText =
       "👤 *Shop Manager Connected*\n\n" +
-      "Our shop manager in Miaso has been alerted to take over this chat directly.\n\n" +
-      "📞 Call / MoMo: *055 124 3372*\n" +
+      "Our shop manager in Miaso has been alerted to take over this chat directly on WhatsApp.\n\n" +
+      "📞 Direct Line: *055 124 3372*\n" +
       "🌐 Live Website: https://www.akiaduniventures.com\n\n" +
       "We will respond here in just a moment!";
 

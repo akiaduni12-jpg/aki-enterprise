@@ -88,7 +88,8 @@ export default function AdminWhatsAppEnginePage() {
   const [selectedPhone, setSelectedPhone] = useState<string>("");
   const [inputText, setInputText] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterTab, setFilterTab] = useState<"all" | "unread" | "orders" | "leads">("all");
+  const [filterTab, setFilterTab] = useState<"all" | "unread" | "orders" | "leads" | "contacts">("all");
+  const [storeCustomers, setStoreCustomers] = useState<any[]>([]);
   const [isSending, setIsSending] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -224,6 +225,31 @@ export default function AdminWhatsAppEnginePage() {
         }
       })
       .catch(() => {});
+
+    // Fetch store customers directory
+    fetch("/api/customers")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && Array.isArray(data.customers)) {
+          setStoreCustomers(data.customers);
+        }
+      })
+      .catch(() => {});
+
+    // Support initiating chat from any admin link (e.g. /admin/whatsapp?phone=233541855969&name=Kofi)
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const urlPhone = params.get("phone");
+      const urlMsg = params.get("message");
+      if (urlPhone) {
+        let clean = urlPhone.replace(/\D/g, "");
+        if (clean.startsWith("0") && clean.length === 10) {
+          clean = "233" + clean.slice(1);
+        }
+        setSelectedPhone(clean);
+        if (urlMsg) setInputText(urlMsg);
+      }
+    }
   }, []);
 
   // Group messages into conversations
@@ -324,6 +350,18 @@ export default function AdminWhatsAppEnginePage() {
       return true;
     });
   }, [conversations, searchQuery, filterTab]);
+
+  // Filter store customers for Contacts tab
+  const filteredStoreCustomers = useMemo(() => {
+    if (!storeCustomers || storeCustomers.length === 0) return [];
+    const q = (searchQuery || "").toLowerCase();
+    return storeCustomers.filter((c) => {
+      const name = (c.full_name || "").toLowerCase();
+      const phone = (c.phone || "").toLowerCase();
+      const city = (c.city || "").toLowerCase();
+      return name.includes(q) || phone.includes(q) || city.includes(q);
+    });
+  }, [storeCustomers, searchQuery]);
 
   // Auto-scroll to bottom of chat
   useEffect(() => {
@@ -722,12 +760,72 @@ export default function AdminWhatsAppEnginePage() {
               >
                 Leads
               </button>
+              <button
+                onClick={() => setFilterTab("contacts")}
+                className={`px-2.5 py-1 rounded-lg transition flex items-center gap-1 ${
+                  filterTab === "contacts"
+                    ? "bg-purple-600 text-white font-bold"
+                    : "text-gray-400 hover:text-white hover:bg-slate-900"
+                }`}
+              >
+                <span>Customers</span>
+                {storeCustomers.length > 0 && (
+                  <span className="text-[9px] opacity-80">({storeCustomers.length})</span>
+                )}
+              </button>
             </div>
           </div>
 
-          {/* Conversation list items */}
+          {/* Conversation list items OR Customers Directory */}
           <div className="flex-1 overflow-y-auto divide-y divide-slate-800/40">
-            {filteredConversations.length === 0 ? (
+            {filterTab === "contacts" ? (
+              filteredStoreCustomers.length === 0 ? (
+                <div className="p-8 text-center text-gray-500 space-y-2">
+                  <User className="w-8 h-8 mx-auto text-gray-600" />
+                  <p className="text-xs font-semibold text-gray-400">No store customers found.</p>
+                  <p className="text-[11px] text-gray-500">Customers who place orders on the website will appear here.</p>
+                </div>
+              ) : (
+                filteredStoreCustomers.map((cust) => {
+                  let cleanCustPhone = String(cust.phone || "").replace(/\D/g, "");
+                  if (cleanCustPhone.startsWith("0") && cleanCustPhone.length === 10) {
+                    cleanCustPhone = "233" + cleanCustPhone.slice(1);
+                  }
+                  const isSelected = selectedPhone && cleanCustPhone.endsWith(selectedPhone.slice(-9));
+
+                  return (
+                    <button
+                      key={cust.id || cust.phone}
+                      onClick={() => {
+                        setSelectedPhone(cleanCustPhone);
+                      }}
+                      className={`w-full text-left p-3.5 flex items-center justify-between gap-3 transition ${
+                        isSelected
+                          ? "bg-slate-800/90 border-l-4 border-emerald-500"
+                          : "hover:bg-slate-900/60"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-10 h-10 rounded-full bg-purple-600/20 border border-purple-500/30 text-purple-300 font-bold flex items-center justify-center shrink-0 text-xs">
+                          {((cust.full_name || "C").slice(0, 2)).toUpperCase()}
+                        </div>
+                        <div className="min-w-0">
+                          <h4 className="text-xs font-bold text-white truncate">{cust.full_name}</h4>
+                          <p className="text-[11px] text-gray-400 font-mono truncate">{cust.phone}</p>
+                          <p className="text-[10px] text-purple-400">
+                            {cust.total_orders || 1} Orders • GH₵ {Number(cust.total_spent || 0).toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="shrink-0 flex items-center gap-1.5 px-2 py-1 rounded-lg bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 text-[11px] font-bold">
+                        <MessageSquare className="w-3.5 h-3.5" />
+                        <span>Chat</span>
+                      </div>
+                    </button>
+                  );
+                })
+              )
+            ) : filteredConversations.length === 0 ? (
               <div className="p-8 text-center text-gray-500 space-y-2">
                 <MessageSquare className="w-8 h-8 mx-auto text-gray-600" />
                 <p className="text-xs">No conversations match your filter.</p>
@@ -1094,44 +1192,6 @@ export default function AdminWhatsAppEnginePage() {
                   >
                     <Package className="w-3.5 h-3.5 text-purple-400" />
                     <span>Send Order Status</span>
-                  </button>
-
-                  <div className="h-4 w-px bg-slate-700 shrink-0" />
-
-                  {/* Quick Reply: Shop Location */}
-                  <button
-                    onClick={() =>
-                      handleQuickReply(
-                        "📍 *Aki Aduni Ventures Store Locations:*\n1. Circle Shop: Near Vodafone / Siaka Phones, Circle, Accra.\n2. Miaso Hub: Miaso Main Junction.\nOpen Sun - Fri 7:30 AM - 10:30 PM (Saturday: Closed). Nationwide bus delivery available!"
-                      )
-                    }
-                    className="px-2.5 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-gray-300 hover:text-white text-[11px] shrink-0"
-                  >
-                    📍 Shop Location
-                  </button>
-
-                  {/* Quick Reply: MoMo Account */}
-                  <button
-                    onClick={() =>
-                      handleQuickReply(
-                        "💳 *Official MoMo Payment Details:*\n• MTN MoMo: *055 124 3372*\n• Account Name: *Aki Aduni Ventures*\n• Please send screenshot / transaction ID after payment for instant verification!"
-                      )
-                    }
-                    className="px-2.5 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-gray-300 hover:text-white text-[11px] shrink-0"
-                  >
-                    💳 MoMo Account
-                  </button>
-
-                  {/* Quick Reply: Battery Health */}
-                  <button
-                    onClick={() =>
-                      handleQuickReply(
-                        "🔋 *Battery Health & Grade A Guarantee:*\nAll our UK-used iPhones have 85%+ original battery health, 100% genuine components, no iCloud lock, and come with a 6-month written warranty certificate!"
-                      )
-                    }
-                    className="px-2.5 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-gray-300 hover:text-white text-[11px] shrink-0"
-                  >
-                    🔋 Battery Health
                   </button>
                 </div>
 
