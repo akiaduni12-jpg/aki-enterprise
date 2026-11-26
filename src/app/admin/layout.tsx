@@ -24,7 +24,7 @@ import {
   Users,
   Send,
 } from "lucide-react";
-import { getAdminSession, clearAdminSession } from "@/lib/admin-auth";
+import { getAdminSession, saveAdminSession, clearAdminSession } from "@/lib/admin-auth";
 
 export default function AdminLayout({
   children,
@@ -44,26 +44,40 @@ export default function AdminLayout({
       return;
     }
 
-    try {
-      const session = getAdminSession();
-      if (session) {
-        setAdminUser(session);
-        setIsAuthenticated(true);
-      } else {
-        // Not logged in -> redirect to admin login
+    // Verify session with the secure server-side auth endpoint
+    fetch("/api/admin/auth/session")
+      .then((res) => {
+        if (!res.ok) throw new Error("Unauthenticated");
+        return res.json();
+      })
+      .then((data) => {
+        if (data.authenticated && data.session) {
+          setAdminUser(data.session);
+          saveAdminSession(data.session);
+          setIsAuthenticated(true);
+        } else {
+          clearAdminSession();
+          setIsAuthenticated(false);
+          router.push(`/admin/login?redirect=${encodeURIComponent(pathname)}`);
+        }
+      })
+      .catch(() => {
+        clearAdminSession();
         setIsAuthenticated(false);
-        router.push("/admin/login");
-      }
-    } catch {
-      setIsAuthenticated(false);
-      router.push("/admin/login");
-    }
+        router.push(`/admin/login?redirect=${encodeURIComponent(pathname)}`);
+      });
   }, [pathname, router]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/admin/auth/logout", { method: "POST" });
+    } catch (e) {
+      console.error("Logout error:", e);
+    }
     clearAdminSession();
     setIsAuthenticated(false);
     router.push("/admin/login");
+    router.refresh();
   };
 
   // If on login page, render full screen without the sidebar

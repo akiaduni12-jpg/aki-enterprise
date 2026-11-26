@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const auth = verifyAdminRequest(request);
+    const auth = await verifyAdminRequest(request);
     if (!auth.authorized) {
       return NextResponse.json({ error: "Unauthorized admin request." }, { status: 401 });
     }

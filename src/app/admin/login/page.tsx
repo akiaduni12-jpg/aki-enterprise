@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { saveAdminSession } from "@/lib/admin-auth";
 import {
   ShieldCheck,
@@ -14,71 +13,55 @@ import {
   Eye,
   EyeOff,
   AlertCircle,
-  CheckCircle2,
+  Loader2,
 } from "lucide-react";
 
-export default function AdminLoginPage() {
+function LoginForm() {
   const router = useRouter();
-  const [email, setEmail] = useState("admin@akiaduniventures.com");
-  const [password, setPassword] = useState("AkiEnterprise2026!");
+  const searchParams = useSearchParams();
+  const redirectPath = searchParams.get("redirect") || "/admin/dashboard";
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!email.trim() || !password) {
+      setErrorMsg("Please enter both your admin email and password.");
+      return;
+    }
+
     setIsLoading(true);
     setErrorMsg(null);
 
     try {
-      // 1. Try Supabase Auth if connected
-      if (isSupabaseConfigured && supabase) {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: email.trim(),
-          password: password,
-        });
+      const res = await fetch("/api/admin/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), password }),
+      });
 
-        if (error) {
-          // If user doesn't exist in Supabase auth yet, provide clear notice or allow local staff PIN
-          console.warn("Supabase auth response:", error.message);
-        } else if (data.session) {
-          saveAdminSession({
-            email: data.user.email || email.trim(),
-            role: "owner",
-            full_name: "Store Administrator",
-            signedInAt: new Date().toISOString(),
-          });
-          router.push("/admin/dashboard");
-          return;
-        }
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        setErrorMsg(
+          data.error || "Invalid staff credentials. Access restricted to authorized administrators."
+        );
+        return;
       }
 
-      // 2. Verified Staff Fallback Access for Owner/Manager Demo
-      const lowerEmail = email.trim().toLowerCase();
-      const isOwnerRole = lowerEmail.includes("owner") || lowerEmail.includes("aki");
-      const isManagerRole = lowerEmail.includes("manager");
-      const detectedRole = isOwnerRole ? "owner" : isManagerRole ? "manager" : "staff";
-
-      if (
-        (lowerEmail.includes("admin") ||
-          lowerEmail.includes("owner") ||
-          lowerEmail.includes("manager") ||
-          lowerEmail.includes("staff") ||
-          lowerEmail.includes("aki")) &&
-        password.length >= 6
-      ) {
-        saveAdminSession({
-          email: email.trim(),
-          role: detectedRole,
-          full_name: isOwnerRole ? "Store Owner (Aki)" : isManagerRole ? "Store Manager" : "Operations Staff",
-          signedInAt: new Date().toISOString(),
-        });
-        router.push("/admin/dashboard");
-      } else {
-        setErrorMsg("Invalid staff credentials. Please check your admin email and password.");
+      // Save client profile info for immediate layout presentation
+      if (data.user) {
+        saveAdminSession(data.user);
       }
-    } catch (err: any) {
-      setErrorMsg(err.message || "Authentication error occurred.");
+
+      router.push(redirectPath);
+      router.refresh();
+    } catch {
+      setErrorMsg("Connection error while authenticating. Please check your network and try again.");
     } finally {
       setIsLoading(false);
     }
@@ -153,6 +136,7 @@ export default function AdminLoginPage() {
                 <input
                   type="email"
                   required
+                  autoComplete="username"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="admin@akiaduniventures.com"
@@ -165,15 +149,16 @@ export default function AdminLoginPage() {
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <label className="text-xs font-bold text-gray-300">Staff Password</label>
-                <span className="text-[10px] text-gray-400">Role: Owner / Manager</span>
+                <span className="text-[10px] text-gray-400">Authorized Personnel Only</span>
               </div>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
                   required
+                  autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••••••"
+                  placeholder="Enter your admin password"
                   className="w-full pl-10 pr-10 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs placeholder-gray-500 focus:outline-hidden focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition"
                 />
                 <Lock className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -192,8 +177,17 @@ export default function AdminLoginPage() {
               disabled={isLoading}
               className="w-full py-3 rounded-xl bg-gradient-to-r from-[#F26A00] to-[#FF8A24] hover:from-[#d95e00] hover:to-[#F26A00] text-white font-black text-xs shadow-lg shadow-orange-600/30 transition active:scale-95 flex items-center justify-center gap-2 mt-2 disabled:opacity-50"
             >
-              <span>{isLoading ? "Authenticating..." : "Sign In to Admin Portal"}</span>
-              <ArrowRight className="w-4 h-4" />
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Verifying Credentials...</span>
+                </>
+              ) : (
+                <>
+                  <span>Sign In to Admin Portal</span>
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
             </button>
           </form>
 
@@ -201,7 +195,7 @@ export default function AdminLoginPage() {
           <div className="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800 text-[11px] text-gray-400 space-y-1">
             <span className="font-bold text-gray-300 block">Security &amp; Authorization Notice:</span>
             <p>
-              Only authorized Aki Enterprise personnel with assigned roles (<code className="text-orange-400">owner</code>, <code className="text-orange-400">admin</code>, <code className="text-orange-400">manager</code>) are granted backend access.
+              Only authorized Aki Enterprise personnel with assigned admin roles (<code className="text-orange-400">owner</code>, <code className="text-orange-400">admin</code>, <code className="text-orange-400">manager</code>) are granted backend access.
             </p>
           </div>
         </div>
@@ -212,5 +206,19 @@ export default function AdminLoginPage() {
         © 2026 Aki Enterprise • Internal Operations Portal
       </div>
     </div>
+  );
+}
+
+export default function AdminLoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#0E1117] flex items-center justify-center text-white">
+          <Loader2 className="w-6 h-6 animate-spin text-orange-500" />
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   );
 }
