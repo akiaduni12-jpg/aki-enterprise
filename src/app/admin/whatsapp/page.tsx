@@ -33,6 +33,12 @@ import {
   Package,
   FileText,
   ArrowLeft,
+  Pin,
+  PinOff,
+  Zap,
+  Paperclip,
+  Copy,
+  Image as ImageIcon,
 } from "lucide-react";
 import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
 
@@ -86,6 +92,51 @@ interface CustomerOrder {
   items?: any[];
 }
 
+const QUICK_SAVED_REPLIES = [
+  {
+    id: "locations",
+    title: "📍 Circle & Miaso Shop Locations",
+    category: "Locations",
+    badge: "Directions",
+    text: `📍 *AKI ADUNI VENTURES - Store Locations & Hours*\n\n1. *Accra Central Shop:* Opposite VIP Jeoun Bus Terminal, Circle, Accra.\n2. *Eastern Region Shop:* Miaso Market Junction, Kwahu East.\n\n⏰ Opening Hours:\nMonday - Saturday: 7:30 AM - 7:00 PM\nSunday: 1:00 PM - 6:00 PM\n📞 Direct Hotline: 055 124 3372`,
+  },
+  {
+    id: "momo",
+    title: "💳 Official MoMo Accounts & Payment Verification",
+    category: "Payments",
+    badge: "Finance",
+    text: `💳 *Official Payment Accounts - AKI ADUNI VENTURES*\n\n• *MTN Mobile Money:*\nNumber: *055 124 3372*\nMerchant Name: *Aki Aduni Ventures*\n\n• *Telecel Cash:*\nNumber: *055 124 3372*\nName: *Aki Aduni Ventures*\n\n⚠️ Always confirm the merchant name *Aki Aduni Ventures* before entering your PIN!`,
+  },
+  {
+    id: "delivery",
+    title: "🚚 Nationwide VIP Bus Waybill & Delivery",
+    category: "Delivery",
+    badge: "Logistics",
+    text: `🚚 *Nationwide VIP Bus Delivery Notice*\n\nWe dispatch daily to all major bus terminals in Ghana:\n• Accra ➔ Kumasi (Asafo / VIP): 4-5 hours\n• Accra ➔ Sunyani / Takoradi / Cape Coast: Same day\n• Accra ➔ Tamale / Bolga: Next day early morning\n\nPackages are safely sealed, insured, and accompanied by the driver's phone number and bus registration number.`,
+  },
+  {
+    id: "warranty",
+    title: "🛡️ 6-Month Shop Warranty & Battery Guarantee",
+    category: "Warranty",
+    badge: "Security",
+    text: `🛡️ *Warranty & Quality Guarantee*\n\nEvery device purchased from AKI ADUNI VENTURES includes:\n✅ Full 6-Month Hardware Warranty\n✅ 100% Genuine, Grade A Tested\n✅ Battery Health 85% to 100% Guaranteed\n✅ 7-Day Hassle-Free Swap for any technical fault`,
+  },
+  {
+    id: "keypad",
+    title: "🔋 Keypad Phone Fresh Stock & Prices",
+    category: "Products",
+    badge: "Devices",
+    text: `🔋 *Brand-New Keypad Phones in Stock*\n\n• Itel 5620 / 5606 (Super Torch, 2500mAh): GH₵ 130 - 160\n• Villaon V10 / V20 (Big Battery, Wireless FM): GH₵ 85 - 120\n• Ifinex M66 Plus (Long Standby): GH₵ 75 - 95\n• CALE Super Torch Phone: GH₵ 70 - 85\n\nAll brand-new in sealed boxes with chargers!`,
+  },
+  {
+    id: "thanks",
+    title: "🙏 Thank You for Contacting Us",
+    category: "Support",
+    badge: "Customer Care",
+    text: `Thank you for contacting *AKI ADUNI VENTURES*! 🇬🇭 Your satisfaction is our top priority. Please let us know if you need any more information on our phones, laptops, or accessories. Have a wonderful day!`,
+  },
+];
+
 export default function AdminWhatsAppEnginePage() {
   const [messages, setMessages] = useState<StoredMessage[]>([]);
   const [selectedPhone, setSelectedPhone] = useState<string>("");
@@ -112,6 +163,18 @@ export default function AdminWhatsAppEnginePage() {
   const [customTemplateName, setCustomTemplateName] = useState("");
   const [templateLangCode, setTemplateLangCode] = useState("en_US");
   const [isSendingTemplate, setIsSendingTemplate] = useState(false);
+
+  // New Features: Pinned chats, Quick replies, Media upload, Message actions & CRM notes
+  const [pinnedPhones, setPinnedPhones] = useState<string[]>([]);
+  const [showQuickRepliesModal, setShowQuickRepliesModal] = useState(false);
+  const [showImageUploadModal, setShowImageUploadModal] = useState(false);
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string>("");
+  const [imageCaption, setImageCaption] = useState("");
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [copiedMsgId, setCopiedMsgId] = useState<string | null>(null);
+  const [staffNote, setStaffNote] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Form states
   const [newChatPhone, setNewChatPhone] = useState("");
@@ -394,9 +457,15 @@ export default function AdminWhatsAppEnginePage() {
       });
     });
 
-    // Sort conversations by latest message time desc
-    return convList.sort((a, b) => (b.lastMessageTime || 0) - (a.lastMessageTime || 0));
-  }, [messages]);
+    // Sort conversations: Pinned chats first, then by latest message time desc
+    return convList.sort((a, b) => {
+      const aPinned = pinnedPhones.includes(a.phone);
+      const bPinned = pinnedPhones.includes(b.phone);
+      if (aPinned && !bPinned) return -1;
+      if (!aPinned && bPinned) return 1;
+      return (b.lastMessageTime || 0) - (a.lastMessageTime || 0);
+    });
+  }, [messages, pinnedPhones]);
 
   // Set default selected phone on desktop only (so mobile view stays on the Chats list first)
   useEffect(() => {
@@ -460,6 +529,7 @@ export default function AdminWhatsAppEnginePage() {
     text?: string;
     type?: any;
     metadata?: any;
+    imageUrl?: string;
   }) => {
     const targetPhone = payloadOverride?.to || selectedPhone;
     if (!targetPhone) return;
@@ -470,9 +540,10 @@ export default function AdminWhatsAppEnginePage() {
 
     const textToSend = payloadOverride?.text !== undefined ? payloadOverride.text : inputText.trim();
     const typeToSend = payloadOverride?.type || "text";
-    const metadataToSend = payloadOverride?.metadata;
+    const imageUrlToSend = payloadOverride?.imageUrl;
+    const metadataToSend = payloadOverride?.metadata || (imageUrlToSend ? { imageUrl: imageUrlToSend } : undefined);
 
-    if (!textToSend && !metadataToSend) return;
+    if (!textToSend && !metadataToSend && !imageUrlToSend) return;
 
     setIsSending(true);
     setInputText("");
@@ -500,6 +571,7 @@ export default function AdminWhatsAppEnginePage() {
           to: targetPhone,
           text: textToSend,
           type: typeToSend,
+          imageUrl: imageUrlToSend,
           metadata: metadataToSend,
         }),
       });
@@ -687,6 +759,98 @@ export default function AdminWhatsAppEnginePage() {
     setNewChatPhone("");
     setNewChatName("");
     setNewChatMessage("");
+  };
+
+  // Load and manage pinned chats
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("aki_whatsapp_pinned");
+      if (saved) setPinnedPhones(JSON.parse(saved));
+    } catch {}
+  }, []);
+
+  const togglePinChat = (phone: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setPinnedPhones((prev) => {
+      const updated = prev.includes(phone) ? prev.filter((p) => p !== phone) : [phone, ...prev];
+      try {
+        localStorage.setItem("aki_whatsapp_pinned", JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+  };
+
+  // Copy message text helper
+  const copyMessageToClipboard = (text: string, msgId: string) => {
+    if (!text) return;
+    navigator.clipboard.writeText(text);
+    setCopiedMsgId(msgId);
+    setTimeout(() => setCopiedMsgId(null), 1800);
+  };
+
+  // Image Upload & Dispatch
+  const handleSelectImageFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedImageFile(file);
+      setImagePreviewUrl(URL.createObjectURL(file));
+      setShowImageUploadModal(true);
+    }
+  };
+
+  const handleSendUploadedImage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedImageFile || !selectedPhone) return;
+
+    setIsUploadingImage(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", selectedImageFile);
+      formData.append("folder", "aki_enterprise/whatsapp");
+
+      const uploadRes = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const uploadData = await uploadRes.json();
+      if (!uploadRes.ok || !uploadData.url) {
+        throw new Error(uploadData.error || "Failed to upload image");
+      }
+
+      await handleSendMessage({
+        to: selectedPhone,
+        type: "image",
+        imageUrl: uploadData.url,
+        text: imageCaption.trim() || undefined,
+      });
+
+      setShowImageUploadModal(false);
+      setSelectedImageFile(null);
+      setImagePreviewUrl("");
+      setImageCaption("");
+    } catch (err: any) {
+      alert("Error sending image: " + err.message);
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
+  // Staff private notes persistence
+  useEffect(() => {
+    if (!selectedPhone) return;
+    try {
+      const savedNote = localStorage.getItem(`aki_staff_note_${selectedPhone}`) || "";
+      setStaffNote(savedNote);
+    } catch {}
+  }, [selectedPhone]);
+
+  const handleSaveStaffNote = (val: string) => {
+    setStaffNote(val);
+    if (!selectedPhone) return;
+    try {
+      localStorage.setItem(`aki_staff_note_${selectedPhone}`, val);
+    } catch {}
   };
 
   // Broadcast campaign
@@ -958,6 +1122,13 @@ export default function AdminWhatsAppEnginePage() {
             ) : (
               filteredConversations.map((conv) => {
                 const isSelected = conv.phone === selectedPhone;
+                const isPinned = pinnedPhones.includes(conv.phone);
+                const convActiveOrders = (orders || []).filter((o) => {
+                  const cleanOPhone = String(o?.customer_phone || "").replace(/\D/g, "");
+                  return cleanOPhone && conv.phone.endsWith(cleanOPhone.slice(-9));
+                });
+                const topOrder = convActiveOrders[0];
+
                 const formattedTime = new Date(conv.lastMessageTime).toLocaleTimeString([], {
                   hour: "2-digit",
                   minute: "2-digit",
@@ -967,9 +1138,9 @@ export default function AdminWhatsAppEnginePage() {
                   <button
                     key={conv.phone}
                     onClick={() => setSelectedPhone(conv.phone)}
-                    className={`w-full text-left p-3.5 flex items-start gap-3 transition ${isSelected
+                    className={`w-full text-left p-3.5 flex items-start gap-3 transition group ${isSelected
                       ? "bg-slate-800/90 border-l-4 border-emerald-500"
-                      : "hover:bg-slate-900/60"
+                      : "hover:bg-slate-900/60 active:bg-slate-800/50"
                       }`}
                   >
                     {/* Avatar */}
@@ -985,12 +1156,27 @@ export default function AdminWhatsAppEnginePage() {
                     {/* Content */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs font-bold text-white truncate max-w-[140px]">
-                          {conv.name}
-                        </span>
-                        <span className={`text-[10px] ${conv.unreadCount > 0 ? "text-[#25D366] font-bold" : "text-gray-400"}`}>
-                          {formattedTime}
-                        </span>
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          {isPinned && (
+                            <Pin className="w-3 h-3 text-emerald-400 fill-emerald-400 rotate-45 shrink-0" />
+                          )}
+                          <span className="text-xs font-bold text-white truncate max-w-[130px]">
+                            {conv.name}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <span className={`text-[10px] ${conv.unreadCount > 0 ? "text-[#25D366] font-bold" : "text-gray-400"}`}>
+                            {formattedTime}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={(e) => togglePinChat(conv.phone, e)}
+                            title={isPinned ? "Unpin conversation" : "Pin to top"}
+                            className="opacity-40 group-hover:opacity-100 hover:text-emerald-400 p-0.5 transition"
+                          >
+                            <Pin className={`w-3 h-3 ${isPinned ? "text-emerald-400 fill-emerald-400 rotate-45" : "text-gray-500"}`} />
+                          </button>
+                        </div>
                       </div>
 
                       <div className="flex items-center justify-between gap-2 text-xs text-gray-400 mb-1">
@@ -1008,16 +1194,22 @@ export default function AdminWhatsAppEnginePage() {
                         )}
                       </div>
 
-                      {/* Phone & Tags */}
-                      <div className="flex items-center justify-between">
+                      {/* Phone, Orders & Tags */}
+                      <div className="flex items-center justify-between mt-1">
                         <span className="text-[10px] text-gray-500 font-mono">
                           +{conv.phone}
                         </span>
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1 overflow-hidden">
+                          {topOrder && (
+                            <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center gap-1 shrink-0">
+                              <Package className="w-2.5 h-2.5 text-purple-400" />
+                              #{topOrder.order_number}
+                            </span>
+                          )}
                           {(conv.tags || []).slice(0, 1).map((t) => (
                             <span
                               key={t}
-                              className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-slate-800 text-gray-300 border border-slate-700"
+                              className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-slate-800 text-gray-300 border border-slate-700 truncate"
                             >
                               {t}
                             </span>
@@ -1288,25 +1480,58 @@ export default function AdminWhatsAppEnginePage() {
                           </div>
                         )}
 
-                        {/* Main text message content */}
-                        <p className="text-xs sm:text-sm whitespace-pre-wrap leading-relaxed">
-                          {msg.text}
-                        </p>
+                        {/* Image bubble if type is image */}
+                        {msg.type === "image" && (msg.metadata?.imageUrl || msg.text?.startsWith("http")) && (
+                          <div className="mb-2 rounded-xl overflow-hidden bg-black/40 border border-slate-700/60 max-w-sm">
+                            <img
+                              src={msg.metadata?.imageUrl || msg.text}
+                              alt="WhatsApp Image"
+                              className="w-full max-h-64 object-contain rounded-lg"
+                              onError={(e) => {
+                                (e.currentTarget as HTMLElement).style.display = "none";
+                              }}
+                            />
+                          </div>
+                        )}
 
-                        {/* Timestamp & Delivery status */}
-                        <div className="flex items-center justify-end gap-1 mt-1 text-[10px] text-gray-300/80">
-                          <span>{timeFormatted}</span>
-                          {isOutgoing && (
-                            <span>
-                              {msg.status === "sending" ? (
-                                <span className="w-2.5 h-2.5 rounded-full border border-gray-300 border-t-transparent animate-spin inline-block" />
-                              ) : msg.status === "read" ? (
-                                <CheckCheck className="w-3.5 h-3.5 text-blue-400" />
-                              ) : (
-                                <CheckCheck className="w-3.5 h-3.5 text-gray-300" />
-                              )}
-                            </span>
-                          )}
+                        {/* Main text message content */}
+                        {msg.text && (
+                          <p className="text-xs sm:text-sm whitespace-pre-wrap leading-relaxed">
+                            {msg.text}
+                          </p>
+                        )}
+
+                        {/* Timestamp, Copy & Delivery status */}
+                        <div className="flex items-center justify-between gap-2 mt-1 text-[10px] text-gray-300/80">
+                          <button
+                            type="button"
+                            onClick={() => copyMessageToClipboard(msg.text || "", msg.id)}
+                            className="opacity-40 hover:opacity-100 flex items-center gap-1 hover:text-white transition"
+                            title="Copy message text"
+                          >
+                            {copiedMsgId === msg.id ? (
+                              <span className="text-emerald-400 font-bold flex items-center gap-0.5">
+                                <Check className="w-2.5 h-2.5" /> Copied
+                              </span>
+                            ) : (
+                              <Copy className="w-2.5 h-2.5" />
+                            )}
+                          </button>
+
+                          <div className="flex items-center gap-1">
+                            <span>{timeFormatted}</span>
+                            {isOutgoing && (
+                              <span>
+                                {msg.status === "sending" ? (
+                                  <span className="w-2.5 h-2.5 rounded-full border border-gray-300 border-t-transparent animate-spin inline-block" />
+                                ) : msg.status === "read" ? (
+                                  <CheckCheck className="w-3.5 h-3.5 text-blue-400" />
+                                ) : (
+                                  <CheckCheck className="w-3.5 h-3.5 text-gray-300" />
+                                )}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -1316,8 +1541,28 @@ export default function AdminWhatsAppEnginePage() {
               </div>
 
               {/* Quick Actions Commerce Bar */}
-              <div className="bg-slate-900 border-t border-slate-800 p-2.5 space-y-2">
+              <div className="bg-[#1f2c34] md:bg-slate-900 border-t border-slate-800 p-2.5 space-y-2">
                 <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
+                  {/* Quick Saved Replies */}
+                  <button
+                    onClick={() => setShowQuickRepliesModal(true)}
+                    className="px-2.5 py-1.5 rounded-xl bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-300 flex items-center gap-1.5 font-semibold shrink-0 border border-yellow-500/30"
+                    title="Quick saved store replies"
+                  >
+                    <Zap className="w-3.5 h-3.5 text-yellow-400" />
+                    <span>Quick Replies</span>
+                  </button>
+
+                  {/* Send Photo */}
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="px-2.5 py-1.5 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 flex items-center gap-1.5 font-semibold shrink-0 border border-blue-500/30"
+                    title="Send a photo, receipt or waybill"
+                  >
+                    <ImageIcon className="w-3.5 h-3.5 text-blue-400" />
+                    <span>Send Photo</span>
+                  </button>
+
                   {/* Send Product Card */}
                   <button
                     onClick={() => setShowProductModal(true)}
@@ -1371,8 +1616,37 @@ export default function AdminWhatsAppEnginePage() {
                     e.preventDefault();
                     handleSendMessage();
                   }}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-1.5 md:gap-2"
                 >
+                  {/* Hidden File Input */}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    ref={fileInputRef}
+                    onChange={handleSelectImageFile}
+                    className="hidden"
+                  />
+
+                  {/* Attachment Button */}
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="p-2 text-gray-400 hover:text-white hover:bg-slate-800 rounded-full transition shrink-0"
+                    title="Attach Photo / Receipt / Waybill"
+                  >
+                    <Paperclip className="w-4 h-4" />
+                  </button>
+
+                  {/* Quick Replies Trigger Icon */}
+                  <button
+                    type="button"
+                    onClick={() => setShowQuickRepliesModal(true)}
+                    className="p-2 text-yellow-400 hover:text-yellow-300 hover:bg-slate-800 rounded-full transition shrink-0"
+                    title="Open Quick Replies"
+                  >
+                    <Zap className="w-4 h-4" />
+                  </button>
+
                   <div className="flex-1 bg-[#202c33] md:bg-slate-950 border border-slate-700/80 rounded-full px-4 py-2 md:py-2.5 flex items-center gap-2 focus-within:border-[#00a884]">
                     <input
                       type="text"
@@ -1519,16 +1793,199 @@ export default function AdminWhatsAppEnginePage() {
               )}
             </div>
 
-            {/* Quick Customer Notes */}
-            <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-3 space-y-2">
-              <span className="text-[11px] font-bold text-gray-300">Staff Notes</span>
-              <p className="text-[11px] text-gray-400 italic">
-                Prefers payment via MTN MoMo. Delivery address at Circle VIP station or Kumasi Asafo Bus.
+            {/* Staff Private Notes */}
+            <div className="bg-slate-900 border border-slate-800 rounded-xl p-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold text-gray-300 flex items-center gap-1">
+                  <span>📝 Staff Private Notes</span>
+                </span>
+                <span className="text-[9px] text-emerald-400 font-mono">Auto-saved</span>
+              </div>
+              <textarea
+                rows={3}
+                placeholder="Add private staff note (e.g. promised delivery by 3PM, agreed on GH₵ 50 discount, requested blue color)..."
+                value={staffNote}
+                onChange={(e) => handleSaveStaffNote(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-700/80 rounded-lg p-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-orange-500 resize-none leading-relaxed"
+              />
+              <p className="text-[10px] text-gray-500 italic">
+                Notes are private to store staff and never visible to the customer.
               </p>
             </div>
           </aside>
         )}
       </div>
+
+      {/* ================= MODAL: QUICK SAVED REPLIES ================= */}
+      {showQuickRepliesModal && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg p-5 space-y-4 max-h-[85vh] flex flex-col">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <Zap className="w-4 h-4 text-yellow-400" />
+                Quick Saved Store Replies
+              </h3>
+              <button
+                onClick={() => setShowQuickRepliesModal(false)}
+                className="text-gray-400 hover:text-white"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto space-y-2.5 pr-1">
+              {QUICK_SAVED_REPLIES.map((reply) => (
+                <div
+                  key={reply.id}
+                  className="p-3 rounded-xl bg-slate-950 border border-slate-800 hover:border-slate-700 transition space-y-2"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                      {reply.title}
+                    </span>
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-yellow-300 border border-slate-700">
+                      {reply.badge}
+                    </span>
+                  </div>
+
+                  <p className="text-xs text-gray-400 whitespace-pre-wrap font-sans leading-relaxed bg-slate-900/50 p-2.5 rounded-lg border border-slate-800/80">
+                    {reply.text}
+                  </p>
+
+                  <div className="flex items-center justify-end gap-2 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setInputText(reply.text);
+                        setShowQuickRepliesModal(false);
+                      }}
+                      className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-gray-200 text-xs font-semibold flex items-center gap-1 transition"
+                    >
+                      <span>Insert into Box</span>
+                    </button>
+                    <button
+                      type="button"
+                      disabled={!selectedPhone}
+                      onClick={() => {
+                        handleSendMessage({
+                          to: selectedPhone,
+                          text: reply.text,
+                          type: "text",
+                        });
+                        setShowQuickRepliesModal(false);
+                      }}
+                      className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-xs font-bold flex items-center gap-1 transition shadow-sm"
+                    >
+                      <Send className="w-3 h-3" />
+                      <span>Send Instantly</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="pt-2 border-t border-slate-800 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setShowQuickRepliesModal(false)}
+                className="px-4 py-2 rounded-xl bg-slate-800 text-gray-300 text-xs font-bold hover:bg-slate-700"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================= MODAL: IMAGE ATTACHMENT UPLOAD ================= */}
+      {showImageUploadModal && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-5 space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <ImageIcon className="w-4 h-4 text-blue-400" />
+                Send Image via WhatsApp
+              </h3>
+              <button
+                onClick={() => {
+                  setShowImageUploadModal(false);
+                  setSelectedImageFile(null);
+                  setImagePreviewUrl("");
+                  setImageCaption("");
+                }}
+                className="text-gray-400 hover:text-white"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSendUploadedImage} className="space-y-4">
+              {imagePreviewUrl && (
+                <div className="relative rounded-xl overflow-hidden border border-slate-700 bg-black/50 max-h-60 flex items-center justify-center">
+                  <img
+                    src={imagePreviewUrl}
+                    alt="Preview"
+                    className="max-h-60 max-w-full object-contain"
+                  />
+                  <div className="absolute top-2 right-2 bg-black/70 text-gray-300 text-[10px] px-2 py-0.5 rounded-full font-mono">
+                    {selectedImageFile?.name}
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-300 mb-1">
+                  Caption (Optional)
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Bus driver waybill receipt or phone photos..."
+                  value={imageCaption}
+                  onChange={(e) => setImageCaption(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+                />
+              </div>
+
+              <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-[11px] text-gray-400 flex items-center gap-2">
+                <Paperclip className="w-4 h-4 text-blue-400 shrink-0" />
+                <span>Delivered directly to customer&apos;s WhatsApp as a high-resolution media attachment.</span>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowImageUploadModal(false);
+                    setSelectedImageFile(null);
+                    setImagePreviewUrl("");
+                    setImageCaption("");
+                  }}
+                  className="px-3 py-2 rounded-xl bg-slate-800 text-gray-300 text-xs font-bold hover:bg-slate-700"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isUploadingImage}
+                  className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-xs font-bold flex items-center gap-1.5 shadow-md shadow-blue-600/30"
+                >
+                  {isUploadingImage ? (
+                    <>
+                      <span className="w-3.5 h-3.5 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                      <span>Uploading &amp; Sending...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-3.5 h-3.5" />
+                      <span>Send to WhatsApp</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* ================= MODAL: NEW CHAT ================= */}
       {showNewChatModal && (
