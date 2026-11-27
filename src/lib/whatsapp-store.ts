@@ -261,6 +261,30 @@ export async function getWhatsAppMessages(sinceTimestamp?: number): Promise<Stor
   return valid.filter((m) => (m.timestamp || 0) > sinceTimestamp);
 }
 
+/**
+ * Mark all unread incoming messages from a specific customer phone as 'read'
+ */
+export async function markWhatsAppMessagesAsRead(phone: string): Promise<number> {
+  await loadWhatsAppMessages();
+  const clean = phone.replace(/\D/g, "");
+  let updatedCount = 0;
+
+  messagesCache = messagesCache.map((m) => {
+    const fromClean = (m.from || "").replace(/\D/g, "");
+    if (m.direction === "incoming" && fromClean === clean && m.status !== "read") {
+      updatedCount++;
+      return { ...m, status: "read" };
+    }
+    return m;
+  });
+
+  if (updatedCount > 0) {
+    await persistMessages(messagesCache);
+  }
+
+  return updatedCount;
+}
+
 export interface AgentSessionInfo {
   pausedUntil: number; // Unix ms
   reason: string;

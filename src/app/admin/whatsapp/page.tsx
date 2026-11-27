@@ -32,6 +32,7 @@ import {
   CheckCircle2,
   Package,
   FileText,
+  ArrowLeft,
 } from "lucide-react";
 import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
 
@@ -178,8 +179,17 @@ export default function AdminWhatsAppEnginePage() {
               (m) => m && m.id && String(m.id).startsWith("temp-")
             );
             const map = new Map<string, StoredMessage>();
+            const cleanActive = selectedPhone ? selectedPhone.replace(/\D/g, "") : "";
             for (const m of data.messages) {
-              if (m && m.id) map.set(m.id, m);
+              if (m && m.id) {
+                // If message is incoming from the currently active chat, keep it as read
+                const fromClean = (m.from || "").replace(/\D/g, "");
+                if (cleanActive && m.direction === "incoming" && fromClean === cleanActive) {
+                  map.set(m.id, { ...m, status: "read" });
+                } else {
+                  map.set(m.id, m);
+                }
+              }
             }
             for (const m of tempMessages) {
               if (m && m.id && !map.has(m.id)) map.set(m.id, m);
@@ -282,6 +292,24 @@ export default function AdminWhatsAppEnginePage() {
         }
       })
       .catch(() => { });
+
+    // Mark unread incoming messages from selected phone as read
+    const cleanPhone = selectedPhone.replace(/\D/g, "");
+    setMessages((prev) =>
+      prev.map((m) => {
+        const fromClean = (m.from || "").replace(/\D/g, "");
+        if (m.direction === "incoming" && fromClean === cleanPhone && m.status !== "read") {
+          return { ...m, status: "read" };
+        }
+        return m;
+      })
+    );
+
+    fetch("/api/whatsapp/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "mark_read", phone: cleanPhone }),
+    }).catch(() => { });
   }, [selectedPhone]);
 
   // Toggle AI Bot manual pause / resume
@@ -370,10 +398,12 @@ export default function AdminWhatsAppEnginePage() {
     return convList.sort((a, b) => (b.lastMessageTime || 0) - (a.lastMessageTime || 0));
   }, [messages]);
 
-  // Set default selected phone
+  // Set default selected phone on desktop only (so mobile view stays on the Chats list first)
   useEffect(() => {
-    if (!selectedPhone && conversations.length > 0) {
-      setSelectedPhone(conversations[0].phone);
+    if (typeof window !== "undefined" && window.innerWidth >= 768) {
+      if (!selectedPhone && conversations.length > 0) {
+        setSelectedPhone(conversations[0].phone);
+      }
     }
   }, [conversations, selectedPhone]);
 
@@ -713,33 +743,33 @@ export default function AdminWhatsAppEnginePage() {
 
   return (
     <div className="h-[calc(100vh-64px)] md:h-[calc(100vh-32px)] flex flex-col bg-slate-950 text-gray-100 rounded-2xl overflow-hidden border border-slate-800 shadow-2xl">
-      {/* Top Engine Header Bar */}
-      <header className="bg-slate-900 border-b border-slate-800 px-4 py-3 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl overflow-hidden shrink-0 border border-emerald-500/40 shadow-sm flex items-center justify-center bg-emerald-600">
+      {/* Top Engine Header Bar - hides on mobile when inside an active chat */}
+      <header className={`${selectedPhone ? "hidden md:flex" : "flex"} bg-[#1f2c34] md:bg-slate-900 border-b border-slate-800 px-3 md:px-4 py-2.5 md:py-3 items-center justify-between shrink-0`}>
+        <div className="flex items-center gap-2.5 md:gap-3">
+          <div className="w-8 h-8 md:w-9 md:h-9 rounded-xl overflow-hidden shrink-0 border border-emerald-500/40 shadow-sm flex items-center justify-center bg-emerald-600">
             <img src="/images/social/whatsapp.jpg" alt="WhatsApp" className="w-full h-full object-cover" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 md:gap-2">
               <h1 className="text-sm md:text-base font-extrabold text-white tracking-tight flex items-center gap-1.5">
-                WhatsApp Commerce Engine
+                Aki WhatsApp
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               </h1>
-              <span className="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                Meta Cloud API Live
+              <span className="flex items-center gap-1 text-[9px] md:text-[10px] font-bold px-1.5 md:px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                Live
               </span>
             </div>
-            <p className="text-[11px] text-gray-400">
-              Direct Sales, MoMo Requests &amp; Real-Time Customer Chat • +233 55 124 3372
+            <p className="text-[10px] md:text-[11px] text-gray-400 truncate max-w-[200px] sm:max-w-none">
+              Direct Sales, MoMo &amp; Customer Care • 055 124 3372
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 md:gap-2">
           {/* Sound Toggle */}
           <button
             onClick={() => setSoundEnabled(!soundEnabled)}
-            className={`p-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition ${soundEnabled
+            className={`p-1.5 md:p-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition ${soundEnabled
               ? "bg-slate-800 text-gray-300 hover:text-white"
               : "bg-red-500/10 text-red-400 border border-red-500/30"
               }`}
@@ -753,7 +783,7 @@ export default function AdminWhatsAppEnginePage() {
           <button
             onClick={() => fetchMessages(true)}
             disabled={isRefreshing}
-            className="p-2 rounded-xl bg-slate-800 text-gray-300 hover:text-white hover:bg-slate-700 transition"
+            className="p-1.5 md:p-2 rounded-xl bg-slate-800 text-gray-300 hover:text-white hover:bg-slate-700 transition"
             title="Refresh conversations"
           >
             <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin text-orange-400" : ""}`} />
@@ -762,17 +792,17 @@ export default function AdminWhatsAppEnginePage() {
           {/* Meta Templates Guide button */}
           <button
             onClick={() => setShowTemplateGuideModal(true)}
-            className="px-3 py-2 rounded-xl bg-purple-600/20 text-purple-300 border border-purple-500/30 hover:bg-purple-600 hover:text-white text-xs font-bold flex items-center gap-1.5 transition"
+            className="hidden sm:flex px-3 py-2 rounded-xl bg-purple-600/20 text-purple-300 border border-purple-500/30 hover:bg-purple-600 hover:text-white text-xs font-bold items-center gap-1.5 transition"
             title="Create & manage Meta promotional templates"
           >
             <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-            <span className="hidden sm:inline">Meta Templates</span>
+            <span>Templates</span>
           </button>
 
           {/* Broadcast button */}
           <button
             onClick={() => setShowBroadcastModal(true)}
-            className="px-3 py-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-md shadow-orange-600/30 transition"
+            className="px-2.5 py-1.5 md:px-3 md:py-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-md shadow-orange-600/30 transition"
           >
             <Megaphone className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Broadcast</span>
@@ -781,7 +811,7 @@ export default function AdminWhatsAppEnginePage() {
           {/* New Chat Button */}
           <button
             onClick={() => setShowNewChatModal(true)}
-            className="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-md shadow-emerald-600/30 transition"
+            className="px-2.5 py-1.5 md:px-3 md:py-2 rounded-xl bg-[#00a884] hover:bg-[#029070] text-white text-xs font-bold flex items-center gap-1.5 shadow-md shadow-emerald-600/30 transition"
           >
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">New Chat</span>
@@ -792,9 +822,9 @@ export default function AdminWhatsAppEnginePage() {
       {/* Main Workspace: 3-column or 2-column flex */}
       <div className="flex-1 flex overflow-hidden">
         {/* ================= COLUMN 1: CONVERSATIONS LIST ================= */}
-        <aside className="w-full sm:w-80 md:w-88 lg:w-96 bg-slate-950 border-r border-slate-800 flex flex-col shrink-0">
+        <aside className={`${selectedPhone ? "hidden md:flex" : "flex"} w-full md:w-88 lg:w-96 bg-[#111b21] md:bg-slate-950 md:border-r border-slate-800 flex-col shrink-0 relative`}>
           {/* Search & Filter */}
-          <div className="p-3 border-b border-slate-800/80 space-y-2.5 bg-slate-900/40">
+          <div className="p-3 border-b border-slate-800/80 space-y-2.5 bg-[#1f2c34] md:bg-slate-900/40">
             <div className="relative">
               <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
@@ -802,7 +832,7 @@ export default function AdminWhatsAppEnginePage() {
                 placeholder="Search phone, name or text..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-8 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500"
+                className="w-full bg-[#111b21] md:bg-slate-900 border border-slate-700/60 md:border-slate-800 rounded-xl pl-9 pr-8 py-2 text-xs text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500"
               />
               {searchQuery && (
                 <button
@@ -828,13 +858,13 @@ export default function AdminWhatsAppEnginePage() {
               <button
                 onClick={() => setFilterTab("unread")}
                 className={`px-2.5 py-1 rounded-lg transition flex items-center gap-1 ${filterTab === "unread"
-                  ? "bg-emerald-600 text-white font-bold"
+                  ? "bg-[#00a884] text-white font-bold"
                   : "text-gray-400 hover:text-white hover:bg-slate-900"
                   }`}
               >
                 Unread
                 {conversations.filter((c) => c.unreadCount > 0).length > 0 && (
-                  <span className="w-4 h-4 rounded-full bg-emerald-500 text-[9px] text-white flex items-center justify-center">
+                  <span className="w-4 h-4 rounded-full bg-[#25D366] text-[#111b21] text-[9px] font-black flex items-center justify-center">
                     {conversations.filter((c) => c.unreadCount > 0).length}
                   </span>
                 )}
@@ -958,14 +988,24 @@ export default function AdminWhatsAppEnginePage() {
                         <span className="text-xs font-bold text-white truncate max-w-[140px]">
                           {conv.name}
                         </span>
-                        <span className="text-[10px] text-gray-400">{formattedTime}</span>
+                        <span className={`text-[10px] ${conv.unreadCount > 0 ? "text-[#25D366] font-bold" : "text-gray-400"}`}>
+                          {formattedTime}
+                        </span>
                       </div>
 
-                      <div className="flex items-center gap-1.5 text-xs text-gray-400 mb-1.5 truncate">
-                        {conv.lastDirection === "outgoing" && (
-                          <CheckCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                      <div className="flex items-center justify-between gap-2 text-xs text-gray-400 mb-1">
+                        <div className="flex items-center gap-1.5 min-w-0 truncate">
+                          {conv.lastDirection === "outgoing" && (
+                            <CheckCheck className="w-3.5 h-3.5 text-[#53bdeb] shrink-0" />
+                          )}
+                          <span className="truncate">{conv.lastMessage}</span>
+                        </div>
+
+                        {conv.unreadCount > 0 && (
+                          <span className="min-w-5 h-5 px-1.5 rounded-full bg-[#25D366] text-[#111b21] text-[11px] font-black flex items-center justify-center shrink-0 shadow-xs">
+                            {conv.unreadCount}
+                          </span>
                         )}
-                        <span className="truncate">{conv.lastMessage}</span>
                       </div>
 
                       {/* Phone & Tags */}
@@ -974,11 +1014,6 @@ export default function AdminWhatsAppEnginePage() {
                           +{conv.phone}
                         </span>
                         <div className="flex items-center gap-1">
-                          {conv.unreadCount > 0 && (
-                            <span className="px-1.5 py-0.2 rounded-full bg-emerald-500 text-[10px] font-black text-white">
-                              {conv.unreadCount}
-                            </span>
-                          )}
                           {(conv.tags || []).slice(0, 1).map((t) => (
                             <span
                               key={t}
@@ -995,43 +1030,61 @@ export default function AdminWhatsAppEnginePage() {
               })
             )}
           </div>
+
+          {/* Mobile Floating Action Button (FAB) for New Chat */}
+          <button
+            onClick={() => setShowNewChatModal(true)}
+            className="md:hidden absolute bottom-5 right-5 w-13 h-13 rounded-full bg-[#00a884] hover:bg-[#029070] text-white shadow-2xl flex items-center justify-center z-30 active:scale-95 transition"
+            title="Start New Chat"
+          >
+            <Plus className="w-6 h-6" />
+          </button>
         </aside>
 
         {/* ================= COLUMN 2: ACTIVE CHAT CONSOLE ================= */}
-        <main className="flex-1 flex flex-col bg-[#0b141a] relative min-w-0">
+        <main className={`${!selectedPhone ? "hidden md:flex" : "flex"} flex-1 flex-col bg-[#0b141a] relative min-w-0 h-full`}>
           {activeConversation ? (
             <>
-              {/* Chat Header */}
-              <div className="bg-slate-900 border-b border-slate-800 px-4 py-3 flex items-center justify-between shrink-0">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="relative w-10 h-10 rounded-full bg-emerald-600/30 border border-emerald-500/40 text-emerald-300 font-black flex items-center justify-center shrink-0">
+              {/* Chat Header (Real WhatsApp style with Back Button on mobile) */}
+              <div className="bg-[#1f2c34] md:bg-slate-900 border-b border-slate-800 px-3 md:px-4 py-2.5 md:py-3 flex items-center justify-between shrink-0 z-10 shadow-sm">
+                <div className="flex items-center gap-2 md:gap-3 min-w-0">
+                  {/* Back button (Mobile only) */}
+                  <button
+                    onClick={() => setSelectedPhone("")}
+                    className="md:hidden p-1.5 -ml-1 text-gray-300 hover:text-white rounded-lg active:bg-slate-800 transition shrink-0"
+                    title="Back to Chats list"
+                  >
+                    <ArrowLeft className="w-5 h-5 text-gray-200" />
+                  </button>
+
+                  <div className="relative w-9 h-9 md:w-10 md:h-10 rounded-full bg-emerald-600/30 border border-emerald-500/40 text-emerald-300 font-black flex items-center justify-center shrink-0">
                     {((activeConversation.name || "Customer").slice(0, 2)).toUpperCase()}
-                    <span className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full overflow-hidden border border-slate-900 shadow">
+                    <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 md:w-4 md:h-4 rounded-full overflow-hidden border border-slate-900 shadow">
                       <img src="/images/social/whatsapp.jpg" alt="WhatsApp" className="w-full h-full object-cover" />
                     </span>
                   </div>
+
                   <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h2 className="text-sm font-bold text-white truncate">
+                    <div className="flex items-center gap-1.5 md:gap-2">
+                      <h2 className="text-xs md:text-sm font-bold text-white truncate max-w-[130px] sm:max-w-[200px]">
                         {activeConversation.name}
                       </h2>
-                      <span className="text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded font-mono">
+                      <span className="text-[9px] md:text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.2 rounded font-mono truncate">
                         +{activeConversation.phone}
                       </span>
                     </div>
-                    <p className="text-[11px] text-gray-400 truncate flex items-center gap-2">
-                      <span>{activeConversation.city || "Ghana"}</span>
-                      <span>•</span>
-                      <span className="text-emerald-400">Online on WhatsApp</span>
+                    <p className="text-[10px] md:text-[11px] text-gray-400 truncate flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      <span className="text-emerald-400">online on WhatsApp</span>
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex items-center gap-1 md:gap-2 shrink-0">
                   {/* AI Bot Human Session Mode Toggle */}
                   <button
                     onClick={handleToggleAiBot}
-                    className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border shadow-xs ${isAiPaused
+                    className={`px-2 py-1 md:px-2.5 md:py-1.5 rounded-lg md:rounded-xl text-[10px] md:text-xs font-bold transition flex items-center gap-1 border shadow-xs ${isAiPaused
                       ? "bg-amber-500/15 text-amber-300 border-amber-500/30 hover:bg-amber-500/25"
                       : "bg-emerald-500/15 text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/25"
                       }`}
@@ -1042,13 +1095,13 @@ export default function AdminWhatsAppEnginePage() {
                     }
                   >
                     <span
-                      className={`w-2 h-2 rounded-full ${isAiPaused ? "bg-amber-400" : "bg-emerald-400 animate-pulse"
+                      className={`w-1.5 h-1.5 rounded-full ${isAiPaused ? "bg-amber-400" : "bg-emerald-400 animate-pulse"
                         }`}
                     />
                     <span className="hidden sm:inline">
-                      {isAiPaused ? `Human Mode (${remainingMinutes}m)` : "AI Bot Active"}
+                      {isAiPaused ? `Human (${remainingMinutes}m)` : "AI Bot"}
                     </span>
-                    <span className="text-[10px] underline ml-0.5 opacity-80">
+                    <span className="text-[9px] underline">
                       {isAiPaused ? "Resume" : "Pause"}
                     </span>
                   </button>
@@ -1056,34 +1109,19 @@ export default function AdminWhatsAppEnginePage() {
                   {/* Phone Call Link */}
                   <a
                     href={`tel:${activeConversation.phone}`}
-                    className="p-2 rounded-xl bg-slate-800 text-gray-300 hover:text-white hover:bg-slate-700 transition"
+                    className="p-1.5 md:p-2 rounded-lg md:rounded-xl bg-slate-800 text-gray-300 hover:text-white transition"
                     title="Direct Phone Call"
                   >
-                    <Phone className="w-4 h-4 text-emerald-400" />
+                    <Phone className="w-3.5 h-3.5 text-emerald-400" />
                   </a>
 
-                  {/* Native WhatsApp Link */}
-                  <a
-                    href={`https://wa.me/${activeConversation.phone}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="p-2 rounded-xl bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-600 hover:text-white transition flex items-center gap-1.5 text-xs font-bold"
-                    title="Open in WhatsApp Web App"
-                  >
-                    <WhatsAppIcon className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">WhatsApp</span>
-                  </a>
-
-                  {/* Toggle Right CRM Drawer */}
+                  {/* Toggle Customer Info / Orders Drawer */}
                   <button
                     onClick={() => setShowRightDrawer(!showRightDrawer)}
-                    className={`p-2 rounded-xl transition ${showRightDrawer
-                      ? "bg-slate-800 text-orange-400"
-                      : "bg-slate-800 text-gray-400 hover:text-white"
-                      }`}
-                    title="Toggle Customer & Orders Drawer"
+                    className="p-1.5 md:p-2 rounded-lg md:rounded-xl bg-slate-800 hover:bg-slate-700 text-gray-300 hover:text-white transition flex items-center gap-1"
+                    title="Customer Details & Orders"
                   >
-                    <User className="w-4 h-4" />
+                    <User className="w-3.5 h-3.5 text-orange-400" />
                   </button>
                 </div>
               </div>
@@ -1327,7 +1365,7 @@ export default function AdminWhatsAppEnginePage() {
                   </button>
                 </div>
 
-                {/* Message Input Box */}
+                {/* Message Input Box - WhatsApp authentic pill and circular button */}
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
@@ -1335,25 +1373,26 @@ export default function AdminWhatsAppEnginePage() {
                   }}
                   className="flex items-center gap-2"
                 >
-                  <input
-                    type="text"
-                    placeholder="Type message to send to customer on WhatsApp... (Press Enter to Send)"
-                    value={inputText}
-                    onChange={(e) => setInputText(e.target.value)}
-                    className="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500"
-                  />
+                  <div className="flex-1 bg-[#202c33] md:bg-slate-950 border border-slate-700/80 rounded-full px-4 py-2 md:py-2.5 flex items-center gap-2 focus-within:border-[#00a884]">
+                    <input
+                      type="text"
+                      placeholder="Type a message..."
+                      value={inputText}
+                      onChange={(e) => setInputText(e.target.value)}
+                      className="flex-1 bg-transparent text-xs sm:text-sm text-white placeholder-gray-400 focus:outline-none"
+                    />
+                  </div>
+
                   <button
                     type="submit"
                     disabled={isSending || !inputText.trim()}
-                    className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-emerald-600/30 transition shrink-0"
+                    className="w-10 h-10 md:w-11 md:h-11 rounded-full bg-[#00a884] hover:bg-[#029070] disabled:opacity-40 text-white flex items-center justify-center shrink-0 shadow-lg shadow-emerald-950/40 active:scale-95 transition"
+                    title="Send message"
                   >
                     {isSending ? (
                       <span className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
                     ) : (
-                      <>
-                        <span>Send</span>
-                        <Send className="w-3.5 h-3.5" />
-                      </>
+                      <Send className="w-4 h-4 ml-0.5" />
                     )}
                   </button>
                 </form>
@@ -1377,14 +1416,14 @@ export default function AdminWhatsAppEnginePage() {
 
         {/* ================= COLUMN 3: CUSTOMER CRM & ORDERS DRAWER ================= */}
         {showRightDrawer && activeConversation && (
-          <aside className="hidden lg:flex w-80 bg-slate-950 border-l border-slate-800 flex-col shrink-0 overflow-y-auto p-4 space-y-4">
+          <aside className="fixed inset-y-0 right-0 z-50 w-full sm:w-80 md:w-88 lg:static lg:flex lg:w-80 bg-slate-950 border-l border-slate-800 flex flex-col shrink-0 overflow-y-auto p-4 space-y-4 shadow-2xl">
             <div className="flex items-center justify-between pb-3 border-b border-slate-800">
               <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
                 <User className="w-3.5 h-3.5 text-orange-400" /> Customer CRM &amp; Orders
               </h3>
               <button
                 onClick={() => setShowRightDrawer(false)}
-                className="text-gray-400 hover:text-white"
+                className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-slate-800"
               >
                 <X className="w-4 h-4" />
               </button>
