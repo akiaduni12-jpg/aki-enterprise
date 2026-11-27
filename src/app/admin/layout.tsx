@@ -48,8 +48,28 @@ export default function AdminLayout({
 
   const isWhatsApp = pathname === "/admin/whatsapp";
 
-  // Dynamic admin manifest registration & PWA prompt listener
+  // Dynamic admin manifest registration, distinct icon & search engine exclusion
   useEffect(() => {
+    // 1. Explicit noindex meta tag for search engines (Googlebot, Bingbot, etc.)
+    let metaRobots = document.querySelector<HTMLMetaElement>("meta[name='robots']");
+    if (!metaRobots) {
+      metaRobots = document.createElement("meta");
+      metaRobots.name = "robots";
+      document.head.appendChild(metaRobots);
+    }
+    metaRobots.content = "noindex, nofollow, noarchive, nosnippet";
+
+    // 2. Set distinct admin icon in head
+    let iconLink = document.querySelector<HTMLLinkElement>("link[rel='icon']");
+    if (!iconLink) {
+      iconLink = document.createElement("link");
+      iconLink.rel = "icon";
+      document.head.appendChild(iconLink);
+    }
+    const prevIcon = iconLink.href;
+    iconLink.href = "/icons/admin-icon-192.png";
+
+    // 3. Set dedicated admin manifest
     let link = document.querySelector<HTMLLinkElement>("link[rel='manifest']");
     if (!link) {
       link = document.createElement("link");
@@ -68,6 +88,8 @@ export default function AdminLayout({
     return () => {
       window.removeEventListener("beforeinstallprompt", promptHandler);
       if (link) link.href = "/manifest.json";
+      if (iconLink) iconLink.href = prevIcon;
+      if (metaRobots) metaRobots.content = "index, follow";
     };
   }, []);
 
@@ -456,14 +478,14 @@ export default function AdminLayout({
         </nav>
       )}
 
-      {/* Modal: iOS Add to Home Screen Instructions */}
+      {/* Modal: Add Admin App to Home Screen Instructions */}
       {showIosInstallModal && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-sm p-5 space-y-4 shadow-2xl">
             <div className="flex items-center justify-between pb-2 border-b border-slate-800">
               <h3 className="text-sm font-bold text-white flex items-center gap-2">
                 <Smartphone className="w-4 h-4 text-emerald-400" />
-                Install Admin App (Home Screen)
+                Install Aki Admin Console
               </h3>
               <button
                 onClick={() => setShowIosInstallModal(false)}
@@ -473,22 +495,34 @@ export default function AdminLayout({
               </button>
             </div>
 
+            {/* Dedicated Admin App Badge */}
+            <div className="flex items-center gap-3 bg-slate-950 p-3 rounded-xl border border-slate-800">
+              <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0 border border-emerald-500/40 shadow-sm bg-black">
+                <img src="/icons/admin-icon-192.png" alt="Aki Admin" className="w-full h-full object-cover" />
+              </div>
+              <div className="min-w-0">
+                <h4 className="text-xs font-bold text-white truncate">Aki Admin Console</h4>
+                <p className="text-[10px] text-emerald-400 font-semibold">Separate app from customer shop</p>
+                <p className="text-[10px] text-gray-500">Full-screen WhatsApp &amp; Orders</p>
+              </div>
+            </div>
+
             <div className="space-y-3 text-xs text-gray-300">
-              <p className="text-gray-400 leading-relaxed">
-                Install <strong>Aki Admin</strong> on your phone for 1-tap access with full-screen WhatsApp:
+              <p className="text-gray-400 leading-relaxed text-[11px]">
+                To install this separate admin app on your phone:
               </p>
               <div className="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-2.5">
                 <div className="flex items-start gap-2">
                   <span className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold shrink-0 text-[10px]">1</span>
-                  <span>Tap the <strong>Share</strong> button (box with arrow pointing up) in Safari or Chrome.</span>
+                  <span>Tap the <strong>Browser Menu (3 dots ⋮ on Android or Share ⎋ on iPhone)</strong>.</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <span className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold shrink-0 text-[10px]">2</span>
-                  <span>Scroll down and select <strong>&quot;Add to Home Screen&quot;</strong>.</span>
+                  <span>Tap <strong>&quot;Install app&quot;</strong> or <strong>&quot;Add to Home Screen&quot;</strong>.</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <span className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold shrink-0 text-[10px]">3</span>
-                  <span>Tap <strong>Add</strong>. Launch from your home screen as a standalone app!</span>
+                  <span>Tap <strong>Install / Add</strong>. It will place the dark emerald <strong>Aki Admin</strong> app directly on your phone home screen!</span>
                 </div>
               </div>
             </div>
