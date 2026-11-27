@@ -1,0 +1,54 @@
+{
+  "name": "Aki Enterprise Admin & WhatsApp",
+  "short_name": "Aki Admin",
+  "description": "Operations, Orders, Inventory & WhatsApp Sales Engine for Aki Aduni Ventures",
+  "start_url": "/admin/dashboard",
+  "scope": "/admin/",
+  "display": "standalone",
+  "background_color": "#0b141a",
+  "theme_color": "#00a884",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/logo-icon.webp",
+      "sizes": "512x512",
+      "type": "image/webp",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["business", "productivity", "management"],
+  "shortcuts": [
+    {
+      "name": "WhatsApp Console",
+      "url": "/admin/whatsapp",
+      "description": "Customer chats, order tracking and sales"
+    },
+    {
+      "name": "Orders & Fulfillment",
+      "url": "/admin/orders",
+      "description": "Manage store orders and deliveries"
+    },
+    {
+      "name": "Products & Stock",
+      "url": "/admin/products",
+      "description": "Stock management and pricing"
+    },
+    {
+      "name": "Dashboard",
+      "url": "/admin/dashboard",
+      "description": "Store performance and revenue"
+    }
+  ]
+}

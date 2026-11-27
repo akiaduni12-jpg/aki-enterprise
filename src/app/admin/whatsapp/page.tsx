@@ -38,6 +38,7 @@ import {
   Zap,
   Paperclip,
   Copy,
+  ChevronDown,
   Image as ImageIcon,
 } from "lucide-react";
 import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
@@ -206,6 +207,21 @@ export default function AdminWhatsAppEnginePage() {
   const [broadcastResult, setBroadcastResult] = useState<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+  const isNearBottomRef = useRef(true);
+  const [showScrollBottomBtn, setShowScrollBottomBtn] = useState(false);
+  const prevPhoneRef = useRef<string>("");
+  const prevMessageCountRef = useRef<number>(0);
+
+  // Monitor chat container scroll position to prevent automatic scroll jump when user scrolls up
+  const handleChatScroll = () => {
+    const el = chatContainerRef.current;
+    if (!el) return;
+    const distanceToBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    const isBottom = distanceToBottom < 120;
+    isNearBottomRef.current = isBottom;
+    setShowScrollBottomBtn(!isBottom);
+  };
 
   // Play incoming message chime using Web Audio API
   const playChime = () => {
@@ -518,10 +534,31 @@ export default function AdminWhatsAppEnginePage() {
     });
   }, [storeCustomers, searchQuery]);
 
-  // Auto-scroll to bottom of chat
+  // Smart Auto-scroll: only scrolls to bottom if user is already at the bottom or switching chats
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [activeConversation?.messages]);
+    const currentCount = activeConversation?.messages?.length || 0;
+    const isNewConversation = prevPhoneRef.current !== selectedPhone;
+    const hasNewMessage = currentCount > prevMessageCountRef.current;
+
+    prevPhoneRef.current = selectedPhone;
+    prevMessageCountRef.current = currentCount;
+
+    // 1. If switching conversation, ALWAYS scroll to bottom immediately
+    if (isNewConversation) {
+      isNearBottomRef.current = true;
+      setShowScrollBottomBtn(false);
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+      }, 50);
+      return;
+    }
+
+    // 2. If new message arrived, ONLY scroll down if user was already reading at the bottom
+    // If user has scrolled up to read history, DO NOT interrupt them!
+    if (hasNewMessage && isNearBottomRef.current) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [activeConversation?.messages, selectedPhone]);
 
   // Send message handler
   const handleSendMessage = async (payloadOverride?: {
@@ -906,10 +943,20 @@ export default function AdminWhatsAppEnginePage() {
   }, [orders, selectedPhone]);
 
   return (
-    <div className="h-[calc(100vh-64px)] md:h-[calc(100vh-32px)] flex flex-col bg-slate-950 text-gray-100 rounded-2xl overflow-hidden border border-slate-800 shadow-2xl">
+    <div className="h-screen w-full flex flex-col bg-slate-950 text-gray-100 overflow-hidden">
       {/* Top Engine Header Bar - hides on mobile when inside an active chat */}
       <header className={`${selectedPhone ? "hidden md:flex" : "flex"} bg-[#1f2c34] md:bg-slate-900 border-b border-slate-800 px-3 md:px-4 py-2.5 md:py-3 items-center justify-between shrink-0`}>
         <div className="flex items-center gap-2.5 md:gap-3">
+          {/* Back to Admin Dashboard on Mobile */}
+          <Link
+            href="/admin/dashboard"
+            className="md:hidden p-1.5 -ml-1 text-gray-300 hover:text-white rounded-lg active:bg-slate-800 transition shrink-0 flex items-center gap-1 text-xs font-bold"
+            title="Return to Admin Dashboard"
+          >
+            <ArrowLeft className="w-4 h-4 text-emerald-400" />
+            <span>Admin</span>
+          </Link>
+
           <div className="w-8 h-8 md:w-9 md:h-9 rounded-xl overflow-hidden shrink-0 border border-emerald-500/40 shadow-sm flex items-center justify-center bg-emerald-600">
             <img src="/images/social/whatsapp.jpg" alt="WhatsApp" className="w-full h-full object-cover" />
           </div>
@@ -1338,7 +1385,7 @@ export default function AdminWhatsAppEnginePage() {
               )}
 
               {/* Message History Stream */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              <div ref={chatContainerRef} onScroll={handleChatScroll} className="flex-1 overflow-y-auto p-4 space-y-3 relative">
                 {/* Security & Verification Banner */}
                 <div className="max-w-md mx-auto text-center my-2 p-2 rounded-xl bg-slate-900/80 border border-slate-800 text-[11px] text-gray-400 flex items-center justify-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
@@ -1538,6 +1585,21 @@ export default function AdminWhatsAppEnginePage() {
                   );
                 })}
                 <div ref={messagesEndRef} />
+
+                {/* Floating WhatsApp Scroll Down Button */}
+                {showScrollBottomBtn && (
+                  <button
+                    onClick={() => {
+                      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+                      isNearBottomRef.current = true;
+                      setShowScrollBottomBtn(false);
+                    }}
+                    className="sticky bottom-3 float-right z-20 w-9 h-9 rounded-full bg-[#1f2c34] md:bg-slate-800 border border-slate-700 text-emerald-400 hover:text-white shadow-2xl flex items-center justify-center transition active:scale-95"
+                    title="Scroll down to latest messages"
+                  >
+                    <ChevronDown className="w-5 h-5" />
+                  </button>
+                )}
               </div>
 
               {/* Quick Actions Commerce Bar */}
